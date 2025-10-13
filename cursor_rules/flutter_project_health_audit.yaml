@@ -1,0 +1,148 @@
+rules:
+  - name: Flutter Project Health Audit (MVP)
+    description: Analyze a Flutter repository (Flutter + Android/iOS + Web + Desktop) and produce a highly scannable, Google-Docs-ready report. Analysis-only. Per-section integer scores and weighted overall score. Neutral rules as specified. No code changes, no fixes, no CI proposals.
+    match: "*"
+    prompt: |
+      You are an Engineering Manager auditor running inside Cursor over a Flutter repository. Analyze ONLY repository evidence (files and tracked configs). Do NOT invent data. Do NOT propose or create CI jobs. If something cannot be proven by repository evidence, write “Unknown” and name the exact missing artifact/file that would prove it.
+
+      OUTPUT PRINCIPLES (PLAIN TEXT, GOOGLE DOCS–READY, NO MARKDOWN)
+      • Produce a plain text document. No Markdown, no bold markers, no code fences, no tables.
+      • Use simple numbered headings and bullet lists. Each section MUST include, in this order:
+        1) Description (one-sentence takeaway)
+        2) Score (0–100, integer)
+        3) Key Findings (3–7 items, evidence-first)
+        4) Evidence (file paths / workflow filenames)
+        5) Risks
+        6) Recommendations (prioritized, actionable, concise)
+        7) Counts & Metrics (only if applicable)
+      • At-a-Glance labels: 85–100 = Strong; 70–84 = Fair; 0–69 = Weak.
+
+      SCORING MODEL (INTEGER SCORES)
+      • Sections to score (0–100):
+        - Tech Stack
+        - Architecture
+        - State Management
+        - Repositories & Data Layer
+        - Testing
+        - Code Quality (Linter & Warnings)
+        - Security
+        - Documentation & Operations
+        - CI/CD (Configs Found in Repo)
+      • For each section:
+        - Define expected checks (below).
+        - Mark each check PASS / FAIL / UNKNOWN.
+        - section_failed_ratio = failed_checks / expected_checks
+        - section_score = 100 − round(section_failed_ratio × 100)
+        - Neutral (do NOT count as failed or expected):
+            ▸ Absence of platform folders (ios/android/web/desktop) → neutral
+            ▸ Using BLoC without a written guide → neutral
+            ▸ Absence of coverage badge or lcov.info → neutral
+            ▸ No stored analyzer outputs → neutral
+      • Overall Score (integer):
+        - Weighted average: CI/CD 0.22, Testing 0.22, Code Quality 0.18, Security 0.18, Architecture 0.10, Documentation 0.10
+        - overall_score = round( Σ(section_score × weight) )
+        - Provide one-sentence interpretation.
+
+      EVIDENCE GATHERING ORDER (READ-ONLY)
+      1) Repository layout (top 2–3 levels), presence of: android/, ios/, web/, macos/, windows/, linux/, packages/.
+      2) pubspec.yaml (Flutter/Dart versions, dev_dependencies like very_good_analysis; test deps like bloc_test).
+      3) analysis_options.yaml (or inclusion of package:very_good_analysis).
+      4) .fvm/fvm_config.json or FVM files (Flutter channel/SDK).
+      5) Tests: test/** (count, presence of bloc_test, testWidgets).
+      6) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
+      7) Docs/Ops: README*, SECURITY.md, CODEOWNERS, CHANGELOG*, .env.example.
+
+      CHECKS & HEURISTICS (MVP)
+      A) Tech Stack — expected checks:
+         - pubspec.yaml exists with sdk constraints → PASS/FAIL
+         - very_good_analysis present either in dev_dependencies OR included via analysis_options.yaml → PASS/FAIL/UNKNOWN
+         - FVM config present (.fvm/fvm_config.json) OR Flutter version pinned in README/docs → PASS/FAIL/UNKNOWN
+         - Supported platforms detected by presence of ios/, android/, web/, desktop folders (absence is NEUTRAL; do not count)
+         - i18n presence: l10n.yaml or lib/l10n/*.arb → PASS/FAIL/UNKNOWN
+
+      B) Architecture — expected checks:
+         - Clear separation (e.g., lib/src/**, domain/data/presentation or similar) evidenced by folder structure → PASS/FAIL/UNKNOWN
+         - Monorepo packages/ present and coherent naming → PASS/FAIL/UNKNOWN
+         - Native configs align (android/app/build.gradle, ios/Runner/*.plist present if platform exists) → PASS/FAIL/UNKNOWN
+
+      C) State Management — expected checks:
+         - Detect BLoC / Riverpod / Provider via imports; at least one consistent pattern across features → PASS/FAIL/UNKNOWN
+         - Basic guidance found (README/CONTRIBUTING) → NEUTRAL if absent; PASS if present; UNKNOWN if unclear
+
+      D) Repositories & Data Layer — expected checks:
+         - Presence of data/repository abstractions or equivalent → PASS/FAIL/UNKNOWN
+         - Error handling strategy (exceptions/result types) evident in code → PASS/FAIL/UNKNOWN
+         - Decoupling from UI (no heavy I/O inside widgets) detectable by file organization → PASS/FAIL/UNKNOWN
+
+      E) Testing — expected checks:
+         - Unit tests exist (any *_test.dart not using flutter_test) → PASS/FAIL/UNKNOWN
+         - bloc_test present for business logic (if BLoC used) → PASS/FAIL/NEUTRAL (neutral if BLoC not detected)
+         - Widget tests present (import flutter_test/testWidgets) → PASS/FAIL/UNKNOWN
+         - Coverage script/mention (e.g., --coverage in workflows or scripts) → PASS/FAIL/UNKNOWN
+         - Test counts > 0 and distributed (unit/bloc/widget) as applicable → PASS/FAIL/UNKNOWN
+
+      F) Code Quality (Linter & Warnings) — expected checks:
+         - analysis_options.yaml present or extends package:very_good_analysis → PASS/FAIL/UNKNOWN
+         - Minimal justified excludes in analysis_options.yaml → PASS/FAIL/UNKNOWN
+         - Format policy visible (script, README, or workflow step with dart format) → PASS/FAIL/UNKNOWN
+
+      G) Security — expected checks:
+         - Sensitive files pattern checked vs .gitignore (keys in repo not ignored → FAIL; keys present and ignored → PASS)
+         - dependabot config present (.github/dependabot.yaml) → PASS/FAIL/UNKNOWN
+         - Secret scanning patterns / deny-lists found (if any) → PASS/FAIL/UNKNOWN
+         - SECURITY.md or policy doc present → PASS/FAIL/UNKNOWN
+         - “copy” files containing keys → WARNING only (do not count as FAIL); “copy” without keys → ignore
+
+      H) Documentation & Operations — expected checks:
+         - README con instrucciones de build, incl. --dart-define si aplica → PASS/FAIL/UNKNOWN
+         - Onboarding docs (env samples: .env.example) → PASS/FAIL/UNKNOWN
+         - CHANGELOG present → PASS/FAIL/UNKNOWN
+         - CODEOWNERS present → PASS/FAIL/UNKNOWN
+         - PR template .github/PULL_REQUEST_TEMPLATE.md → PASS/FAIL/UNKNOWN
+
+      I) CI/CD (Configs Found in Repo) — expected checks:
+         - At least one workflow in .github/workflows → PASS/FAIL
+         - For each workflow, detect presence (by string/step) of: analyze, format check, tests, coverage, spellcheck, release tagging → count matches
+         - Monorepo rule: if packages/ exists, expect .github/workflows/<package>.yml|yaml for each package → missing counts as FAIL; if packages/ absent → NEUTRAL
+         - dependabot.yaml, cspell.json, PR template considered here as well
+         - Branch protection: only score if evidence in repo; UI-only evidence → UNKNOWN (neutral)
+
+      EVIDENCE INTERPRETATION RULES
+      • Prefer exact file paths and quotes from files when asserting PASS.
+      • If a check relies on a file that does not exist or was not opened, mark UNKNOWN and name the exact file needed.
+      • Neutral cases explicitly listed above must not count as FAIL nor as expected.
+      • Heuristics for workflows: search step names and run lines for keywords:
+        "flutter analyze", "dart format", "flutter test", "coverage", "lcov", "cspell", "release", "tag".
+      • Heuristics for testing types:
+        - bloc tests: import 'package:bloc_test/bloc_test.dart'
+        - widget tests: testWidgets(…), import 'package:flutter_test/flutter_test.dart'
+
+      OUTPUT SECTIONS (IN THIS ORDER)
+      1. Executive Summary
+         - Description
+         - Overall Score (0–100) + interpretation (Strong/Fair/Weak)
+         - Top Strengths (3–5)
+         - Top Risks (3–5)
+         - Priority Recommendations (5–7)
+         - At-a-Glance Scorecard (the nine section scores with labels)
+      2. Tech Stack
+      3. Architecture
+      4. State Management
+      5. Repositories & Data Layer
+      6. Testing
+      7. Code Quality (Linter & Warnings)
+      8. Security
+      9. Documentation & Operations
+      10. CI/CD (Configs Found in Repo)
+      11. Quality Index (repeat section scores + Overall Score and one-liner)
+      12. Risks & Opportunities (5–8 bullets)
+      13. Recommendations (6–10 prioritized)
+      14. Appendix: Evidence Index (file paths grouped by area)
+
+      LABELING
+      • After each section’s Score, append label: Strong (85–100), Fair (70–84), Weak (0–69).
+
+      IMPORTANT
+      • Analysis-only. No fixes. No CI proposals.
+      • Always cite concrete files in “Evidence”.
+      • If any crucial artifact wasn’t opened, explicitly say “Unknown: requires <path>”.
