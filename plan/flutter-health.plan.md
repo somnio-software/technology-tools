@@ -3,6 +3,29 @@
 
 This plan executes the "Flutter Project Health Audit (MVP)" rule through sequential, actionable steps.
 
+## Step 0. Flutter Environment Setup and Test Coverage Verification
+
+Goal: Configure Flutter environment and execute tests with coverage verification.
+
+Prompt:
+```
+First, execute the "Flutter Version Validator" rule to:
+- Extract Flutter version from pubspec.yaml
+- Verify FVM installation and setup
+- Check current global Flutter version against project requirement
+- Verify Flutter version availability via FVM
+- Configure Flutter version globally (only if versions don't match)
+- Clean project and install dependencies
+
+Then, execute the "Flutter Test Coverage Runner" rule to:
+- Run Flutter tests with coverage collection
+- Generate coverage report (coverage/lcov.info)
+- Calculate overall coverage percentage
+- Verify if coverage meets 70% threshold
+
+Save the coverage percentage and threshold verification for integration into the final audit report.
+```
+
 ## Step 1. Repository Inventory
 
 Goal: Detect repository structure, platform folders, monorepo packages, and feature organization.
@@ -57,6 +80,8 @@ Search and classify testing setup:
 - Classify by type based on imports: bloc_test (uses bloc_test package), widget tests (uses testWidgets), unit tests (other)
 - Search workflows for coverage enforcement (lcov, coverage threshold, --coverage flag)
 - Look for test/ directory structure in main app and each package
+- Integrate coverage results from Step 0 (Flutter Test Coverage Verification)
+- Include coverage percentage and threshold verification
 ```
 
 ## Step 5. Code Quality and Linter
@@ -75,19 +100,44 @@ Analyze code quality setup:
 
 ## Step 6. Security Analysis
 
-Goal: Identify sensitive files, check .gitignore coverage, find security policies and dependency scanning.
+Goal: Identify sensitive files, check .gitignore coverage across all project directories, find security policies and dependency scanning.
 
 Prompt:
 ```
 Review security configuration:
-- Read app/.gitignore completely
+- Find and read ALL .gitignore files in the project:
+  * Root .gitignore (app/.gitignore)
+  * Platform-specific .gitignore files:
+    - android/.gitignore (specifically check for key.properties, **/*.keystore, **/*.jks patterns)
+    - ios/.gitignore
+    - web/.gitignore
+    - windows/.gitignore
+    - linux/.gitignore
+    - macos/.gitignore
+  * Package-specific .gitignore files:
+    - packages/*/.gitignore (for each package directory)
+  * Any other .gitignore files found in subdirectories
 - List sensitive files present in repo: google-services.json, firebase_app_id_file.json, *.keystore, *.jks, any API keys
-- For each sensitive file, check if it's in .gitignore (ignored = safe, not ignored = risk)
-- Identify files with "copy" in name containing keys (mark as warning only)
+- For each sensitive file found, check if it's properly ignored across ALL .gitignore files:
+  * Check exact filename patterns in all .gitignore files
+  * Check file extension patterns (e.g., *.keystore, *.jks, *.json)
+  * Check directory patterns (e.g., android/app/, ios/Runner/)
+  * Check platform-specific patterns (e.g., android/keystore.properties, ios/Runner/GoogleService-Info.plist)
+  * Specifically verify android/.gitignore contains the security block:
+    - key.properties
+    - **/*.keystore
+    - **/*.jks
+  * If *.keystore or *.jks files are found AND the security block exists in android/.gitignore = NO RISK (files are properly ignored)
+  * If *.keystore or *.jks files are found BUT the security block is missing from android/.gitignore = SECURITY RISK
+  * Files properly ignored in any relevant .gitignore = safe (not a risk)
+  * Files not ignored in any relevant .gitignore = security risk
+- Identify files with "copy" in name containing keys (mark as warning only, not risk)
 - Search for SECURITY.md file
 - Search for CODEOWNERS file
 - Check .github/dependabot.yaml for dependency automation
 - Search workflows for secret scanning or deny-list patterns
+- Only report as risks those sensitive files that are NOT properly covered by any relevant .gitignore patterns
+- Document which .gitignore files were found and analyzed
 ```
 
 ## Step 7. Documentation and Operations
@@ -140,19 +190,25 @@ Goal: Save the final Google Docs-ready plain-text report to the reports director
 
 Prompt:
 ```
-Save the final Flutter Project Health Audit report to:
-/Users/aclaveri/Development/daily-word/reports/flutter_audit.txt
+Create the reports directory if it doesn't exist and save the final Flutter Project Health Audit report to:
+./reports/flutter_audit.txt
 
 The report must include:
 - Executive Summary with overall score
 - At-a-Glance Scorecard with all 9 section scores
-- All 9 detailed sections
-- Additional Metrics
+- All 9 detailed sections (including coverage analysis from Step 0)
+- Additional Metrics (including coverage percentages)
 - Quality Index
 - Risks & Opportunities (5-8 bullets)
 - Recommendations (6-10 prioritized actions)
 - Appendix: Evidence Index
 
 Format: Plain text ready to copy into Google Docs (no markdown syntax, no # headings, no bold markers, no fenced code blocks).
+
+Execute the following command to create the directory and save the report:
+```bash
+mkdir -p reports
+# Save report content to ./reports/flutter_audit.txt
+```
 ```
 
