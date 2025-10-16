@@ -3,13 +3,14 @@ Tu tarea es generar un resumen ejecutivo a partir del texto adjunto (output de u
 INSTRUCCIONES GENERALES
 1) Lee el archivo adjunto completo y usa EXCLUSIVAMENTE la información contenida en él. No inventes ni completes datos faltantes. Si algo no está, escribe “No especificado en el análisis”.
 2) Documento final: máximo una hoja A4 (~600 palabras), listo para copiar/pegar. No menciones el público objetivo.
-3) Agrega al inicio la fecha y hora actuales en español de Uruguay (ej.: “Montevideo, 15 de octubre de 2025 – 14:30 h”).
+3) Agrega al inicio la fecha y hora actuales en español GMT-3, tener en cuenta el siguiente formato: “Montevideo, %d de %B de %Y – %H:%M hs”
 4) VERSIÓN FLUTTER (VEREDICTO):
    - Identifica la versión de Flutter que figura en el texto.
-   - Consulta la versión estable más reciente (fuente oficial docs.flutter.dev) y compárala.
+   - Consulta la versión estable más reciente (fuente oficial docs.flutter.dev/release/release-notes) y compárala.
    - Criterio: si el proyecto está MÁS de una versión menor (Y) por detrás del último estable, recomienda actualización. Di el veredicto explícitamente (p.ej., “Usa 3.27.3 y el estable es 3.35.x → Recomendado actualizar”).
 5) Si hay tareas >40 h, DIVÍDELAS en subtareas/fases ≤40 h cada una. El plan debe ser realizable sin frenar el desarrollo.
 6) No incluyas un total de horas: solo estimaciones por ítem.
+7) La sección de "Riesgos y plan de acción" debe ser una lista, evitar el uso de tablas
 ESTRUCTURA
 ## [Nombre del Proyecto]
 (Subtítulo con fecha/hora local)
