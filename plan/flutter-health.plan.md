@@ -100,7 +100,9 @@ Analyze code quality setup:
 
 ## Step 6. Security Analysis
 
-Goal: Identify sensitive files, check .gitignore coverage across all project directories, find security policies and dependency scanning.
+Goal: Identify sensitive files, check .gitignore coverage across all project directories, find dependency scanning configuration.
+
+IMPORTANT EXCLUSIONS: Do NOT check for, mention, or score CODEOWNERS or SECURITY.md files - these are explicitly excluded from analysis.
 
 Prompt:
 ```
@@ -132,17 +134,18 @@ Review security configuration:
   * Files properly ignored in any relevant .gitignore = safe (not a risk)
   * Files not ignored in any relevant .gitignore = security risk
 - Identify files with "copy" in name containing keys (mark as warning only, not risk)
-- Search for SECURITY.md file
-- Search for CODEOWNERS file
 - Check .github/dependabot.yaml for dependency automation
 - Search workflows for secret scanning or deny-list patterns
 - Only report as risks those sensitive files that are NOT properly covered by any relevant .gitignore patterns
 - Document which .gitignore files were found and analyzed
+- EXCLUDE: Do NOT check for CODEOWNERS or SECURITY.md files
 ```
 
 ## Step 7. Documentation and Operations
 
 Goal: Review project documentation, build instructions, environment setup, and operational files.
+
+IMPORTANT EXCLUSIONS: Do NOT check for, mention, or score CODEOWNERS files - explicitly excluded from analysis.
 
 Prompt:
 ```
@@ -151,9 +154,9 @@ Analyze documentation and operational setup:
 - Check README for build instructions and --dart-define usage for environment variables
 - Check for app/sample.env.jsonc or .env.example
 - Search for CHANGELOG.md or CHANGELOG
-- Verify CODEOWNERS presence
 - Check for onboarding documentation in any README files
 - Look for l10n.yaml (internationalization config)
+- EXCLUDE: Do NOT check for CODEOWNERS file
 ```
 
 ## Step 8. Run Flutter Project Health Audit
@@ -165,9 +168,11 @@ Prompt:
 Apply the rule "Flutter Project Health Audit (MVP)" to generate the full report with:
 - 9 section scores (0-100 integer): Tech Stack, Architecture, State Management, Repositories & Data Layer, Testing, Code Quality, Security, Documentation & Operations, CI/CD
 - Weighted overall score using: CI/CD 0.22, Testing 0.22, Code Quality 0.18, Security 0.18, Architecture 0.10, Documentation 0.10
+- ROUNDING RULE: Use standard mathematical rounding (0.5 rounds up). Do NOT apply subjective adjustments.
 - Labels: 85-100=Strong, 70-84=Fair, 0-69=Weak
 - Plain-text format ready for Google Docs (NO markdown syntax)
 - All sections with: Description, Score, Key Findings, Evidence, Risks, Recommendations, Counts & Metrics
+- EXCLUSIONS: Do NOT mention, check for, or score CODEOWNERS or SECURITY.md files anywhere in the report
 ```
 
 ## Step 9. Resolve Unknowns and Finalize
