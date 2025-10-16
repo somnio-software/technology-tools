@@ -45,17 +45,19 @@ List the following and provide counts:
 - Presence of .fvm/ directory or .fvm/fvm_config.json
 ```
 
-## Step 2. Core Configuration Files
+## Step 2. Core Configuration Files and Internationalization
 
-Goal: Read and analyze Flutter/Dart configuration files for version info, dependencies, and linter setup.
+Goal: Read and analyze Flutter/Dart configuration files for version info, dependencies, linter setup, and internationalization configuration.
 
 Prompt:
 ```
 Read completely and analyze:
-- app/pubspec.yaml (Flutter version, Dart SDK, dependencies, dev_dependencies, especially very_good_analysis)
+- app/pubspec.yaml (Flutter version, Dart SDK, dependencies, dev_dependencies, especially very_good_analysis, flutter_localizations)
 - app/analysis_options.yaml (includes, exclusions, rule overrides)
 - Check for .fvm/fvm_config.json or .fvmrc (Flutter version management)
 - Note presence of app/coverage_badge.svg
+- Check for i18n configuration: app/l10n.yaml, app/lib/l10n/*.arb files
+- Verify flutter_localizations dependency in pubspec.yaml
 ```
 
 ## Step 3. CI/CD Workflows Analysis
@@ -159,6 +161,7 @@ Analyze documentation and operational setup:
 - Search for CHANGELOG.md or CHANGELOG
 - Check for onboarding documentation in any README files
 - Look for l10n.yaml (internationalization config)
+- Important: Do NOT recommend adding new languages or translations
 ```
 
 ## Step 8. Run Flutter Project Health Audit
