@@ -49,8 +49,9 @@ rules:
       3) analysis_options.yaml (or inclusion of package:very_good_analysis).
       4) .fvm/fvm_config.json or FVM files (Flutter channel/SDK).
       5) Tests: test/** (count, presence of bloc_test, testWidgets).
-      6) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
-      7) Docs/Ops: README*, SECURITY.md, CODEOWNERS, CHANGELOG*, .env.example.
+      6) Coverage: coverage/lcov.info, coverage analysis results from Flutter Test Coverage Runner.
+      7) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
+      8) Docs/Ops: README*, SECURITY.md, CODEOWNERS, CHANGELOG*, .env.example.
 
       CHECKS & HEURISTICS (MVP)
       A) Tech Stack — expected checks:
@@ -80,6 +81,8 @@ rules:
          - Widget tests present (import flutter_test/testWidgets) → PASS/FAIL/UNKNOWN
          - Coverage script/mention (e.g., --coverage in workflows or scripts) → PASS/FAIL/UNKNOWN
          - Test counts > 0 and distributed (unit/bloc/widget) as applicable → PASS/FAIL/UNKNOWN
+         - Coverage data available (coverage/lcov.info or coverage analysis results) → PASS/FAIL/UNKNOWN
+         - Coverage percentage meets thresholds (70%+ overall, 80%+ business logic) → PASS/FAIL/UNKNOWN
 
       F) Code Quality (Linter & Warnings) — expected checks:
          - analysis_options.yaml present or extends package:very_good_analysis → PASS/FAIL/UNKNOWN
@@ -129,20 +132,24 @@ rules:
       3. Architecture
       4. State Management
       5. Repositories & Data Layer
-      6. Testing
+      6. Testing (including coverage analysis and metrics)
       7. Code Quality (Linter & Warnings)
       8. Security
       9. Documentation & Operations
       10. CI/CD (Configs Found in Repo)
-      11. Quality Index (repeat section scores + Overall Score and one-liner)
-      12. Risks & Opportunities (5–8 bullets)
-      13. Recommendations (6–10 prioritized)
-      14. Appendix: Evidence Index (file paths grouped by area)
+      11. Additional Metrics (including coverage percentages)
+      12. Quality Index (repeat section scores + Overall Score and one-liner)
+      13. Risks & Opportunities (5–8 bullets)
+      14. Recommendations (6–10 prioritized)
+      15. Appendix: Evidence Index (file paths grouped by area)
 
       LABELING
       • After each section’s Score, append label: Strong (85–100), Fair (70–84), Weak (0–69).
 
       IMPORTANT
       • Analysis-only. No fixes. No CI proposals.
-      • Always cite concrete files in “Evidence”.
-      • If any crucial artifact wasn’t opened, explicitly say “Unknown: requires <path>”.
+      • Always cite concrete files in "Evidence".
+      • If any crucial artifact wasn't opened, explicitly say "Unknown: requires <path>".
+      • Integrate coverage analysis results from Flutter Test Coverage Runner when available.
+      • Include coverage percentages and threshold verification in Testing section.
+      • Reference coverage data in Additional Metrics section.
