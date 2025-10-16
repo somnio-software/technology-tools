@@ -51,7 +51,7 @@ rules:
       5) Tests: test/** (count, presence of bloc_test, testWidgets).
       6) Coverage: coverage/lcov.info, coverage analysis results from Flutter Test Coverage Runner.
       7) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
-      8) Docs/Ops: README*, SECURITY.md, CODEOWNERS, CHANGELOG*, .env.example.
+      8) Docs/Ops: README*, CHANGELOG*, .env.example.
 
       CHECKS & HEURISTICS (MVP)
       A) Tech Stack — expected checks:
@@ -93,14 +93,12 @@ rules:
          - Sensitive files pattern checked vs .gitignore (keys in repo not ignored → FAIL; keys present and ignored → PASS)
          - dependabot config present (.github/dependabot.yaml) → PASS/FAIL/UNKNOWN
          - Secret scanning patterns / deny-lists found (if any) → PASS/FAIL/UNKNOWN
-         - SECURITY.md or policy doc present → PASS/FAIL/UNKNOWN
-         - “copy” files containing keys → WARNING only (do not count as FAIL); “copy” without keys → ignore
+         - "copy" files containing keys → WARNING only (do not count as FAIL); "copy" without keys → ignore
 
       H) Documentation & Operations — expected checks:
          - README con instrucciones de build, incl. --dart-define si aplica → PASS/FAIL/UNKNOWN
          - Onboarding docs (env samples: .env.example) → PASS/FAIL/UNKNOWN
          - CHANGELOG present → PASS/FAIL/UNKNOWN
-         - CODEOWNERS present → PASS/FAIL/UNKNOWN
          - PR template .github/PULL_REQUEST_TEMPLATE.md → PASS/FAIL/UNKNOWN
 
       I) CI/CD (Configs Found in Repo) — expected checks:
