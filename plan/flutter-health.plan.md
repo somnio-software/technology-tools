@@ -17,6 +17,12 @@ First, execute the "Flutter Version Validator" rule to:
 - Configure Flutter version globally (only if versions don't match)
 - Clean project and install dependencies
 
+CRITICAL: If any error occurs during Flutter version verification or installation:
+- STOP execution immediately
+- Display clear error message with specific actions to resolve the issue
+- Provide exact commands needed to fix the problem
+- Do not proceed to subsequent steps until Flutter environment is properly configured
+
 Then, execute the "Flutter Test Coverage Runner" rule to:
 - Run Flutter tests with coverage collection
 - Generate coverage report (coverage/lcov.info)
@@ -102,7 +108,6 @@ Analyze code quality setup:
 
 Goal: Identify sensitive files, check .gitignore coverage across all project directories, find dependency scanning configuration.
 
-IMPORTANT EXCLUSIONS: Do NOT check for, mention, or score CODEOWNERS or SECURITY.md files - these are explicitly excluded from analysis.
 
 Prompt:
 ```
@@ -138,14 +143,12 @@ Review security configuration:
 - Search workflows for secret scanning or deny-list patterns
 - Only report as risks those sensitive files that are NOT properly covered by any relevant .gitignore patterns
 - Document which .gitignore files were found and analyzed
-- EXCLUDE: Do NOT check for CODEOWNERS or SECURITY.md files
 ```
 
 ## Step 7. Documentation and Operations
 
 Goal: Review project documentation, build instructions, environment setup, and operational files.
 
-IMPORTANT EXCLUSIONS: Do NOT check for, mention, or score CODEOWNERS files - explicitly excluded from analysis.
 
 Prompt:
 ```
@@ -156,7 +159,6 @@ Analyze documentation and operational setup:
 - Search for CHANGELOG.md or CHANGELOG
 - Check for onboarding documentation in any README files
 - Look for l10n.yaml (internationalization config)
-- EXCLUDE: Do NOT check for CODEOWNERS file
 ```
 
 ## Step 8. Run Flutter Project Health Audit
@@ -172,10 +174,24 @@ Apply the rule "Flutter Project Health Audit (MVP)" to generate the full report 
 - Labels: 85-100=Strong, 70-84=Fair, 0-69=Weak
 - Plain-text format ready for Google Docs (NO markdown syntax)
 - All sections with: Description, Score, Key Findings, Evidence, Risks, Recommendations, Counts & Metrics
-- EXCLUSIONS: Do NOT mention, check for, or score CODEOWNERS or SECURITY.md files anywhere in the report
 ```
 
-## Step 9. Resolve Unknowns and Finalize
+## Step 9. Overall Score Verification and Correction
+
+Goal: Verify the Overall Score calculation and correct it if necessary before finalizing the report.
+
+Prompt:
+```
+Verify the Overall Score calculation in the generated report:
+- Check that the Overall Score uses the correct weighted formula: CI/CD 0.22, Testing 0.22, Code Quality 0.18, Security 0.18, Architecture 0.10, Documentation 0.10
+- Calculate: overall_score = round( Σ(section_score × weight) )
+- If the calculated Overall Score differs from the reported score, correct it
+- Ensure the Overall Score is an integer value (0-100)
+- Verify the label assignment: 85-100=Strong, 70-84=Fair, 0-69=Weak
+- Update the Executive Summary with the correct Overall Score and interpretation
+```
+
+## Step 10. Resolve Unknowns and Finalize
 
 Goal: Address any "Unknown" items by opening missing files, then regenerate affected sections if needed.
 
@@ -185,11 +201,11 @@ Review the generated report for any "Unknown" entries:
 - If any section lists "Unknown" due to missing file/artifact, open that file
 - Re-run the audit for affected sections
 - Ensure all scores are integer values (0-100)
-- Verify the overall weighted score calculation
+- Verify the overall weighted score calculation (use Step 9 verification)
 - Confirm plain-text format with no markdown headings (use plain numbered/bulleted lists)
 ```
 
-## Step 10. Export Final Report
+## Step 11. Export Final Report
 
 Goal: Save the final Google Docs-ready plain-text report to the reports directory.
 
