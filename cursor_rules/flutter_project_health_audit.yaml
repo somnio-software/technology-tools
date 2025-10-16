@@ -48,10 +48,11 @@ rules:
       2) pubspec.yaml (Flutter/Dart versions, dev_dependencies like very_good_analysis; test deps like bloc_test).
       3) analysis_options.yaml (or inclusion of package:very_good_analysis).
       4) .fvm/fvm_config.json or FVM files (Flutter channel/SDK).
-      5) Tests: test/** (count, presence of bloc_test, testWidgets).
-      6) Coverage: coverage/lcov.info, coverage analysis results from Flutter Test Coverage Runner.
-      7) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
-      8) Docs/Ops: README*, CHANGELOG*, .env.example.
+      5) i18n configuration: l10n.yaml, lib/l10n/*.arb files, flutter_localizations dependency.
+      6) Tests: test/** (count, presence of bloc_test, testWidgets).
+      7) Coverage: coverage/lcov.info, coverage analysis results from Flutter Test Coverage Runner.
+      8) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
+      9) Docs/Ops: README*, CHANGELOG*, .env.example.
 
       CHECKS & HEURISTICS (MVP)
       A) Tech Stack — expected checks:
@@ -59,7 +60,7 @@ rules:
          - very_good_analysis present either in dev_dependencies OR included via analysis_options.yaml → PASS/FAIL/UNKNOWN
          - FVM config present (.fvm/fvm_config.json) OR Flutter version pinned in README/docs → PASS/FAIL/UNKNOWN
          - Supported platforms detected by presence of ios/, android/, web/, desktop folders (absence is NEUTRAL; do not count)
-         - i18n presence: l10n.yaml or lib/l10n/*.arb → PASS/FAIL/UNKNOWN
+         - i18n configuration: l10n.yaml or lib/l10n/*.arb present → PASS/FAIL/UNKNOWN
 
       B) Architecture — expected checks:
          - Clear separation (e.g., lib/src/**, domain/data/presentation or similar) evidenced by folder structure → PASS/FAIL/UNKNOWN
@@ -117,6 +118,7 @@ rules:
       • Heuristics for testing types:
         - bloc tests: import 'package:bloc_test/bloc_test.dart'
         - widget tests: testWidgets(…), import 'package:flutter_test/flutter_test.dart'
+      • Important: Do NOT recommend adding new languages or translations
 
       OUTPUT SECTIONS (IN THIS ORDER)
       1. Executive Summary
