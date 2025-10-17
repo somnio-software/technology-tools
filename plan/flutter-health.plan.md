@@ -3,33 +3,92 @@
 
 This plan executes the "Flutter Project Health Audit (MVP)" rule through sequential, actionable steps.
 
+## REQUIREMENT - FLUTTER VERSION ALIGNMENT
+
+**MANDATORY STEP**: Before executing any Flutter project analysis, ALWAYS verify and align the global Flutter version with the project's required version.
+
+### Generic Flutter Version Alignment Process
+
+This requirement applies to ANY Flutter project regardless of versions found:
+
+1. **Extract Project Flutter Version**:
+   - Read `pubspec.yaml` and extract the Flutter SDK version constraint
+   - Check for `.fvm/fvm_config.json` or `.fvmrc` files for FVM-specific version
+   - Identify the exact Flutter version the project requires
+
+2. **Check Current Global Flutter Version**:
+   - Run `flutter --version` to get current global Flutter version
+   - Compare with project requirement
+
+3. **Version Mismatch Detection**:
+   - If versions differ (even minor/patch differences): ALIGNMENT REQUIRED
+   - If versions match: Continue with analysis
+   - If FVM is configured but not installed: Install FVM and configure
+
+4. **Execute Version Alignment**:
+   - Install required Flutter version globally using FVM or direct installation
+   - Switch global Flutter to project version
+   - Verify alignment with `flutter --version`
+   - Clean project dependencies: `flutter clean && flutter pub get`
+
+5. **Documentation**:
+   - Log the version change process
+   - Document any alignment issues or failures
+
+### Why This Is Critical
+
+- **Prevents Build Failures**: Version mismatches cause compilation errors
+- **Ensures Accurate Analysis**: Different Flutter versions have different capabilities
+- **Maintains Consistency**: All team members should use the same Flutter version
+- **Avoids False Positives**: Analysis results depend on the correct Flutter version
+
 ## Step 0. Flutter Environment Setup and Test Coverage Verification
 
-Goal: Configure Flutter environment and execute tests with coverage verification.
+Goal: Configure Flutter environment and execute tests with coverage verification. Continue execution even if setup fails.
 
 Prompt:
 ```
-First, execute the "Flutter Version Validator" rule to:
-- Extract Flutter version from pubspec.yaml
-- Verify FVM installation and setup
-- Check current global Flutter version against project requirement
-- Verify Flutter version availability via FVM
-- Configure Flutter version globally (only if versions don't match)
+MANDATORY: Execute Flutter Version Alignment Requirement first:
+
+1. Extract Flutter version from pubspec.yaml (environment.sdk.flutter constraint)
+2. Check for .fvm/fvm_config.json or .fvmrc files for FVM version specification
+3. Run "flutter --version" to get current global Flutter version
+4. Compare versions - if they differ in ANY way (major, minor, or patch), proceed with alignment
+5. If versions don't match:
+   - Install required Flutter version globally (using FVM if available, or direct installation)
+   - Switch global Flutter to project version
+   - Verify alignment: "flutter --version" should match project requirement
+   - Clean project: "flutter clean && flutter pub get"
+6. Document the version alignment process and any issues encountered
+
+Then, execute the "Flutter Version Validator" rule to:
+- Verify FVM installation and setup (if applicable)
+- Confirm Flutter version alignment is successful
 - Clean project and install dependencies
+- Verify Flutter environment is ready for analysis
 
-CRITICAL: If any error occurs during Flutter version verification or installation:
-- STOP execution immediately
-- Display clear error message with specific actions to resolve the issue
-- Provide exact commands needed to fix the problem
-- Do not proceed to subsequent steps until Flutter environment is properly configured
+IMPORTANT: If any error occurs during Flutter version verification or installation:
+- Log the specific error and reason for failure
+- Note missing FVM files/folders (.fvm/, .fvm/fvm_config.json, .fvmrc)
+- Continue execution with a warning that environment setup failed
+- Document the failure reason for inclusion in the final report
+- Do NOT stop execution - proceed to subsequent steps
 
-Then, execute the "Flutter Test Coverage Runner" rule to:
+Then, attempt to execute the "Flutter Test Coverage Runner" rule to:
 - Run Flutter tests with coverage collection
 - Generate coverage report (coverage/lcov.info)
-- Calculate overall coverage percentage
+- Verify coverage using genhtml: "genhtml coverage/lcov.info -o coverage/html"
+- Calculate overall coverage percentage from HTML report
 - Verify if coverage meets 70% threshold
 
-Save the coverage percentage and threshold verification for integration into the final audit report.
+If coverage execution fails:
+- Log the specific reason for coverage failure
+- Continue execution with a warning that coverage could not be generated
+- Document the failure reason as a recommendation in the final report
+- Do NOT stop execution - proceed to subsequent steps
+
+Save any successful coverage percentage and threshold verification for integration into the final audit report.
+If coverage failed, save the failure reason for inclusion as a recommendation.
 ```
 
 ## Step 1. Repository Inventory
@@ -55,7 +114,6 @@ Read completely and analyze:
 - app/pubspec.yaml (Flutter version, Dart SDK, dependencies, dev_dependencies, especially very_good_analysis, flutter_localizations)
 - app/analysis_options.yaml (includes, exclusions, rule overrides)
 - Check for .fvm/fvm_config.json or .fvmrc (Flutter version management)
-- Note presence of app/coverage_badge.svg
 - Check for i18n configuration: app/l10n.yaml, app/lib/l10n/*.arb files
 - Verify flutter_localizations dependency in pubspec.yaml
 ```
