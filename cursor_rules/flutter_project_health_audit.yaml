@@ -1,5 +1,5 @@
 rules:
-  - name: Flutter Project Health Audit (MVP)
+  - name: Flutter Project Health Audit
     description: Analyze a Flutter repository (Flutter + Android/iOS + Web + Desktop) and produce a highly scannable, Google-Docs-ready report. Analysis-only. Per-section integer scores and weighted overall score. Neutral rules as specified. No code changes, no fixes, no CI proposals.
     match: "*"
     prompt: |
@@ -45,7 +45,7 @@ rules:
             ▸ Absence of lcov.info → neutral
             ▸ No stored analyzer outputs → neutral
       • Overall Score (integer):
-        - Weighted average: CI/CD 0.22, Testing 0.22, Code Quality 0.18, Security 0.18, Architecture 0.10, Documentation 0.10
+        - Weighted average: Tech Stack 0.18, Architecture 0.18, State Management 0.18, Repositories & Data Layer 0.10, Testing 0.10, Code Quality 0.10, Security 0.10, Documentation & Operations 0.03, CI/CD 0.03
         - overall_score = round( Σ(section_score × weight) )
         - Provide one-sentence interpretation.
 
@@ -62,7 +62,7 @@ rules:
       10) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
       11) Docs/Ops: README*, CHANGELOG*, .env.example.
 
-      CHECKS & HEURISTICS (MVP)
+      CHECKS & HEURISTICS
       A) Tech Stack — expected checks:
          - pubspec.yaml exists with sdk constraints → PASS/FAIL
          - very_good_analysis present either in dev_dependencies OR included via analysis_options.yaml → PASS/FAIL/UNKNOWN
@@ -134,33 +134,134 @@ rules:
         - bloc tests: import 'package:bloc_test/bloc_test.dart'
         - widget tests: testWidgets(…), import 'package:flutter_test/flutter_test.dart'
       • Important: Do NOT recommend adding new languages or translations
+      • Do NOT generate recommendations about "limited internationalization" or "English only" - these are not actionable improvements
+      • Do NOT recommend CODEOWNERS or SECURITY.md files - these are governance decisions, not technical requirements
+      • Do NOT recommend platform-specific workflows for Android/iOS builds - these are deployment decisions, not technical requirements
 
-      OUTPUT SECTIONS (IN THIS ORDER)
+      OUTPUT SECTIONS (IN THIS EXACT ORDER - 16 SECTIONS)
       1. Executive Summary
-         - Description
-         - Overall Score (0–100) + interpretation (Strong/Fair/Weak)
-         - Environment Setup Status (if failed, note the failure and impact)
-         - Top Strengths (3–5)
-         - Top Risks (3–5, including environment setup failures if applicable)
-         - Priority Recommendations (5–7, including coverage and FVM setup if failed)
-         - At-a-Glance Scorecard (the nine section scores with labels)
-      2. Tech Stack
-      3. Architecture
-      4. State Management
-      5. Repositories & Data Layer
-      6. Testing (including coverage analysis and metrics)
-      7. Code Quality (Linter & Warnings)
-      8. Security
-      9. Documentation & Operations
-      10. CI/CD (Configs Found in Repo)
-      11. Additional Metrics (including coverage percentages and per-app coverage breakdown)
-      12. Quality Index (repeat section scores + Overall Score and one-liner)
-      13. Risks & Opportunities (5–8 bullets)
-      14. Recommendations (6–10 prioritized, including environment setup and coverage fixes if applicable)
-      15. Appendix: Evidence Index (file paths grouped by area)
+         - Description: [One-sentence comprehensive analysis description]
+         - Overall Score: [Score]/100 ([Label])
+         - Top Strengths: [3-5 bullet points]
+         - Top Risks: [3-5 bullet points]
+         - Priority Recommendations: [5-7 numbered recommendations]
+      2. At-a-Glance Scorecard
+         - Tech Stack: [Score]/100 ([Label])
+         - Architecture: [Score]/100 ([Label])
+         - State Management: [Score]/100 ([Label])
+         - Repositories & Data Layer: [Score]/100 ([Label])
+         - Testing: [Score]/100 ([Label])
+         - Code Quality (Linter & Warnings): [Score]/100 ([Label])
+         - Security: [Score]/100 ([Label])
+         - Documentation & Operations: [Score]/100 ([Label])
+         - CI/CD (Configs Found in Repo): [Score]/100 ([Label])
+         - Overall: [Score]/100 ([Label])
+      3. Tech Stack
+      4. Architecture
+      5. State Management
+      6. Repositories & Data Layer
+      7. Testing
+      8. Code Quality (Linter & Warnings)
+      9. Security
+      10. Documentation & Operations
+      11. CI/CD (Configs Found in Repo)
+      12. Additional Metrics
+      13. Quality Index
+      14. Risks & Opportunities
+      15. Recommendations
+      16. Appendix: Evidence Index
+
+      SECTION FORMAT REQUIREMENTS:
+      Each section (3-11) MUST follow this exact format:
+
+      [Section Number]. [Section Name]
+
+      Description: [One-sentence description of the section's purpose]
+
+      Score: [Score]/100 ([Label])
+
+      Key Findings:
+      - [Bullet point 1]
+      - [Bullet point 2]
+      - [Continue as needed]
+
+      Evidence:
+      - [File path or configuration reference]
+      - [Specific evidence item]
+      - [Continue as needed]
+
+      Risks:
+      - [Risk item 1]
+      - [Risk item 2]
+      - [Continue as needed]
+
+      Recommendations:
+      - [Recommendation 1]
+      - [Recommendation 2]
+      - [Continue as needed]
+
+      Counts & Metrics:
+      - [Metric name]: [Value]
+      - [Metric name]: [Value]
+      - [Continue as needed]
+
+      SPECIAL SECTION FORMATS:
+
+      12. Additional Metrics:
+      - Supported platforms: [Platform list]
+      - Number of feature folders: [Count] ([App breakdown if multi-app])
+      - Packages count: [Count]
+      - Coverage %: [Percentage or status] (per app if multi-app)
+      - Overall aggregated coverage %: [Total percentage combining all apps and packages]
+      - State management detected: [Pattern]
+      - Force-upgrade/maintenance mode: [Status]
+      - Spell-check scope: [Scope]
+      - Public API docs enforcement: [Status]
+
+      13. Quality Index:
+      Section Summary with Scores:
+      - Tech Stack: [Score]/100 ([Label])
+      - Architecture: [Score]/100 ([Label])
+      - State Management: [Score]/100 ([Label])
+      - Repositories & Data Layer: [Score]/100 ([Label])
+      - Testing: [Score]/100 ([Label])
+      - Code Quality: [Score]/100 ([Label])
+      - Security: [Score]/100 ([Label])
+      - Documentation & Operations: [Score]/100 ([Label])
+      - CI/CD: [Score]/100 ([Label])
+      Overall Score: [Score]/100 ([Label])
+      [One-sentence interpretation]
+
+      14. Risks & Opportunities:
+      - [Risk/Opportunity 1]
+      - [Risk/Opportunity 2]
+      - [Continue as needed]
+
+      15. Recommendations:
+      1. [Priority Level]: [Recommendation 1]
+      2. [Priority Level]: [Recommendation 2]
+      3. [Continue as needed]
+
+      16. Appendix: Evidence Index:
+      File Paths and Configs by Area:
+      [Area Name]:
+      - [File path or config reference]
+      - [Continue as needed]
+
+      FORMATTING RULES:
+      - NO MARKDOWN SYNTAX: Use plain text only
+      - NO BOLD MARKERS: No **text** or __text__
+      - NO CODE FENCES: No ```code``` blocks
+      - NO TABLES: Use bullet points instead
+      - SECTION HEADERS: Use "X. Section Name" format
+      - SUBSECTION HEADERS: Use "Description:", "Score:", etc.
+      - BULLET POINTS: Use "- " for all lists
+      - NUMBERED LISTS: Use "1. ", "2. " format
+      - SCORES: Always format as "[Score]/100 ([Label])"
+      - LABELS: Use "Strong" (85-100), "Fair" (70-84), "Weak" (0-69)
 
       LABELING
-      • After each section’s Score, append label: Strong (85–100), Fair (70–84), Weak (0–69).
+      • After each section's Score, append label: Strong (85–100), Fair (70–84), Weak (0–69).
 
       MONOREPO MULTI-APP HANDLING
       • When apps/ directory is detected with multiple applications:
