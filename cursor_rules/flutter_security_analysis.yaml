@@ -1,0 +1,88 @@
+rules:
+  - name: Flutter Security Analysis
+    description: Identify sensitive files, check .gitignore coverage across all project directories, find dependency scanning configuration for Flutter projects (single app or multi-app monorepos).
+    match: "*"
+    prompt: |
+      Goal: Identify sensitive files, check .gitignore coverage across all project directories, find dependency scanning configuration for single app or multi-app repositories.
+
+      MONOREPO DETECTION:
+      - First detect repository structure: single app (app/) or multi-app monorepo (apps/app1/, apps/app2/, etc.)
+      - If apps/ directory exists, analyze each app individually
+      - If packages/ directory exists, analyze each package individually
+
+      SINGLE APP SECURITY REVIEW:
+      - Find and read ALL .gitignore files in the project:
+        * Root .gitignore (app/.gitignore)
+        * Platform-specific .gitignore files:
+          - android/.gitignore (specifically check for key.properties, **/*.keystore, **/*.jks patterns)
+          - ios/.gitignore
+          - web/.gitignore
+          - windows/.gitignore
+          - linux/.gitignore
+          - macos/.gitignore
+        * Package-specific .gitignore files:
+          - packages/*/.gitignore (for each package directory)
+        * Any other .gitignore files found in subdirectories
+      - List sensitive files present in repo: google-services.json, firebase_app_id_file.json, *.keystore, *.jks, any API keys
+      - For each sensitive file found, check if it's properly ignored across ALL .gitignore files
+      - Check .github/dependabot.yaml for dependency automation
+      - Search workflows for secret scanning or deny-list patterns
+
+      MULTI-APP MONOREPO SECURITY REVIEW:
+      - Root-level security files:
+        * Find and read root .gitignore files
+        * Check root-level .github/dependabot.yaml
+        * Search root-level workflows for secret scanning or deny-list patterns
+      - Per-app security analysis:
+        * For each app in apps/ directory:
+          - Find and read ALL .gitignore files in apps/<app_name>/:
+            * apps/<app_name>/.gitignore
+            * apps/<app_name>/android/.gitignore (check for key.properties, **/*.keystore, **/*.jks patterns)
+            * apps/<app_name>/ios/.gitignore
+            * apps/<app_name>/web/.gitignore
+            * apps/<app_name>/windows/.gitignore
+            * apps/<app_name>/linux/.gitignore
+            * apps/<app_name>/macos/.gitignore
+          - List sensitive files present in apps/<app_name>/: google-services.json, firebase_app_id_file.json, *.keystore, *.jks, any API keys
+          - For each sensitive file found, check if it's properly ignored across ALL relevant .gitignore files
+          - Check for app-specific .github/dependabot.yaml in apps/<app_name>/
+          - Search app-specific workflows for secret scanning or deny-list patterns
+      - Cross-app security consistency:
+        * Compare .gitignore patterns across apps
+        * Verify consistent security practices
+        * Check for shared vs app-specific sensitive files
+
+      PACKAGE SECURITY ANALYSIS (if packages/ exists):
+      - For each package in packages/ directory:
+        * Find and read packages/<package_name>/.gitignore files
+        * List sensitive files present in packages/<package_name>/
+        * Check for package-specific security configurations
+
+      SENSITIVE FILE PROTECTION VERIFICATION:
+      - For each sensitive file found, check if it's properly ignored across ALL .gitignore files:
+        * Check exact filename patterns in all .gitignore files
+        * Check file extension patterns (e.g., *.keystore, *.jks, *.json)
+        * Check directory patterns (e.g., android/app/, ios/Runner/)
+        * Check platform-specific patterns (e.g., android/keystore.properties, ios/Runner/GoogleService-Info.plist)
+        * Specifically verify android/.gitignore contains the security block:
+          - key.properties
+          - **/*.keystore
+          - **/*.jks
+        * If *.keystore or *.jks files are found AND the security block exists in android/.gitignore = NO RISK (files are properly ignored)
+        * If *.keystore or *.jks files are found BUT the security block is missing from android/.gitignore = SECURITY RISK
+        * Files properly ignored in any relevant .gitignore = safe (not a risk)
+        * Files not ignored in any relevant .gitignore = security risk
+      - Identify files with "copy" in name containing keys (mark as warning only, not risk)
+      - Only report as risks those sensitive files that are NOT properly covered by any relevant .gitignore patterns
+      - Document which .gitignore files were found and analyzed
+
+      Output format:
+      - Repository structure type (single app / multi-app monorepo)
+      - List all .gitignore files found (per app if multi-app)
+      - Sensitive files detected and their protection status (per app if multi-app)
+      - Security risks identified (per app if multi-app)
+      - Dependency scanning configuration (per app if multi-app)
+      - Secret scanning patterns found (per app if multi-app)
+      - Missing security configurations (per app if multi-app)
+      - Security consistency across apps/packages (if multi-app)
+      - Cross-app security policy enforcement (if multi-app)
