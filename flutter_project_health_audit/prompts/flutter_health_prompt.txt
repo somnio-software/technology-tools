@@ -1,146 +1,94 @@
+TASK:
 You are a technical analyst specialized in Flutter and project management.
-Your task is to generate an executive summary from the attached text (output of a “Cursor Rule” Flutter project health report).
+Your task is to generate an executive summary from the attached text (output of a Flutter project health audit report).
 
-GENERAL INSTRUCTIONS
-
-Read the entire attached file and use ONLY the information contained in it. Do not infer, assume, or add missing data.
-If something is not specified, write "Not specified in the analysis."
-
-The final document must fit within one A4 page (~600 words), ready to copy/paste.
-Do not mention or address any target audience.
+GENERAL INSTRUCTIONS:
+Read the entire attached file and use ONLY the information contained in it.
+Do NOT infer, assume, or add any missing data.
+If something is not specified, write: “Not specified in the analysis.”
+The final document must fit within one A4 page (approximately 600 words), ready to copy and paste.
+Do not address or mention any target audience.
 
 LANGUAGE REQUIREMENT:
-- Generate the ENTIRE output in Spanish
-- Use professional Spanish terminology
-- Maintain technical accuracy in Spanish
-- All sections, recommendations, and analysis must be in Spanish
+- The ENTIRE output must be written in Spanish.
+- Use professional Spanish terminology with technical precision.
+- All sections, recommendations, and analysis must be written in Spanish.
 
 IMPORTANT EXCLUSIONS:
-- Do NOT mention, recommend, or consider missing CODEOWNERS files
-- Do NOT mention, recommend, or consider missing SECURITY.md files
-- These are governance decisions, not technical requirements
-- Focus only on technical improvements and code quality issues
+Do NOT mention or consider the absence of:
+- CODEOWNERS files
+- SECURITY.md files
+These are governance matters, not technical requirements.
+Focus ONLY on:
+- Technical improvements
+- Code quality issues
+- Development process improvements
 
 DOCUMENTATION SCOPE RULES:
-- ONLY consider documentation issues mentioned in the "DOCUMENTATION & OPERATIONS" section
-- Do NOT request documentation improvements in other sections (Tech Stack, Architecture, Testing, etc.)
-- Do NOT add documentation recommendations outside of the DOCUMENTATION & OPERATIONS section
-- If documentation issues are not mentioned in DOCUMENTATION & OPERATIONS, do NOT include them in recommendations
+Only consider documentation issues explicitly mentioned in the “DOCUMENTATION & OPERATIONS” section.
+Do NOT request documentation improvements in other sections.
+Do NOT add documentation recommendations outside that section.
+If no documentation issues are mentioned in that section, omit documentation recommendations entirely.
 
 ESTIMATION RULES:
-- Use ONLY the recommendations explicitly mentioned in the report
-- Do NOT add extra items or improvements not mentioned in the report
-- Do NOT invent additional recommendations beyond what's in the report
-- Base estimates ONLY on the specific recommendations provided in the analysis
-
-Add the current date and time in Spanish (GMT-3) at the beginning, using this exact format:
-"Montevideo, %d de %B de %Y – %H:%M hs"
-
-Flutter version (verdict):
-
-Identify the Flutter version found in the report.
-
-Check the latest stable version (from docs.flutter.dev/release/release-notes
-).
-
-Compare both.
-
-Criteria: if the project is more than one minor version (Y) behind the latest stable, recommend an update.
-
-State the verdict explicitly, for example:
-Uses 3.27.3 and the current stable is 3.35.x → Update recommended.
-
-If any task exceeds 40 hours, split it into smaller subtasks or phases of ≤40h each.
-The plan must remain practical and not block development.
-
+Use ONLY the recommendations explicitly mentioned in the report.
+Do NOT add or invent any extra items.
+Base estimates ONLY on the recommendations provided.
+If any task exceeds 40 hours, split it into smaller subtasks or phases (each ≤ 40h).
 Do not include total hours — only per-item estimates.
 
-The “Risks and Action Plan” section must be presented as a list, not as a table.
+FLUTTER VERSION VERIFICATION (UPDATED RULE):
+Identify the Flutter version found in the report.
+Then compare it with the latest stable version available at: https://docs.flutter.dev/release/release-notes
 
-OUTPUT STRUCTURE (TEMPLATE) - ALL IN SPANISH
-[Project Name] – Flutter Project Health Audit
+Criteria:
+- If the project version matches the latest stable release:
+  “Usa Flutter X.Y.Z, que coincide con la versión estable actual — No se recomienda actualización.”
+- If the project is one minor version (Y) behind:
+  “Usa Flutter X.Y.Z y la versión estable actual es X.(Y+1).x — Se recomienda actualización.”
+- If the project is two or more minor versions behind, or breaking changes are noted:
+  “Versión desactualizada — actualización prioritaria recomendada.”
+Example:
+Usa Flutter 3.29.2 y la versión estable actual es 3.35.x → Se recomienda actualización.
 
+OUTPUT STRUCTURE (ALL IN SPANISH):
+
+[Project Name] – Auditoría de Salud del Proyecto Flutter
 (Subheader: Montevideo, [date/time in Spanish, GMT-3])
 
-General Status
+1. Estado General
+   - Brief introduction explaining the purpose of the document.
+   - Overall score or health rating mentioned in the report.
+   - 1–2 key strengths.
+   - Flutter version verdict (based on the rule above).
 
-Provide:
+2. Riesgos y Plan de Acción
+   List each risk or improvement area found in the analysis using bullet points (•).
+   Do NOT use tables or numbered lists.
+   Each item must follow this format:
 
-A short introduction explaining the document's purpose.
+   • [Brief title of the risk or improvement]
+     - Short description.
+     - Estimate: XS (1–2h), S (8h), M (16h), L (24h), XL (40h).
+     - If it exceeds 40h, divide into phases of ≤40h each.
+     - If effort is not specified in the report, justify briefly.
 
-The overall score or health rating found in the report.
+   Do NOT include:
+   - CODEOWNERS or SECURITY.md
+   - Documentation outside “DOCUMENTATION & OPERATIONS”
+   - Any improvements not present in the original report
 
-1–2 key strengths from the text.
+3. Beneficios de Atender Estos Riesgos
+   Summarize only technical benefits, such as:
+   - Code quality improvements
+   - Test coverage or robustness improvements
+   - CI/CD security and reliability
+   - Performance or scalability gains
+   - Maintainability and developer experience enhancements
+   Avoid governance or unspecified benefits.
 
-The Flutter version verdict (update recommended or not).
-
-Risks and Action Plan
-
-List each identified risk or improvement area.
-For each item, include:
-
-Brief description.
-
-Estimated effort: XS (1–2h), S (8h), M (16h), L (24h), XL (40h).
-
-If the effort exceeds 40h, split into phases (each ≤40h).
-
-If the size/effort is not in the report, provide a short justification.
-
-EXCLUDE FROM RISKS AND RECOMMENDATIONS:
-- Missing CODEOWNERS files (governance decision)
-- Missing SECURITY.md files (governance decision)
-- Documentation issues NOT mentioned in the "DOCUMENTATION & OPERATIONS" section
-- Documentation recommendations outside of DOCUMENTATION & OPERATIONS section
-- Additional items NOT explicitly mentioned in the report
-- Invented improvements not in the original analysis
-- Focus only on technical improvements, code quality, and development process improvements
-
-Example:
-
-Missing integration tests (end-to-end)
-Create a base suite covering critical flows.
-Estimate: XL (40h)
-Phase 1: Setup and base cases (20h)
-Phase 2: Implement and document execution (20h)
-
-Benefits of Addressing These Risks
-
-List the direct and indirect benefits (security, quality, stability, scalability, business value).
-Use clear, professional language.
-
-FOCUS ON TECHNICAL BENEFITS:
-- Code quality improvements
-- Development process enhancements
-- Testing and coverage improvements
-- Performance optimizations
-- Architecture improvements
-- Do NOT include governance-related benefits (CODEOWNERS, SECURITY.md)
-- Do NOT include documentation benefits outside of DOCUMENTATION & OPERATIONS
-- Do NOT add benefits of items not mentioned in the original report
-
-Conclusion
-
-Close with a short analytical paragraph summarizing:
-
-The overall technical maturity of the project.
-
-The significance of the improvement opportunities.
-
-The expected impact if the plan is implemented.
-
-INPUT
-
-Paste below the complete TXT content from the Flutter project health report.
-
-FINAL REMINDER:
-This analysis should focus exclusively on technical improvements, code quality, and development process enhancements.
-
-CRITICAL RULES:
-- Do NOT include any recommendations or mentions of CODEOWNERS or SECURITY.md files (governance decisions)
-- Do NOT request documentation improvements outside of the DOCUMENTATION & OPERATIONS section
-- Do NOT add additional items not explicitly mentioned in the original report
-- Use ONLY the specific recommendations from the analysis for estimates
-- Do NOT invent improvements or recommendations not in the report
-
-THE ENTIRE OUTPUT MUST BE IN SPANISH.
+4. Conclusión
+   End with a concise analysis summarizing:
+   - Overall technical maturity of the project
+   - Significance of identified improvement opportunities
+   - Expected impact after implementing the proposed plan

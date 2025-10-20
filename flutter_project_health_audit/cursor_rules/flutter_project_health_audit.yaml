@@ -72,7 +72,7 @@ rules:
 
       EVIDENCE GATHERING ORDER (READ-ONLY)
       1) Repository layout (top 2–3 levels), presence of: android/, ios/, web/, macos/, windows/, linux/, packages/, apps/.
-      2) Monorepo detection: Check for apps/ directory structure (apps/app1/, apps/app2/, etc.) or packages/ structure.
+      2) Monorepo detection: Check for apps/ directory structure (apps/app1/, apps/app2/, etc.) or packages/ structure. Also check for nested packages (apps/<app>/packages/) and shared packages (apps/packages/).
       3) pubspec.yaml (Flutter/Dart versions, dev_dependencies like very_good_analysis; test deps like bloc_test).
       4) analysis_options.yaml (or inclusion of package:very_good_analysis).
       5) .fvm/fvm_config.json or FVM files (Flutter channel/SDK).
@@ -96,6 +96,8 @@ rules:
          - Clear separation (e.g., lib/src/**, domain/data/presentation or similar) evidenced by folder structure → PASS/FAIL/UNKNOWN
          - Monorepo structure detected: apps/ directory with multiple apps OR packages/ directory → PASS/FAIL/UNKNOWN
          - Per-app structure: Each app in apps/ has its own pubspec.yaml and proper structure → PASS/FAIL/UNKNOWN
+         - Nested packages structure: apps/<app>/packages/ with proper package structure → PASS/FAIL/UNKNOWN
+         - Shared packages structure: apps/packages/ with proper package structure → PASS/FAIL/UNKNOWN
          - Native configs align (android/app/build.gradle, ios/Runner/*.plist present if platform exists) → PASS/FAIL/UNKNOWN
 
       C) State Management — expected checks:
@@ -142,6 +144,8 @@ rules:
          - For each workflow, detect presence (by string/step) of: analyze, format check, tests, coverage, spellcheck, release tagging → count matches
          - Monorepo rule: if packages/ exists, expect .github/workflows/<package>.yml|yaml for each package → missing counts as FAIL; if packages/ absent → NEUTRAL
          - Per-app workflow rule: if apps/ exists, expect .github/workflows/<app>.yml|yaml for each app → missing counts as FAIL; if apps/ absent → NEUTRAL
+         - Nested packages rule: if apps/<app>/packages/ exists, expect .github/workflows/<app>_<package>.yml|yaml for each nested package → missing counts as FAIL; if absent → NEUTRAL
+         - Shared packages rule: if apps/packages/ exists, expect .github/workflows/shared_<package>.yml|yaml for each shared package → missing counts as FAIL; if absent → NEUTRAL
          - Per-app coverage workflows: Each app workflow should include coverage collection → PASS/FAIL/UNKNOWN
          - CRITICAL VERIFICATION: Check CI/CD files in CORRECT locations only:
            * Single app: .github/dependabot.yaml, .github/cspell.json, .github/PULL_REQUEST_TEMPLATE.md
@@ -238,7 +242,10 @@ rules:
       12. Additional Metrics:
       - Supported platforms: [Platform list]
       - Number of feature folders: [Count] ([App breakdown if multi-app])
-      - Packages count: [Count]
+      - Root-level packages count: [Count]
+      - Nested packages count: [Count] (per app breakdown)
+      - Shared packages count: [Count]
+      - Total packages count: [Count] (root + nested + shared)
       - Coverage %: [Percentage or status] (per app if multi-app)
       - Overall aggregated coverage %: [Total percentage combining all apps and packages]
       - State management detected: [Pattern]
@@ -300,6 +307,10 @@ rules:
         - Report per-app coverage percentages in format: "coverage app1: X%", "coverage app2: Y%"
         - Verify individual CI/CD workflows for each app
         - Check individual analysis_options.yaml for each app (if present)
+        - Check for nested packages in apps/<app>/packages/ (if exists)
+        - Check for shared packages in apps/packages/ (if exists)
+        - Verify CI/CD workflows for nested packages (.github/workflows/<app>_<package>.yaml)
+        - Verify CI/CD workflows for shared packages (.github/workflows/shared_<package>.yaml)
         - Report per-app metrics in Additional Metrics section
       • If apps/ directory is not present, treat as single-app repository (neutral)
       • Coverage aggregation: Report both individual app coverage and overall monorepo coverage if available

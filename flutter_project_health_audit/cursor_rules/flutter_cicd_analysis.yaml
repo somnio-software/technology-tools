@@ -15,8 +15,13 @@ rules:
 
       MONOREPO DETECTION:
       - First detect repository structure: single app (app/) or multi-app monorepo (apps/app1/, apps/app2/, etc.)
+      - CRITICAL: Check if apps/ directory exists at root level
+      - CRITICAL: If apps/ directory exists, verify it contains subdirectories with pubspec.yaml files
+      - CRITICAL: Check for nested packages structure: apps/<app_name>/packages/ (app-specific packages)
+      - CRITICAL: Check for shared packages structure: apps/packages/ (shared packages across apps)
       - If apps/ directory exists, analyze each app individually
-      - If packages/ directory exists, analyze each package individually
+      - If packages/ directory exists at root level, analyze each package individually
+      - If apps/<app_name>/packages/ exists, analyze each nested package individually
       - VERIFY the correct file locations based on detected structure
 
       SINGLE APP CI/CD ANALYSIS:
@@ -29,7 +34,7 @@ rules:
         * Read .github/cspell.json
         * Read .github/PULL_REQUEST_TEMPLATE.md
         * For each workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
-        * Verify monorepo naming: for each package in app/packages/<name>/, confirm .github/workflows/<name>.yaml exists
+        * Verify monorepo naming: for each package in packages/<name>/, confirm .github/workflows/<name>.yaml exists
       
       VERIFICATION CHECKLIST FOR SINGLE APP:
       - [ ] .github/workflows/ directory exists
@@ -41,6 +46,15 @@ rules:
 
       MULTI-APP MONOREPO CI/CD ANALYSIS:
       MANDATORY VERIFICATION: Check BOTH root-level AND per-app .github/ directories for multi-app projects.
+      
+      CRITICAL STRUCTURE VERIFICATION:
+      - Verify apps/ directory exists at root level
+      - Verify apps/ directory contains subdirectories (apps/app1/, apps/app2/, etc.)
+      - Verify each app subdirectory contains pubspec.yaml file
+      - Verify nested packages structure: apps/<app_name>/packages/ (if exists)
+      - Verify shared packages structure: apps/packages/ (if exists)
+      - Verify root-level packages structure: packages/ (if exists)
+      - If apps/ directory does not exist, treat as single-app repository
       
       - Root-level CI/CD configuration (MANDATORY):
         * Read and analyze ALL files in .github/:
@@ -91,12 +105,43 @@ rules:
           - Read package-specific workflow files completely
           - For each package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
       
+      - Nested packages workflows (if apps/<app_name>/packages/ exists):
+        MANDATORY VERIFICATION: Check ONLY workflow files for nested packages (no dependabot/cspell/PR template).
+        
+        * For each app in apps/ directory:
+          * For each nested package in apps/<app_name>/packages/ directory:
+            - Verify .github/workflows/<app_name>_<package_name>.yaml or .github/workflows/<app_name>_<package_name>.yml exists
+            - Read nested package-specific workflow files completely
+            - For each nested package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+      
+      - Shared packages workflows (if apps/packages/ exists):
+        MANDATORY VERIFICATION: Check ONLY workflow files for shared packages (no dependabot/cspell/PR template).
+        
+        * For each shared package in apps/packages/ directory:
+          - Verify .github/workflows/shared_<package_name>.yaml or .github/workflows/shared_<package_name>.yml exists
+          - Read shared package-specific workflow files completely
+          - For each shared package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+      
       PACKAGE VERIFICATION CHECKLIST (for each package in packages/):
       - [ ] .github/workflows/<package_name>.yaml exists
       - [ ] Package-specific workflow contains required checks
       - [ ] NO dependabot.yaml expected in packages/ (root-level only)
       - [ ] NO cspell.json expected in packages/ (root-level only)
       - [ ] NO PULL_REQUEST_TEMPLATE.md expected in packages/ (root-level only)
+      
+      NESTED PACKAGE VERIFICATION CHECKLIST (for each nested package in apps/<app_name>/packages/):
+      - [ ] .github/workflows/<app_name>_<package_name>.yaml exists
+      - [ ] Nested package-specific workflow contains required checks
+      - [ ] NO dependabot.yaml expected in nested packages/ (root-level only)
+      - [ ] NO cspell.json expected in nested packages/ (root-level only)
+      - [ ] NO PULL_REQUEST_TEMPLATE.md expected in nested packages/ (root-level only)
+      
+      SHARED PACKAGE VERIFICATION CHECKLIST (for each shared package in apps/packages/):
+      - [ ] .github/workflows/shared_<package_name>.yaml exists
+      - [ ] Shared package-specific workflow contains required checks
+      - [ ] NO dependabot.yaml expected in shared packages/ (root-level only)
+      - [ ] NO cspell.json expected in shared packages/ (root-level only)
+      - [ ] NO PULL_REQUEST_TEMPLATE.md expected in shared packages/ (root-level only)
 
       WORKFLOW ANALYSIS DETAILS:
       - For each workflow, identify:
@@ -115,14 +160,25 @@ rules:
       - Verify monorepo naming conventions:
         * For each package in packages/<name>/, confirm .github/workflows/<name>.yaml exists
         * For each app in apps/<name>/, confirm .github/workflows/<name>.yaml exists
+        * For each nested package in apps/<app_name>/packages/<package_name>/, confirm .github/workflows/<app_name>_<package_name>.yaml exists
+        * For each shared package in apps/packages/<package_name>/, confirm .github/workflows/shared_<package_name>.yaml exists
         * Missing package/app-specific workflows count as configuration gaps
 
       MANDATORY OUTPUT VERIFICATION:
       - Repository structure type (single app / multi-app monorepo)
+      - CRITICAL: Explicitly state whether apps/ directory exists and contains subdirectories
+      - CRITICAL: If apps/ directory exists, list all apps found (apps/app1/, apps/app2/, etc.)
+      - CRITICAL: If apps/ directory does not exist, explicitly state "Single app repository - no apps/ directory found"
+      - CRITICAL: List all packages found in each location:
+        * Root-level packages: packages/<package_name>/
+        * Nested packages: apps/<app_name>/packages/<package_name>/
+        * Shared packages: apps/packages/<package_name>/
       - VERIFICATION CHECKLIST COMPLETION STATUS for each level:
         * Root-level verification checklist (always required)
         * Per-app verification checklist (for each app in apps/ if multi-app)
         * Package verification checklist (for each package in packages/ if exists)
+        * Nested package verification checklist (for each nested package if exists)
+        * Shared package verification checklist (for each shared package if exists)
       - List all workflow files found with their purposes (per app if multi-app)
       - Document each workflow's checks (format, analyze, test, coverage, etc.) (per app if multi-app)
       - Note any missing package-specific workflows for monorepos
@@ -136,6 +192,8 @@ rules:
       CRITICAL VERIFICATION RULES:
       - Single app: Check ONLY .github/ directory
       - Multi-app: Check .github/ AND apps/<app>/.github/ directories
-      - Packages: Check ONLY .github/workflows/<package>.yaml files
+      - Root-level packages: Check ONLY .github/workflows/<package>.yaml files
+      - Nested packages: Check ONLY .github/workflows/<app>_<package>.yaml files
+      - Shared packages: Check ONLY .github/workflows/shared_<package>.yaml files
       - Do NOT expect dependabot/cspell/PR template in packages/ directories
       - Do NOT recommend CODEOWNERS or SECURITY.md files
