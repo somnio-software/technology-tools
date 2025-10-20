@@ -5,28 +5,40 @@ This plan executes the Flutter Project Health Audit through sequential, modular 
 
 ## REQUIREMENT - FLUTTER VERSION ALIGNMENT
 
-**MANDATORY STEP**: Before executing any Flutter project analysis, ALWAYS verify and align the global Flutter version with the project's required version.
+**MANDATORY STEP 0**: Before executing any Flutter project analysis, ALWAYS verify and align the global Flutter version with the project's required version using FVM.
 
 **Rule to Execute**: `@flutter_version_alignment`
+
+**CRITICAL REQUIREMENT**: This step MUST configure FVM global version to match project requirements. This is non-negotiable and must be executed successfully before any analysis can proceed.
 
 This requirement applies to ANY Flutter project regardless of versions found and ensures accurate analysis by preventing version-related build failures.
 
 ## Step 0. Flutter Environment Setup and Test Coverage Verification
 
-Goal: Configure Flutter environment and execute tests with coverage verification. Continue execution even if setup fails.
+Goal: Configure Flutter environment with MANDATORY FVM global configuration and execute comprehensive dependency management with tests and coverage verification.
 
-**Rule to Execute**: `@flutter_version_alignment`
+**CRITICAL**: This step MUST configure FVM global version and install ALL dependencies (root, packages, apps). Execution stops if FVM global configuration fails.
+
+**Rule to Execute**: `@flutter_version_alignment` (MANDATORY)
 
 **Additional Rules**:
-- `@flutter_version_validator` (existing rule)
-- `@flutter_test_coverage` (existing rule)
+- `@flutter_version_validator` (verification)
+- `@flutter_test_coverage` (coverage generation)
 
 **Execution Order**:
-1. Execute `@flutter_version_alignment` rule first (MANDATORY)
-2. Execute `@flutter_version_validator` rule to verify setup
+1. Execute `@flutter_version_alignment` rule first (MANDATORY - stops if fails)
+2. Execute `@flutter_version_validator` rule to verify FVM global setup and comprehensive dependency management
 3. Execute `@flutter_test_coverage` rule to generate coverage
 
+**Comprehensive Dependency Management**:
+- Root project: `fvm flutter pub get`
+- All packages: `find packages/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
+- All apps: `find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
+- Verification: `fvm flutter pub deps`
+
 **Integration**: Save all outputs from these rules for integration into the final audit report.
+
+**Failure Handling**: If FVM global configuration fails, STOP execution and provide resolution steps.
 
 ## Step 1. Repository Inventory
 
@@ -122,9 +134,9 @@ mkdir -p reports
 **Total Rules**: 9 individual rules + 3 existing rules
 
 **Rule Execution Order**:
-1. `@flutter_version_alignment` (MANDATORY)
-2. `@flutter_version_validator` (existing)
-3. `@flutter_test_coverage` (existing)
+1. `@flutter_version_alignment` (MANDATORY - stops if FVM global fails)
+2. `@flutter_version_validator` (verification of FVM global setup)
+3. `@flutter_test_coverage` (coverage generation)
 4. `@flutter_repository_inventory`
 5. `@flutter_config_analysis`
 6. `@flutter_cicd_analysis`
@@ -140,5 +152,8 @@ mkdir -p reports
 - Easier debugging and maintenance
 - Parallel execution possible for some rules
 - Clear separation of concerns
+- Comprehensive dependency management for monorepos
+- Complete FVM global configuration enforcement
+- Full project environment setup with all dependencies
 
 
