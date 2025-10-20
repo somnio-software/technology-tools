@@ -5,12 +5,23 @@ rules:
     prompt: |
       Goal: Read all GitHub Actions workflows and related CI/CD configuration files for single app or multi-app repositories.
 
+      IMPORTANT EXCLUSIONS:
+      - Do NOT recommend operational workflows (deployment, monitoring, performance tracking)
+      - Do NOT recommend release automation beyond basic tagging
+      - Do NOT recommend vulnerability scanning beyond dependabot
+      - Focus ONLY on technical CI/CD (format, analyze, test, coverage, spell-check)
+
+      CRITICAL: Verify CI/CD files in the CORRECT locations based on repository structure. This is mandatory for accurate analysis.
+
       MONOREPO DETECTION:
       - First detect repository structure: single app (app/) or multi-app monorepo (apps/app1/, apps/app2/, etc.)
       - If apps/ directory exists, analyze each app individually
       - If packages/ directory exists, analyze each package individually
+      - VERIFY the correct file locations based on detected structure
 
       SINGLE APP CI/CD ANALYSIS:
+      MANDATORY VERIFICATION: Check ONLY root-level .github/ directory for single app projects.
+      
       - Read and analyze ALL files in .github/:
         * List all .github/workflows/*.yaml and .github/workflows/*.yml files
         * Read each workflow file completely (main.yaml and all package-specific workflows)
@@ -19,9 +30,19 @@ rules:
         * Read .github/PULL_REQUEST_TEMPLATE.md
         * For each workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
         * Verify monorepo naming: for each package in app/packages/<name>/, confirm .github/workflows/<name>.yaml exists
+      
+      VERIFICATION CHECKLIST FOR SINGLE APP:
+      - [ ] .github/workflows/ directory exists
+      - [ ] At least one workflow file present
+      - [ ] .github/dependabot.yaml present (if configured)
+      - [ ] .github/cspell.json present (if configured)
+      - [ ] .github/PULL_REQUEST_TEMPLATE.md present (if configured)
+      - [ ] Workflows contain required checks (format, analyze, test, coverage)
 
       MULTI-APP MONOREPO CI/CD ANALYSIS:
-      - Root-level CI/CD configuration:
+      MANDATORY VERIFICATION: Check BOTH root-level AND per-app .github/ directories for multi-app projects.
+      
+      - Root-level CI/CD configuration (MANDATORY):
         * Read and analyze ALL files in .github/:
           - List all .github/workflows/*.yaml and .github/workflows/*.yml files
           - Read each workflow file completely
@@ -30,26 +51,52 @@ rules:
           - Read .github/PULL_REQUEST_TEMPLATE.md
         * Identify root-level workflows: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
         * Check for shared CI/CD utilities or configurations
-      - Per-app CI/CD analysis:
+      
+      ROOT-LEVEL VERIFICATION CHECKLIST:
+      - [ ] .github/workflows/ directory exists
+      - [ ] Root-level workflow files present
+      - [ ] .github/dependabot.yaml present (if configured)
+      - [ ] .github/cspell.json present (if configured)
+      - [ ] .github/PULL_REQUEST_TEMPLATE.md present (if configured)
+      - [ ] Root workflows contain required checks
+      
+      - Per-app CI/CD analysis (MANDATORY for each app):
         * For each app in apps/ directory:
           - Verify .github/workflows/<app_name>.yaml or .github/workflows/<app_name>.yml exists
           - Read app-specific workflow files completely
           - For each app workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
-          - Check for app-specific dependabot.yaml in apps/<app_name>/
-          - Check for app-specific cspell.json in apps/<app_name>/
-          - Check for app-specific PR template in apps/<app_name>/
+          - Check for app-specific dependabot.yaml in apps/<app_name>/.github/
+          - Check for app-specific cspell.json in apps/<app_name>/.github/
+          - Check for app-specific PR template in apps/<app_name>/.github/
           - Important: Do NOT recommend platform-specific workflows for Android/iOS builds - these are deployment decisions, not technical requirements
           - Do NOT recommend CODEOWNERS or SECURITY.md files - these are governance decisions, not technical requirements
+      
+      PER-APP VERIFICATION CHECKLIST (for each app in apps/):
+      - [ ] .github/workflows/<app_name>.yaml exists
+      - [ ] App-specific workflow contains required checks
+      - [ ] apps/<app_name>/.github/dependabot.yaml present (if configured)
+      - [ ] apps/<app_name>/.github/cspell.json present (if configured)
+      - [ ] apps/<app_name>/.github/PULL_REQUEST_TEMPLATE.md present (if configured)
       - Cross-app CI/CD consistency:
         * Compare workflow patterns across apps
         * Verify consistent CI/CD practices
         * Check for shared vs app-specific configurations
         * Verify matrix strategies for multi-app testing
+      
       - Package-specific workflows (if packages/ exists):
+        MANDATORY VERIFICATION: Check ONLY workflow files for packages (no dependabot/cspell/PR template).
+        
         * For each package in packages/ directory:
           - Verify .github/workflows/<package_name>.yaml or .github/workflows/<package_name>.yml exists
           - Read package-specific workflow files completely
           - For each package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+      
+      PACKAGE VERIFICATION CHECKLIST (for each package in packages/):
+      - [ ] .github/workflows/<package_name>.yaml exists
+      - [ ] Package-specific workflow contains required checks
+      - [ ] NO dependabot.yaml expected in packages/ (root-level only)
+      - [ ] NO cspell.json expected in packages/ (root-level only)
+      - [ ] NO PULL_REQUEST_TEMPLATE.md expected in packages/ (root-level only)
 
       WORKFLOW ANALYSIS DETAILS:
       - For each workflow, identify:
@@ -62,19 +109,33 @@ rules:
       - Important exclusions:
         * Do NOT recommend platform-specific workflows for Android/iOS builds - these are deployment decisions, not technical requirements
         * Do NOT recommend CODEOWNERS or SECURITY.md files - these are governance decisions, not technical requirements
+        * Do NOT recommend operational workflows (deployment, monitoring, performance tracking)
+        * Do NOT recommend release automation beyond basic tagging
+        * Do NOT recommend vulnerability scanning beyond dependabot
       - Verify monorepo naming conventions:
         * For each package in packages/<name>/, confirm .github/workflows/<name>.yaml exists
         * For each app in apps/<name>/, confirm .github/workflows/<name>.yaml exists
         * Missing package/app-specific workflows count as configuration gaps
 
-      Output format:
+      MANDATORY OUTPUT VERIFICATION:
       - Repository structure type (single app / multi-app monorepo)
+      - VERIFICATION CHECKLIST COMPLETION STATUS for each level:
+        * Root-level verification checklist (always required)
+        * Per-app verification checklist (for each app in apps/ if multi-app)
+        * Package verification checklist (for each package in packages/ if exists)
       - List all workflow files found with their purposes (per app if multi-app)
       - Document each workflow's checks (format, analyze, test, coverage, etc.) (per app if multi-app)
       - Note any missing package-specific workflows for monorepos
       - Note any missing app-specific workflows for multi-app monorepos
       - Report CI/CD configuration completeness (per app if multi-app)
-      - Identify any missing CI/CD files (.github/dependabot.yaml, etc.) (per app if multi-app)
+      - Identify any missing CI/CD files (.github/dependabot.yaml, etc.) in CORRECT locations only
       - CI/CD consistency across apps/packages (if multi-app)
       - Cross-app workflow patterns and shared configurations (if multi-app)
       - Matrix strategies and multi-app testing approaches (if multi-app)
+      
+      CRITICAL VERIFICATION RULES:
+      - Single app: Check ONLY .github/ directory
+      - Multi-app: Check .github/ AND apps/<app>/.github/ directories
+      - Packages: Check ONLY .github/workflows/<package>.yaml files
+      - Do NOT expect dependabot/cspell/PR template in packages/ directories
+      - Do NOT recommend CODEOWNERS or SECURITY.md files

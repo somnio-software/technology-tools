@@ -1,6 +1,6 @@
 # Templates Directory
 
-This directory contains template files used by the Flutter Project Health Audit rules.
+This directory contains template files used by the Flutter Project Health Audit rules. It now lives under `flutter_project_health_audit/cursor_rules/templates/`.
 
 ## Files
 

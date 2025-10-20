@@ -2,11 +2,20 @@
 
 This directory contains all the individual rules for the Flutter Project Health Audit system, supporting both single-app and multi-app monorepo structures.
 
+## Location Note
+
+These rules were moved to `flutter_project_health_audit/cursor_rules/`.
+
 ## Templates Directory
 
 The `templates/` directory contains template files used by the rules:
 - **`templates/flutter_report_template.txt`** - Template showing exact format structure for reports
 - **`templates/README.md`** - Documentation for template files
+
+## Prompts Directory
+
+The `prompts/` directory contains AI prompts for enhanced analysis:
+- **`prompts/flutter_health_prompt.txt`** - ChatGPT prompt for generating executive summaries from audit outputs
 
 ## Core Rules (Required for every audit)
 
@@ -141,6 +150,25 @@ The audit system will NEVER recommend:
 - **Internationalization Expansion**: Adding new languages or translations
 - **Governance Files**: CODEOWNERS or SECURITY.md files (governance decisions, not technical requirements)
 - **Platform-Specific Workflows**: Android/iOS build workflows (deployment decisions, not technical requirements)
+
+## ChatGPT Integration
+
+### Executive Summary Generation
+
+After completing the full audit using the execution plan, you can use the ChatGPT prompt to generate an executive summary:
+
+**Process**:
+1. Execute the complete `@flutter-health.plan.md` following all steps
+2. Copy the complete audit report output
+3. Use `prompts/flutter_health_prompt.txt` with ChatGPT
+4. Paste the audit output as input to generate an executive summary
+
+**Benefits**:
+- Generates executive-ready summaries (max 1 A4 page, ~600 words)
+- Analyzes Flutter version and provides update recommendations
+- Estimates work time for each improvement (XS=1-2h, S=8h, M=16h, L=24h, XL=40h)
+- Breaks down large tasks into manageable subtasks
+- Ready-to-copy format for executive documents
 
 ## Benefits of Modular Approach
 

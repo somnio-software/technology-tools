@@ -5,6 +5,12 @@ rules:
     prompt: |
       Goal: Identify sensitive files, check .gitignore coverage across all project directories, find dependency scanning configuration for single app or multi-app repositories.
 
+      IMPORTANT EXCLUSIONS:
+      - Do NOT analyze, recommend, or consider missing SECURITY.md files
+      - Do NOT analyze, recommend, or consider missing CODEOWNERS files
+      - These are governance decisions, not technical security requirements
+      - Focus only on technical security issues (sensitive files, .gitignore coverage, dependency scanning)
+
       MONOREPO DETECTION:
       - First detect repository structure: single app (app/) or multi-app monorepo (apps/app1/, apps/app2/, etc.)
       - If apps/ directory exists, analyze each app individually
@@ -83,6 +89,9 @@ rules:
       - Security risks identified (per app if multi-app)
       - Dependency scanning configuration (per app if multi-app)
       - Secret scanning patterns found (per app if multi-app)
-      - Missing security configurations (per app if multi-app)
+      - Missing technical security configurations (per app if multi-app)
       - Security consistency across apps/packages (if multi-app)
-      - Cross-app security policy enforcement (if multi-app)
+      - Cross-app technical security practices (if multi-app)
+      
+      CRITICAL: Do NOT report missing SECURITY.md or CODEOWNERS files as security risks or missing configurations.
+      These are governance decisions, not technical security requirements.
