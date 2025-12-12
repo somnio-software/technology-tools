@@ -24,7 +24,8 @@ flutter_project_health_audit/
 ### Flutter/Dart Auditing System
 
 - **Multi-App Monorepo Support**: Handles simple and multi-app repository structures
-- **Automated Analysis**: 9 different analysis categories with scoring
+- **Automated Analysis**: 10 different analysis categories with scoring
+- **Tool Auto-Installation**: Automatic setup of Node.js, FVM, and Gemini CLI
 - **Coverage Analysis**: Test coverage execution and aggregation
 - **Standardized Reporting**: Structured 16-section reports
 - **CI/CD Integration**: GitHub Actions workflow analysis
@@ -38,8 +39,9 @@ flutter_project_health_audit/
 5. **Testing** (10%) - Test coverage, quality, and infrastructure
 6. **Code Quality** (10%) - Linting, formatting, analysis rules
 7. **Security** (10%) - Sensitive files, .gitignore coverage
-8. **Documentation & Operations** (3%) - README, CHANGELOG, onboarding
-9. **CI/CD** (3%) - GitHub Actions, automation, workflows
+8. **Gemini Security Audit** (Integrated) - Advanced AI-powered security analysis
+9. **Documentation & Operations** (3%) - README, CHANGELOG, onboarding
+10. **CI/CD** (3%) - GitHub Actions, automation, workflows
 
 ### Supported Repository Structures
 
@@ -74,6 +76,7 @@ flutter_project_health_audit/
 - Dart SDK
 - FVM (recommended)
 - Git repository with Flutter project
+- **Gemini API Key**: `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable (Get one at [Google AI Studio](https://aistudio.google.com/))
 
 ### Quick Start
 
@@ -90,6 +93,7 @@ flutter_project_health_audit/
 3. **Run Flutter Health Audit**:
    ```bash
    # Follow the execution order in cursor_rules/README.md
+   @flutter_tool_installer
    @flutter_version_alignment
    @flutter_repository_inventory
    @flutter_config_analysis
@@ -110,7 +114,8 @@ To always run `@flutter-health.plan.md` (stored in `plan/flutter-health.plan.md`
 
 ### Execution Order
 
-1. `@flutter_version_alignment` (MANDATORY - Step 0)
+1. `@flutter_tool_installer` (MANDATORY - Step 0)
+2. `@flutter_version_alignment` (MANDATORY - Step 0)
 2. `@flutter_version_validator`
 3. `@flutter_test_coverage`
 4. `@flutter_repository_inventory`
@@ -119,8 +124,9 @@ To always run `@flutter-health.plan.md` (stored in `plan/flutter-health.plan.md`
 7. `@flutter_testing_analysis`
 8. `@flutter_code_quality`
 9. `@flutter_security_analysis`
-10. `@flutter_documentation_analysis`
-11. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
+10. `@flutter_gemini_security_audit`
+11. `@flutter_documentation_analysis`
+12. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
 
 ## 🤖 ChatGPT Integration
 
@@ -182,6 +188,20 @@ The audit system will NEVER recommend:
 - **Multi-App**: Tests in each app + app-specific packages + shared packages
 - **Aggregation**: Overall project coverage calculation
 - **Thresholds**: Configurable coverage targets per component type
+
+### Gemini Security Audit
+- **Requirement**: `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable
+- **Setup**:
+  ```bash
+  # macOS/Linux (Add to ~/.zshrc or ~/.bashrc)
+  export GEMINI_API_KEY=your_api_key_here
+
+  # Windows (PowerShell)
+  $env:GEMINI_API_KEY="your_api_key_here"
+  ```
+- **Get Key**: [Google AI Studio](https://aistudio.google.com/)
+- **Repository**: [gemini-cli-extensions/security](https://github.com/gemini-cli-extensions/security)
+  > This extension uses Gemini to analyze code for security vulnerabilities, providing detailed reports and recommendations.
 
 ## 📈 Scoring System
 

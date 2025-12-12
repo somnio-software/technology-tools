@@ -27,10 +27,10 @@ rules:
       3. **Version Mismatch Detection**:
          - If versions differ (even minor/patch differences): ALIGNMENT REQUIRED
          - If versions match: Continue with analysis
-         - If FVM is configured but not installed: Install FVM and configure
+         - If FVM is configured but not installed: Error, FVM should be installed by @flutter_tool_installer
 
       4. **Execute Version Alignment** (MANDATORY FVM GLOBAL CONFIGURATION):
-         - Install FVM if not present: `dart pub global activate fvm`
+         - Verify FVM is present (installed by @flutter_tool_installer)
          - Install required Flutter version via FVM: `fvm install <version>`
          - Set Flutter version as GLOBAL using FVM: `fvm global <version>`
          - Verify global alignment with `fvm flutter --version`
@@ -62,11 +62,11 @@ rules:
       4. **Version Mismatch Detection**:
          - If versions differ (even minor/patch differences): ALIGNMENT REQUIRED
          - If versions match: Continue with analysis
-         - If FVM is configured but not installed: Install FVM and configure
+         - If FVM is configured but not installed: Error, FVM should be installed by @flutter_tool_installer
          - Note any version inconsistencies between apps/packages
 
       5. **Execute Version Alignment** (MANDATORY FVM GLOBAL CONFIGURATION):
-         - Install FVM if not present: `dart pub global activate fvm`
+         - Verify FVM is present (installed by @flutter_tool_installer)
          - Install required Flutter version via FVM: `fvm install <version>`
          - Set Flutter version as GLOBAL using FVM: `fvm global <version>`
          - Verify global alignment with `fvm flutter --version`
@@ -84,7 +84,7 @@ rules:
          - Note any version conflicts that require resolution
 
       CRITICAL: FVM GLOBAL CONFIGURATION IS MANDATORY:
-      - If FVM installation fails, STOP execution and provide installation instructions
+       - If FVM is missing, STOP execution and advise running @flutter_tool_installer
       - If Flutter version installation via FVM fails, STOP execution and provide resolution steps
       - If global version setting fails, STOP execution and provide troubleshooting steps
       - If any error occurs during FVM global configuration:

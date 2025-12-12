@@ -19,19 +19,25 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ## Core Rules (Required for every audit)
 
-### 1. Flutter Version Alignment
+### 1. Flutter Tool Installer
+- **File**: `flutter_tool_installer.yaml`
+- **Purpose**: Centralized installer for all required tools (Node.js, FVM, Gemini CLI, Security Extension)
+- **Usage**: `@flutter_tool_installer`
+- **Dependencies**: None (must run first)
+
+### 2. Flutter Version Alignment
 - **File**: `flutter_version_alignment.yaml`
 - **Purpose**: Mandatory Flutter version alignment before any analysis
 - **Usage**: `@flutter_version_alignment`
-- **Dependencies**: None (must run first)
+- **Dependencies**: `@flutter_tool_installer`
 
-### 2. Flutter Version Validator
+### 3. Flutter Version Validator
 - **File**: `flutter_version_validator.yaml` (existing)
 - **Purpose**: Verify FVM installation and Flutter environment setup
 - **Usage**: `@flutter_version_validator`
 - **Dependencies**: `@flutter_version_alignment`
 
-### 3. Flutter Test Coverage
+### 4. Flutter Test Coverage
 - **File**: `flutter_test_coverage.yaml` (existing)
 - **Purpose**: Generate test coverage reports and validate `min_coverage >= 70%`
 - **Usage**: `@flutter_test_coverage`
@@ -39,43 +45,49 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ## Analysis Rules (Execute in order)
 
-### 4. Repository Inventory
+### 5. Repository Inventory
 - **File**: `flutter_repository_inventory.yaml`
 - **Purpose**: Detect repository structure and organization
 - **Usage**: `@flutter_repository_inventory`
 - **Dependencies**: None
 
-### 5. Configuration Analysis
+### 6. Configuration Analysis
 - **File**: `flutter_config_analysis.yaml`
 - **Purpose**: Analyze Flutter/Dart configuration files
 - **Usage**: `@flutter_config_analysis`
 - **Dependencies**: None
 
-### 6. CI/CD Analysis
+### 7. CI/CD Analysis
 - **File**: `flutter_cicd_analysis.yaml`
 - **Purpose**: Analyze GitHub Actions workflows, CI/CD configs, and coverage enforcement
 - **Usage**: `@flutter_cicd_analysis`
 - **Dependencies**: None
 
-### 7. Testing Analysis
+### 8. Testing Analysis
 - **File**: `flutter_testing_analysis.yaml`
 - **Purpose**: Find and classify test files and coverage config
 - **Usage**: `@flutter_testing_analysis`
 - **Dependencies**: `@flutter_test_coverage` (for coverage integration)
 
-### 8. Code Quality Analysis
+### 9. Code Quality Analysis
 - **File**: `flutter_code_quality.yaml`
 - **Purpose**: Analyze linter configuration and code quality
 - **Usage**: `@flutter_code_quality`
 - **Dependencies**: None
 
-### 9. Security Analysis
+### 10. Security Analysis
 - **File**: `flutter_security_analysis.yaml`
 - **Purpose**: Identify sensitive files and security configurations
 - **Usage**: `@flutter_security_analysis`
 - **Dependencies**: None
 
-### 10. Documentation Analysis
+### 11. Gemini Security Audit
+- **File**: `flutter_gemini_security_audit.yaml`
+- **Purpose**: Execute advanced security analysis using Gemini CLI Security extension
+- **Usage**: `@flutter_gemini_security_audit`
+- **Dependencies**: `@flutter_tool_installer` (for tool availability)
+
+### 12. Documentation Analysis
 - **File**: `flutter_documentation_analysis.yaml`
 - **Purpose**: Review documentation and operational files
 - **Usage**: `@flutter_documentation_analysis`
@@ -83,21 +95,21 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ## Report Generation
 
-### 11. Report Generator
+### 13. Report Generator
 - **File**: `flutter_report_generator.yaml`
 - **Purpose**: Generate final audit report integrating all analysis results using standardized format
 - **Usage**: `@flutter_report_generator`
 - **Dependencies**: All previous rules
 - **Template**: Uses `templates/flutter_report_template.txt`
 
-### 12. Report Format Enforcer
+### 14. Report Format Enforcer
 - **File**: `flutter_report_format_enforcer.yaml`
 - **Purpose**: Enforce consistent report format structure
 - **Usage**: `@flutter_report_format_enforcer`
 - **Dependencies**: Used by report generation rules
 - **Template**: References `templates/flutter_report_template.txt`
 
-### 13. Flutter Project Health Audit
+### 15. Flutter Project Health Audit
 - **File**: `flutter_project_health_audit.yaml` (existing)
 - **Purpose**: Main audit rule with scoring logic and standardized format
 - **Usage**: `@flutter_project_health_audit`
@@ -106,17 +118,19 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ## Execution Order
 
-1. `@flutter_version_alignment` (MANDATORY)
-2. `@flutter_version_validator` (existing)
-3. `@flutter_test_coverage` (existing)
-4. `@flutter_repository_inventory`
-5. `@flutter_config_analysis`
-6. `@flutter_cicd_analysis`
-7. `@flutter_testing_analysis`
-8. `@flutter_code_quality`
-9. `@flutter_security_analysis`
-10. `@flutter_documentation_analysis`
-11. `@flutter_report_generator`
+1. `@flutter_tool_installer` (MANDATORY)
+2. `@flutter_version_alignment` (MANDATORY)
+3. `@flutter_version_validator` (existing)
+4. `@flutter_test_coverage` (existing)
+5. `@flutter_repository_inventory`
+6. `@flutter_config_analysis`
+7. `@flutter_cicd_analysis`
+8. `@flutter_testing_analysis`
+9. `@flutter_code_quality`
+10. `@flutter_security_analysis`
+11. `@flutter_gemini_security_audit`
+12. `@flutter_documentation_analysis`
+13. `@flutter_report_generator`
 
 ## Standardized Report Format
 
