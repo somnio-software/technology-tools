@@ -190,10 +190,8 @@ rules:
       fi
       ```
 
-      Step 3: Generate Coverage Summary
-      Create a comprehensive coverage analysis including:
 
-      Step 4: Calculate Overall Aggregated Coverage
+      Step 3: Calculate Overall Aggregated Coverage
       Calculate the overall coverage percentage by combining all coverage data:
 
       SINGLE APP AGGREGATION:
@@ -281,7 +279,7 @@ rules:
       fi
       ```
 
-      Step 5: Generate Coverage Summary
+      Step 4: Generate Coverage Summary
       Create a comprehensive coverage analysis including:
 
       SINGLE APP SUMMARY:

@@ -21,7 +21,7 @@ Complete auditing system for Flutter/Dart projects that includes:
 - **Multi-app support**: Handles simple and monorepo repository structures
 - **Standardized reports**: 16-section format ready for Google Docs
 - **CI/CD integration**: GitHub Actions workflow analysis
-- **Test coverage**: Execution and aggregation of coverage
+- **Test coverage**: Execution, aggregation, and 70% minimum threshold validation
 - **ChatGPT integration**: Specialized prompt for generating executive summaries
 
 **Location**: `flutter_project_health_audit/`

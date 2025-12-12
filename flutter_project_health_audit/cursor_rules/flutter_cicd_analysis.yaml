@@ -10,6 +10,9 @@ rules:
       - Do NOT recommend release automation beyond basic tagging
       - Do NOT recommend vulnerability scanning beyond dependabot
       - Focus ONLY on technical CI/CD (format, analyze, test, coverage, spell-check)
+      - Do NOT analyze, recommend, or consider CODEOWNERS files
+      - Do NOT analyze, recommend, or consider SECURITY.md files
+      - These are governance decisions, not technical CI/CD requirements
 
       CRITICAL: Verify CI/CD files in the CORRECT locations based on repository structure. This is mandatory for accurate analysis.
 
@@ -27,13 +30,14 @@ rules:
       SINGLE APP CI/CD ANALYSIS:
       MANDATORY VERIFICATION: Check ONLY root-level .github/ directory for single app projects.
       
-      - Read and analyze ALL files in .github/:
+      - Read and analyze SPECIFIC files in .github/:
         * List all .github/workflows/*.yaml and .github/workflows/*.yml files
         * Read each workflow file completely (main.yaml and all package-specific workflows)
         * Read .github/dependabot.yaml
         * Read .github/cspell.json
         * Read .github/PULL_REQUEST_TEMPLATE.md
         * For each workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+        * CRITICAL: Verify `min_coverage` is at least 70. (e.g., `min_coverage: 70` is OK, `min_coverage: 69` is ERROR)
         * Verify monorepo naming: for each package in packages/<name>/, confirm .github/workflows/<name>.yaml exists
       
       VERIFICATION CHECKLIST FOR SINGLE APP:
@@ -43,6 +47,7 @@ rules:
       - [ ] .github/cspell.json present (if configured)
       - [ ] .github/PULL_REQUEST_TEMPLATE.md present (if configured)
       - [ ] Workflows contain required checks (format, analyze, test, coverage)
+      - [ ] Coverage threshold `min_coverage` is >= 70%
 
       MULTI-APP MONOREPO CI/CD ANALYSIS:
       MANDATORY VERIFICATION: Check BOTH root-level AND per-app .github/ directories for multi-app projects.
@@ -57,13 +62,14 @@ rules:
       - If apps/ directory does not exist, treat as single-app repository
       
       - Root-level CI/CD configuration (MANDATORY):
-        * Read and analyze ALL files in .github/:
+        * Read and analyze SPECIFIC files in .github/:
           - List all .github/workflows/*.yaml and .github/workflows/*.yml files
           - Read each workflow file completely
           - Read .github/dependabot.yaml
           - Read .github/cspell.json
           - Read .github/PULL_REQUEST_TEMPLATE.md
         * Identify root-level workflows: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+        * CRITICAL: Verify `min_coverage` is at least 70. (e.g., `min_coverage: 70` is OK, `min_coverage: 69` is ERROR)
         * Check for shared CI/CD utilities or configurations
       
       ROOT-LEVEL VERIFICATION CHECKLIST:
@@ -73,12 +79,14 @@ rules:
       - [ ] .github/cspell.json present (if configured)
       - [ ] .github/PULL_REQUEST_TEMPLATE.md present (if configured)
       - [ ] Root workflows contain required checks
+      - [ ] Root workflows coverage threshold `min_coverage` is >= 70%
       
       - Per-app CI/CD analysis (MANDATORY for each app):
         * For each app in apps/ directory:
           - Verify .github/workflows/<app_name>.yaml or .github/workflows/<app_name>.yml exists
           - Read app-specific workflow files completely
           - For each app workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+          - CRITICAL: Verify `min_coverage` is at least 70. (e.g., `min_coverage: 70` is OK, `min_coverage: 69` is ERROR)
           - Check for app-specific dependabot.yaml in apps/<app_name>/.github/
           - Check for app-specific cspell.json in apps/<app_name>/.github/
           - Check for app-specific PR template in apps/<app_name>/.github/
@@ -88,6 +96,7 @@ rules:
       PER-APP VERIFICATION CHECKLIST (for each app in apps/):
       - [ ] .github/workflows/<app_name>.yaml exists
       - [ ] App-specific workflow contains required checks
+      - [ ] App-specific workflow coverage threshold `min_coverage` is >= 70%
       - [ ] apps/<app_name>/.github/dependabot.yaml present (if configured)
       - [ ] apps/<app_name>/.github/cspell.json present (if configured)
       - [ ] apps/<app_name>/.github/PULL_REQUEST_TEMPLATE.md present (if configured)
@@ -104,6 +113,7 @@ rules:
           - Verify .github/workflows/<package_name>.yaml or .github/workflows/<package_name>.yml exists
           - Read package-specific workflow files completely
           - For each package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+          - CRITICAL: Verify `min_coverage` is at least 70. (e.g., `min_coverage: 70` is OK, `min_coverage: 69` is ERROR)
       
       - Nested packages workflows (if apps/<app_name>/packages/ exists):
         MANDATORY VERIFICATION: Check ONLY workflow files for nested packages (no dependabot/cspell/PR template).
@@ -113,6 +123,7 @@ rules:
             - Verify .github/workflows/<app_name>_<package_name>.yaml or .github/workflows/<app_name>_<package_name>.yml exists
             - Read nested package-specific workflow files completely
             - For each nested package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+            - CRITICAL: Verify `min_coverage` is at least 70. (e.g., `min_coverage: 70` is OK, `min_coverage: 69` is ERROR)
       
       - Shared packages workflows (if apps/packages/ exists):
         MANDATORY VERIFICATION: Check ONLY workflow files for shared packages (no dependabot/cspell/PR template).
@@ -121,10 +132,12 @@ rules:
           - Verify .github/workflows/shared_<package_name>.yaml or .github/workflows/shared_<package_name>.yml exists
           - Read shared package-specific workflow files completely
           - For each shared package workflow, identify: format checks, analyze steps, test steps, coverage thresholds, spell-check, release automation
+          - CRITICAL: Verify `min_coverage` is at least 70. (e.g., `min_coverage: 70` is OK, `min_coverage: 69` is ERROR)
       
       PACKAGE VERIFICATION CHECKLIST (for each package in packages/):
       - [ ] .github/workflows/<package_name>.yaml exists
       - [ ] Package-specific workflow contains required checks
+      - [ ] Package-specific workflow coverage threshold `min_coverage` is >= 70%
       - [ ] NO dependabot.yaml expected in packages/ (root-level only)
       - [ ] NO cspell.json expected in packages/ (root-level only)
       - [ ] NO PULL_REQUEST_TEMPLATE.md expected in packages/ (root-level only)
@@ -132,6 +145,7 @@ rules:
       NESTED PACKAGE VERIFICATION CHECKLIST (for each nested package in apps/<app_name>/packages/):
       - [ ] .github/workflows/<app_name>_<package_name>.yaml exists
       - [ ] Nested package-specific workflow contains required checks
+      - [ ] Nested package-specific workflow coverage threshold `min_coverage` is >= 70%
       - [ ] NO dependabot.yaml expected in nested packages/ (root-level only)
       - [ ] NO cspell.json expected in nested packages/ (root-level only)
       - [ ] NO PULL_REQUEST_TEMPLATE.md expected in nested packages/ (root-level only)
@@ -139,6 +153,7 @@ rules:
       SHARED PACKAGE VERIFICATION CHECKLIST (for each shared package in apps/packages/):
       - [ ] .github/workflows/shared_<package_name>.yaml exists
       - [ ] Shared package-specific workflow contains required checks
+      - [ ] Shared package-specific workflow coverage threshold `min_coverage` is >= 70%
       - [ ] NO dependabot.yaml expected in shared packages/ (root-level only)
       - [ ] NO cspell.json expected in shared packages/ (root-level only)
       - [ ] NO PULL_REQUEST_TEMPLATE.md expected in shared packages/ (root-level only)
@@ -149,6 +164,7 @@ rules:
         * Analyze steps: "flutter analyze" or "dart analyze" with fatal-infos or fatal-warnings flags
         * Test steps: "flutter test" with coverage flags
         * Coverage thresholds: lcov, coverage percentage requirements
+        * CRITICAL: `min_coverage` MUST be >= 70. (40=Error, 69=Error, 70=OK, 71=OK)
         * Spell-check: cspell integration
         * Release automation: tagging, changelog generation, publishing
       - Important exclusions:
@@ -197,3 +213,7 @@ rules:
       - Shared packages: Check ONLY .github/workflows/shared_<package>.yaml files
       - Do NOT expect dependabot/cspell/PR template in packages/ directories
       - Do NOT recommend CODEOWNERS or SECURITY.md files
+      
+      CRITICAL: Do NOT report missing CODEOWNERS or SECURITY.md files as CI/CD configuration gaps.
+      These are governance decisions, not technical CI/CD requirements.
+      If you see a rule asking for them, IGNORE IT. They are explicitly excluded.

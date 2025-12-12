@@ -105,6 +105,7 @@ rules:
       - Security: [Score]/100 ([Label])
       - Documentation & Operations: [Score]/100 ([Label])
       - CI/CD (Configs Found in Repo): [Score]/100 ([Label])
+      - Workflows with min_coverage < 70: [Count]
       - Overall: [Score]/100 ([Label])
 
       12. Additional Metrics:
@@ -128,7 +129,7 @@ rules:
       - Code Quality: [Score]/100 ([Label])
       - Security: [Score]/100 ([Label])
       - Documentation & Operations: [Score]/100 ([Label])
-      - CI/CD: [Score]/100 ([Label])
+      - CI/CD: [Score]/100 ([Label]) (min_coverage check included)
       Overall Score: [Score]/100 ([Label])
       [One-sentence interpretation]
 

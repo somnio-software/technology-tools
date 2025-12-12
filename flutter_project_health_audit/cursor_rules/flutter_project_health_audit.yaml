@@ -78,7 +78,7 @@ rules:
       5) .fvm/fvm_config.json or FVM files (Flutter channel/SDK).
       6) i18n configuration: l10n.yaml, lib/l10n/*.arb files, flutter_localizations dependency.
       7) Tests: test/** (count, presence of bloc_test, testWidgets).
-      8) Coverage: coverage/lcov.info, genhtml HTML report (coverage/html/), coverage analysis results from Flutter Test Coverage Runner.
+      8) Coverage: coverage/lcov.info, coverage analysis results from Flutter Test Coverage Runner.
       9) Per-app coverage: For monorepos with apps/ structure, check coverage/app1/, coverage/app2/, etc. for individual app coverage.
       10) Workflows: .github/workflows/*.yml|yaml content; other .github configs (dependabot.yaml, PULL_REQUEST_TEMPLATE.md, cspell.json).
       11) Docs/Ops: README*, CHANGELOG*, .env.example.
@@ -115,7 +115,7 @@ rules:
          - Widget tests present (import flutter_test/testWidgets) → PASS/FAIL/UNKNOWN
          - Coverage script/mention (e.g., --coverage in workflows or scripts) → PASS/FAIL/UNKNOWN
          - Test counts > 0 and distributed (unit/bloc/widget) as applicable → PASS/FAIL/UNKNOWN
-         - Coverage data available (coverage/lcov.info, genhtml HTML report, coverage analysis results) → PASS/FAIL/UNKNOWN
+         - Coverage data available (coverage/lcov.info, coverage analysis results) → PASS/FAIL/UNKNOWN
          - Per-app coverage data: For monorepos with apps/, individual coverage files (coverage/app1/lcov.info, coverage/app2/lcov.info) → PASS/FAIL/UNKNOWN
          - Coverage percentage meets thresholds (70%+ overall, 80%+ business logic) → PASS/FAIL/UNKNOWN
          - Per-app coverage thresholds: Each app meets individual coverage thresholds → PASS/FAIL/UNKNOWN
@@ -131,6 +131,7 @@ rules:
          - dependabot config present (.github/dependabot.yaml) → PASS/FAIL/UNKNOWN
          - Secret scanning patterns / deny-lists found (if any) → PASS/FAIL/UNKNOWN
          - "copy" files containing keys → WARNING only (do not count as FAIL); "copy" without keys → ignore
+         - CODEOWNERS / SECURITY.md → NEUTRAL / IGNORED (do not report as missing)
 
       H) Documentation & Technical Setup — expected checks:
          - README con instrucciones de build, incl. --dart-define si aplica → PASS/FAIL/UNKNOWN
@@ -147,6 +148,7 @@ rules:
          - Nested packages rule: if apps/<app>/packages/ exists, expect .github/workflows/<app>_<package>.yml|yaml for each nested package → missing counts as FAIL; if absent → NEUTRAL
          - Shared packages rule: if apps/packages/ exists, expect .github/workflows/shared_<package>.yml|yaml for each shared package → missing counts as FAIL; if absent → NEUTRAL
          - Per-app coverage workflows: Each app workflow should include coverage collection → PASS/FAIL/UNKNOWN
+         - Workflows enforce min_coverage >= 70 (check all coverage workflows) → PASS/FAIL (List failing files in Findings)
          - CRITICAL VERIFICATION: Check CI/CD files in CORRECT locations only:
            * Single app: .github/dependabot.yaml, .github/cspell.json, .github/PULL_REQUEST_TEMPLATE.md
            * Multi-app: .github/ (root) AND apps/<app>/.github/ (per app) for dependabot, cspell, PR template
@@ -303,7 +305,7 @@ rules:
         - List each app found in apps/ directory
         - Check individual pubspec.yaml for each app
         - Verify individual test directories (apps/app1/test/, apps/app2/test/)
-        - Check individual coverage data (coverage/app1/lcov.info, coverage/app2/lcov.info, genhtml HTML reports)
+        - Check individual coverage data (coverage/app1/lcov.info, coverage/app2/lcov.info)
         - Report per-app coverage percentages in format: "coverage app1: X%", "coverage app2: Y%"
         - Verify individual CI/CD workflows for each app
         - Check individual analysis_options.yaml for each app (if present)
@@ -320,7 +322,7 @@ rules:
       • Always cite concrete files in "Evidence".
       • If any crucial artifact wasn't opened, explicitly say "Unknown: requires <path>".
       • Integrate coverage analysis results from Flutter Test Coverage Runner when available.
-      • Use genhtml coverage/lcov.info -o coverage/html to generate HTML coverage reports.
+
       • Include coverage percentages and threshold verification in Testing section.
       • Reference coverage data in Additional Metrics section.
       • For monorepos: Report individual app coverage percentages and overall metrics.
