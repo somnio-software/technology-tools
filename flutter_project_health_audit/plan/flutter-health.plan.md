@@ -21,14 +21,17 @@ Goal: Configure Flutter environment with MANDATORY FVM global configuration and 
 
 **Rule to Execute**: `@flutter_version_alignment` (MANDATORY)
 
-**Additional Rules**:
-- `@flutter_version_validator` (verification)
-- `@flutter_test_coverage` (coverage generation)
+**Additional Rules to Execute**:
+1. `@flutter_tool_installer` (MANDATORY: Installs Node.js, FVM, Gemini CLI, Security Extension)
+2. `@flutter_version_alignment`
+3. `@flutter_version_validator`
+4. `@flutter_test_coverage` (coverage generation)
 
 **Execution Order**:
-1. Execute `@flutter_version_alignment` rule first (MANDATORY - stops if fails)
-2. Execute `@flutter_version_validator` rule to verify FVM global setup and comprehensive dependency management
-3. Execute `@flutter_test_coverage` rule to generate coverage
+1. Execute `@flutter_tool_installer` rule first (MANDATORY - stops if fails)
+2. Execute `@flutter_version_alignment` rule (MANDATORY - stops if fails)
+3. Execute `@flutter_version_validator` rule to verify FVM global setup and comprehensive dependency management
+4. Execute `@flutter_test_coverage` rule to generate coverage
 
 **Comprehensive Dependency Management**:
 - Root project: `fvm flutter pub get`
@@ -88,6 +91,15 @@ Goal: Identify sensitive files, check .gitignore coverage across all project dir
 
 **Integration**: Save security findings for Security section scoring.
 
+## Step 6.5. Gemini Security Audit (Advanced)
+
+Goal: Execute advanced security analysis using the Gemini CLI Security extension to identify vulnerabilities and risks in code changes.
+
+**Rule to Execute**: `@flutter_gemini_security_audit`
+
+**Integration**: Save Gemini security findings for the Security section of the final report.
+
+
 ## Step 7. Documentation and Operations
 
 Goal: Review project documentation, build instructions, environment setup, and operational files.
@@ -134,17 +146,19 @@ mkdir -p reports
 **Total Rules**: 9 individual rules + 3 existing rules
 
 **Rule Execution Order**:
-1. `@flutter_version_alignment` (MANDATORY - stops if FVM global fails)
-2. `@flutter_version_validator` (verification of FVM global setup)
-3. `@flutter_test_coverage` (coverage generation)
-4. `@flutter_repository_inventory`
-5. `@flutter_config_analysis`
-6. `@flutter_cicd_analysis`
-7. `@flutter_testing_analysis`
-8. `@flutter_code_quality`
-9. `@flutter_security_analysis`
-10. `@flutter_documentation_analysis`
-11. `@flutter_report_generator`
+1. `@flutter_tool_installer`
+2. `@flutter_version_alignment` (MANDATORY - stops if FVM global fails)
+3. `@flutter_version_validator` (verification of FVM global setup)
+4. `@flutter_test_coverage` (coverage generation)
+5. `@flutter_repository_inventory`
+6. `@flutter_config_analysis`
+7. `@flutter_cicd_analysis`
+8. `@flutter_testing_analysis`
+9. `@flutter_code_quality`
+10. `@flutter_security_analysis`
+11. `@flutter_gemini_security_audit`
+12. `@flutter_documentation_analysis`
+13. `@flutter_report_generator`
 
 **Benefits of Modular Approach**:
 - Each rule can be executed independently

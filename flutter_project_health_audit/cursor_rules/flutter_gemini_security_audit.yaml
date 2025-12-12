@@ -1,0 +1,75 @@
+rules:
+  - name: Flutter Gemini Security Audit
+    description: Execute advanced security analysis using the Gemini CLI Security extension for Flutter projects.
+    match: "*"
+    prompt: |
+      Goal: Execute advanced security analysis using the Gemini CLI Security extension.
+
+      PREREQUISITES:
+      - `gemini` CLI must be installed and available in PATH.
+      - `security` extension must be installed in Gemini CLI.
+      - `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable must be set.
+
+      EXECUTION STEPS:
+
+      1. Check API Key Configuration:
+         ```bash
+         if [ -z "$GEMINI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ]; then
+           echo "ERROR: Gemini API Key not found."
+           echo "Please set GEMINI_API_KEY or GOOGLE_API_KEY environment variable."
+           echo "You can get an API key from https://aistudio.google.com/"
+           echo "Skipping Gemini Security Audit."
+           exit 0
+         else
+           echo "Gemini API Key is configured."
+         fi
+         ```
+
+      2. Check Gemini CLI Installation:
+         ```bash
+         if ! command -v gemini &> /dev/null; then
+           echo "Gemini CLI not found."
+           echo "Please run the @flutter_tool_installer rule to install required tools."
+           echo "Skipping Gemini Security Audit."
+           exit 0
+         else
+           echo "Gemini CLI is installed."
+         fi
+         ```
+
+      3. Check Security Extension Installation:
+         ```bash
+         if ! gemini extensions list | grep -q "security"; then
+           echo "Gemini Security extension not found."
+           echo "Please run the @flutter_tool_installer rule to install required tools."
+           echo "Skipping Gemini Security Audit."
+           exit 0
+         else
+           echo "Gemini Security extension is installed."
+         fi
+         ```
+
+      4. Execute Security Analysis:
+         ```bash
+         echo "Running Gemini Security Analysis..."
+         # Run analysis on the current directory
+         # Note: The extension might be interactive, we attempt to run it in a way that produces output.
+         # If non-interactive mode is not fully supported yet, we capture what we can.
+         
+         # Try to run analysis and capture output
+         gemini security:analyze . > gemini_security_report.txt 2>&1
+         
+         if [ $? -eq 0 ]; then
+           echo "Gemini Security Analysis completed successfully."
+           echo "Report saved to gemini_security_report.txt"
+           cat gemini_security_report.txt
+         else
+           echo "Gemini Security Analysis failed or required interaction."
+           cat gemini_security_report.txt
+         fi
+         ```
+
+      Output format:
+      - Status of Gemini CLI and Extension (Installed/Missing)
+      - Summary of findings from the security analysis
+      - Location of the detailed report (gemini_security_report.txt)

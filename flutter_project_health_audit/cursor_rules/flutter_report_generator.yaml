@@ -43,6 +43,7 @@ rules:
       - Testing Analysis results
       - Code Quality Analysis results
       - Security Analysis results
+      - Gemini Security Audit results
       - Documentation Analysis results
 
       Verify the Overall Score calculation:
