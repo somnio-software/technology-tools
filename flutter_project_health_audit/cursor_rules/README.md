@@ -33,7 +33,7 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ### 3. Flutter Test Coverage
 - **File**: `flutter_test_coverage.yaml` (existing)
-- **Purpose**: Generate test coverage reports using genhtml
+- **Purpose**: Generate test coverage reports and validate `min_coverage >= 70%`
 - **Usage**: `@flutter_test_coverage`
 - **Dependencies**: `@flutter_version_alignment`
 
@@ -53,7 +53,7 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ### 6. CI/CD Analysis
 - **File**: `flutter_cicd_analysis.yaml`
-- **Purpose**: Analyze GitHub Actions workflows and CI/CD configs
+- **Purpose**: Analyze GitHub Actions workflows, CI/CD configs, and coverage enforcement
 - **Usage**: `@flutter_cicd_analysis`
 - **Dependencies**: None
 

@@ -110,7 +110,7 @@ To always run `@flutter-health.plan.md` (stored in `plan/flutter-health.plan.md`
 
 ### Execution Order
 
-1. `@flutter_version_alignment` (MANDATORY)
+1. `@flutter_version_alignment` (MANDATORY - Step 0)
 2. `@flutter_version_validator`
 3. `@flutter_test_coverage`
 4. `@flutter_repository_inventory`
@@ -120,7 +120,7 @@ To always run `@flutter-health.plan.md` (stored in `plan/flutter-health.plan.md`
 8. `@flutter_code_quality`
 9. `@flutter_security_analysis`
 10. `@flutter_documentation_analysis`
-11. `@flutter_report_generator`
+11. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
 
 ## 🤖 ChatGPT Integration
 

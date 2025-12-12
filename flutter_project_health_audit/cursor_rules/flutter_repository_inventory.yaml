@@ -5,6 +5,11 @@ rules:
     prompt: |
       Goal: Detect repository structure, platform folders, monorepo packages, and feature organization for single app or multi-app repositories.
 
+      IMPORTANT EXCLUSIONS:
+      - Do NOT analyze, recommend, or consider CODEOWNERS files
+      - Do NOT analyze, recommend, or consider SECURITY.md files
+      - These are governance decisions, not technical requirements
+
       MONOREPO DETECTION:
       - First detect repository structure: single app (app/) or multi-app monorepo (apps/app1/, apps/app2/, etc.)
       - If apps/ directory exists, analyze each app individually

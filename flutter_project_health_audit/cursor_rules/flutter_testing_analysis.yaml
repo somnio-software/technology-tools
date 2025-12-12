@@ -57,11 +57,10 @@ rules:
       COVERAGE ANALYSIS:
       - Single app coverage:
         * Look for coverage/lcov.info
-        * Check for coverage/html/ directory (genhtml reports)
+
         * Verify coverage thresholds in workflows
       - Multi-app coverage:
         * Look for per-app coverage: coverage/app1/lcov.info, coverage/app2/lcov.info
-        * Check for per-app HTML reports: coverage/app1/html/, coverage/app2/html/
         * Verify per-app coverage thresholds
         * Check for aggregated coverage reports
         * Verify coverage execution per app
