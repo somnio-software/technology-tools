@@ -10,12 +10,15 @@ This tool is designed to analyze Flutter/Dart projects and generate comprehensiv
 
 ```
 flutter_project_health_audit/
+├── .agent/                 # Workflows and agent configuration
+├── env/                    # Environment configuration (templates)
 ├── cursor_rules/           # Cursor IDE rules for automated analysis
 │   ├── templates/          # Report templates and examples
 │   └── *.yaml              # Individual analysis rules
 ├── plan/                   # Project planning and documentation
 ├── prompts/                # AI prompts for analysis
 │   └── flutter_health_prompt.txt  # ChatGPT prompt
+├── .gitignore              # Git ignore rules
 └── README.md               # This file
 ```
 
@@ -124,17 +127,17 @@ To always run `@flutter-health.plan.md` (stored in `plan/flutter-health.plan.md`
 
 1. `@flutter_tool_installer` (MANDATORY - Step 0)
 2. `@flutter_version_alignment` (MANDATORY - Step 0)
-2. `@flutter_version_validator`
-3. `@flutter_test_coverage`
-4. `@flutter_repository_inventory`
-5. `@flutter_config_analysis`
-6. `@flutter_cicd_analysis`
-7. `@flutter_testing_analysis`
-8. `@flutter_code_quality`
-9. `@flutter_security_analysis`
-10. `@flutter_gemini_security_audit`
-11. `@flutter_documentation_analysis`
-12. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
+3. `@flutter_version_validator`
+4. `@flutter_test_coverage`
+5. `@flutter_repository_inventory`
+6. `@flutter_config_analysis`
+7. `@flutter_cicd_analysis`
+8. `@flutter_testing_analysis`
+9. `@flutter_code_quality`
+10. `@flutter_security_analysis`
+11. `@flutter_gemini_security_audit`
+12. `@flutter_documentation_analysis`
+13. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
 
 ## 🤖 ChatGPT Integration
 
