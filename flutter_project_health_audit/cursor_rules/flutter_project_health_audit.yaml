@@ -136,7 +136,8 @@ rules:
       H) Documentation & Technical Setup — expected checks:
          - README con instrucciones de build, incl. --dart-define si aplica → PASS/FAIL/UNKNOWN
          - Technical onboarding docs (env samples: .env.example) → PASS/FAIL/UNKNOWN
-         - CHANGELOG present → PASS/FAIL/UNKNOWN
+         - CHANGELOG present → PASS / NEUTRAL (missing is neutral)
+         - CONTRIBUTING present → PASS / NEUTRAL (missing is neutral)
          - PR template .github/PULL_REQUEST_TEMPLATE.md → PASS/FAIL/UNKNOWN
          - Do NOT check for operational documentation (runbooks, troubleshooting, deployment procedures)
 

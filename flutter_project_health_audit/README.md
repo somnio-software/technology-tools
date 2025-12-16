@@ -86,11 +86,19 @@ flutter_project_health_audit/
    cd technology-tools/flutter_project_health_audit
    ```
 
-2. **Use Cursor IDE rules**:
+2. **Setup Environment**:
+   - Create the environment file from the template:
+     ```bash
+     cp env/copy.env env/.env
+     ```
+   - *Note: This file is required for proper execution of the audit tools.*
+   - *Tip: You can attach this file when executing the plan or workflow to help the agent access environment variables.*
+
+3. **Use Cursor IDE rules**:
    - Copy `cursor_rules/` to your project
    - Use `@rule_name` in Cursor to run specific analyses
 
-3. **Run Flutter Health Audit**:
+4. **Run Flutter Health Audit**:
    ```bash
    # Follow the execution order in cursor_rules/README.md
    @flutter_tool_installer
