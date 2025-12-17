@@ -28,6 +28,18 @@ Complete auditing system for Flutter/Dart projects that includes:
 
 **Documentation**: See `flutter_project_health_audit/README.md` for detailed instructions.
 
+### Flutter Best Practices Check
+Specialized tool for validating code quality and adherence to specific development standards:
+
+- **Micro-level analysis**: Evaluation of testing quality, architecture compliance, and code standards
+- **Live Standards Validation**: Validates code against live `.mdc` standards from GitHub
+- **Report Template**: Standardized plain-text reporting
+- **Modular Rules**: Independent analysis rules for Testing, Architecture, and Code Standards
+
+**Location**: `flutter_best_practices_check/`
+
+**Documentation**: See `flutter_best_practices_check/README.md` for detailed instructions.
+
 ## 📁 Repository Structure
 
 ```
@@ -36,6 +48,10 @@ technology-tools/
 │   ├── cursor_rules/                # Cursor IDE rules
 │   ├── plan/                        # Planning and documentation
 │   ├── prompts/                     # AI prompts for analysis
+│   └── README.md                    # Specific documentation
+├── flutter_best_practices_check/    # Micro-level code auditing
+│   ├── cursor_rules/                # Analysis rules
+│   ├── plan/                        # Execution plan
 │   └── README.md                    # Specific documentation
 └── README.md                        # This file
 ```
