@@ -19,11 +19,9 @@ Goal: Configure Flutter environment with MANDATORY FVM global configuration and 
 
 **CRITICAL**: This step MUST configure FVM global version and install ALL dependencies (root, packages, apps). Execution stops if FVM global configuration fails.
 
-**Rule to Execute**: `@flutter_version_alignment` (MANDATORY)
-
-**Additional Rules to Execute**:
+**Rules to Execute**:
 1. `@flutter_tool_installer` (MANDATORY: Installs Node.js, FVM, Gemini CLI, Security Extension)
-2. `@flutter_version_alignment`
+2. `@flutter_version_alignment` (MANDATORY - stops if fails)
 3. `@flutter_version_validator`
 4. `@flutter_test_coverage` (coverage generation)
 
@@ -38,6 +36,10 @@ Goal: Configure Flutter environment with MANDATORY FVM global configuration and 
 - All packages: `find packages/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
 - All apps: `find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
 - Verification: `fvm flutter pub deps`
+- Build artifacts generation (only where build_runner is declared):
+  - Root: `fvm dart run build_runner build --delete-conflicting-output`
+  - Packages: `find packages/ -name "pubspec.yaml" -execdir sh -c 'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run build_runner build --delete-conflicting-output; fi' \;`
+  - Apps: `find apps/ -name "pubspec.yaml" -execdir sh -c 'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run build_runner build --delete-conflicting-output; fi' \;`
 
 **Integration**: Save all outputs from these rules for integration into the final audit report.
 
@@ -102,7 +104,7 @@ Goal: Execute advanced security analysis using the Gemini CLI Security extension
 
 ## Step 7. Documentation and Operations
 
-Goal: Review project documentation, build instructions, environment setup, and operational files.
+Goal: Review technical documentation, build instructions, and environment setup (no operational/runbook content).
 
 **Rule to Execute**: `@flutter_documentation_analysis`
 
@@ -143,7 +145,7 @@ mkdir -p reports
 
 ## Execution Summary
 
-**Total Rules**: 9 individual rules + 3 existing rules
+**Total Rules**: 13 rules
 
 **Rule Execution Order**:
 1. `@flutter_tool_installer`
