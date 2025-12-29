@@ -30,6 +30,21 @@ Auditing system for NestJS backend and cloud functions projects.
 
 **Documentation**: See `nestjs-plans/README.md` for current status and TODO items.
 
+### NestJS Project Health Audit
+Complete auditing system for NestJS/Node.js backend projects that includes:
+
+- **Automated analysis**: 9 analysis categories with scoring (Tech Stack, Architecture, API Design, Data Layer, Testing, Code Quality, Security, Documentation, CI/CD)
+- **Monorepo support**: Handles single-app and monorepo structures (nx, turborepo, lerna, custom)
+- **Standardized reports**: 16-section format ready for Google Docs
+- **API design analysis**: REST/GraphQL validation, DTOs, OpenAPI/Swagger documentation
+- **Security analysis**: Authentication/authorization patterns, OWASP Top 10 compliance
+- **Test coverage**: Execution, aggregation, and 70% minimum threshold validation
+- **ChatGPT integration**: Specialized prompt for generating executive summaries
+
+**Location**: `nestjs_project_health_audit/`
+
+**Documentation**: See `nestjs_project_health_audit/README.md` for detailed instructions.
+
 ## 📁 Repository Structure
 
 ```
@@ -61,6 +76,15 @@ Navigate to the NestJS plans directory and check the current status:
 ```bash
 cd nestjs-plans/
 # See nestjs-plans/README.md for current status and TODO items
+```
+
+### For NestJS projects
+```bash
+# Navigate to the specific tool
+cd nestjs_project_health_audit/
+
+# Follow instructions in the specific README
+# See nestjs_project_health_audit/README.md
 ```
 
 ### For new tools

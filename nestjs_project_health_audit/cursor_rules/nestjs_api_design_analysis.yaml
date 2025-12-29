@@ -1,0 +1,265 @@
+rules:
+  - name: NestJS API Design Analysis
+    description: Analyze REST/GraphQL API design, DTOs, validation patterns, OpenAPI/Swagger documentation, and API versioning for NestJS projects.
+    match: "*"
+    prompt: |
+      Goal: Analyze REST/GraphQL API design, DTOs, validation patterns, documentation, and versioning for single app or monorepo repositories.
+
+      MONOREPO DETECTION:
+      - First detect repository structure: single app or monorepo
+      - If apps/ directory exists, analyze each app individually
+      - If packages/ or libs/ directory exists, analyze shared API libraries
+
+      API TYPE DETECTION:
+      - REST API: Controllers with HTTP decorators (@Get, @Post, @Put, @Delete, @Patch)
+      - GraphQL API: Resolvers with GraphQL decorators (@Query, @Mutation, @Subscription)
+      - Hybrid: Both REST and GraphQL
+      - Microservices: Message patterns with @MessagePattern, @EventPattern
+
+      REST API ANALYSIS:
+
+      1. Controller Design:
+         - Find all controller files: **/*.controller.ts
+         - Analyze controller structure:
+           * Route prefixes (@Controller decorator)
+           * HTTP method handlers (@Get, @Post, etc.)
+           * Route parameter validation (@Param with DTOs)
+           * Query parameter validation (@Query with DTOs)
+           * Request body validation (@Body with DTOs)
+           * Response transformation (@UseInterceptors)
+           * Error handling patterns (@UseFilters)
+           * Authentication guards (@UseGuards)
+         - CRITICAL: Verify proper HTTP verb usage:
+           * GET: Retrieve data (idempotent, safe)
+             - GET /users - list all users
+             - GET /users/:id - get specific user
+             - Should NOT modify data
+           * POST: Create new resources
+             - POST /users - create new user
+             - Returns 201 Created with created resource
+           * PUT: Full update of resource (replace entire resource)
+             - PUT /users/:id - replace user completely
+             - All fields should be provided
+           * PATCH: Partial update of resource
+             - PATCH /users/:id - update specific fields
+             - Only modified fields provided
+           * DELETE: Remove resource
+             - DELETE /users/:id - delete user
+             - Returns 204 No Content or 200 OK
+         - Verify endpoint naming follows RESTful conventions:
+           * Resource-based URLs (nouns, not verbs)
+           * Plural nouns: /users, /products, /orders
+           * AVOID: /getUser, /createProduct, /deleteOrder (verbs in URL)
+           * Nested resources: /users/:userId/orders
+           * Query params for filtering: /users?role=admin&status=active
+         
+      2. API Versioning:
+         - Check for versioning strategy:
+           * URI versioning: /api/v1/users
+           * Header versioning: @Version decorator
+           * Custom versioning implementation
+         - Verify consistent versioning across endpoints
+         
+      3. HTTP Status Codes:
+         - Check for explicit status codes (@HttpCode decorator)
+         - Verify appropriate status codes for operations:
+           * POST: 201 Created
+           * PUT/PATCH: 200 OK or 204 No Content
+           * DELETE: 204 No Content
+           * GET: 200 OK
+         
+      4. Response Format Consistency:
+         - Check for standardized response wrappers
+         - Verify consistent error response format
+         - Check for pagination patterns (limit, offset, cursor)
+         - Check for sorting and filtering patterns
+
+      DTO (Data Transfer Object) ANALYSIS:
+
+      1. DTO Structure:
+         - Find all DTO files: **/*.dto.ts
+         - Count DTOs per module
+         - CRITICAL: Analyze DTO organization and usage:
+           * Request DTOs:
+             - Create DTOs (create-*.dto.ts) for POST endpoints
+             - Update DTOs (update-*.dto.ts) for PUT/PATCH endpoints
+             - All DTOs should be in dto/ directory within module
+           * Response DTOs (response-*.dto.ts, *-response.dto.ts):
+             - CRITICAL: Every endpoint should have explicit response DTO
+             - Response DTOs control what data is exposed to clients
+             - Prevent accidental exposure of sensitive fields
+             - Example: UserResponseDto excludes password field
+           * Query DTOs (query-*.dto.ts, *-query.dto.ts):
+             - CRITICAL: All query parameters should use DTOs
+             - Filtering: FilterUserDto with role, status, etc.
+             - Pagination: PaginationDto with page, limit, offset
+             - Sorting: SortDto with sortBy, order
+             - Search: SearchDto with query, fields
+           * Verify ALL endpoints use DTOs:
+             - @Body() createUserDto: CreateUserDto
+             - @Query() queryDto: QueryUserDto
+             - @Param() params: UserParamsDto
+             - Return type: Promise<UserResponseDto> or Promise<UserResponseDto[]>
+         
+      2. Validation Rules:
+         - Check for class-validator decorators:
+           * @IsString(), @IsNumber(), @IsBoolean()
+           * @IsEmail(), @IsUrl(), @IsUUID()
+           * @IsNotEmpty(), @IsOptional()
+           * @Min(), @Max(), @Length()
+           * @IsEnum(), @IsArray()
+           * @ValidateNested(), @Type()
+         - Verify all DTOs have validation
+         - Check for custom validators
+         
+      3. Transformation Rules:
+         - Check for class-transformer decorators:
+           * @Exclude(), @Expose()
+           * @Transform()
+           * @Type()
+         - Verify sensitive data exclusion (passwords, tokens)
+         
+      4. DTO Reusability:
+         - Check for PartialType, PickType, OmitType usage
+         - Verify Update DTOs extend Create DTOs appropriately
+         - Check for shared base DTOs
+
+      VALIDATION PIPELINE ANALYSIS:
+
+      1. Global Validation Pipe:
+         - Check main.ts for app.useGlobalPipes(new ValidationPipe())
+         - Verify ValidationPipe configuration:
+           * whitelist: true (strip non-whitelisted properties)
+           * forbidNonWhitelisted: true (throw error on non-whitelisted)
+           * transform: true (auto-transform to DTO types)
+           * transformOptions.enableImplicitConversion: true
+           * disableErrorMessages: false (in production, consider true)
+         
+      2. Custom Pipes:
+         - Find custom pipe implementations: **/*.pipe.ts
+         - Analyze custom validation logic
+         - Check for data transformation pipes
+         
+      3. Validation Error Handling:
+         - Check for custom validation exception filter
+         - Verify validation error response format
+         - Check for localized validation messages
+
+      OPENAPI/SWAGGER DOCUMENTATION:
+
+      1. Swagger Setup:
+         - CRITICAL: Check main.ts for SwaggerModule configuration
+         - Verify @nestjs/swagger is installed
+         - Check Swagger UI endpoint (/api, /docs, etc.)
+         - Verify SwaggerModule.setup() is called in main.ts
+         - Check for DocumentBuilder configuration:
+           * API title, description, version
+           * Server URLs
+           * Security schemes (Bearer, OAuth2, etc.)
+         - Verify Swagger is accessible (enabled in development/staging)
+         
+      2. API Documentation Quality:
+         - Controller-level documentation:
+           * @ApiTags() for grouping
+           * @ApiBearerAuth() for auth
+         - Method-level documentation:
+           * @ApiOperation() for operation description
+           * @ApiResponse() for response documentation
+           * @ApiParam() for path parameters
+           * @ApiQuery() for query parameters
+           * @ApiBody() for request body
+         - DTO documentation:
+           * @ApiProperty() on DTO fields
+           * @ApiPropertyOptional() for optional fields
+           * Examples and descriptions
+         
+      3. API Specification Completeness:
+         - Verify all endpoints documented
+         - Check for request/response examples
+         - Verify schema definitions for DTOs
+         - Check for enum documentation
+         - Verify error response documentation
+
+      GRAPHQL API ANALYSIS (if applicable):
+
+      1. Schema-First vs Code-First:
+         - Detect approach: schema.gql file vs @ObjectType decorators
+         - Verify consistency across resolvers
+         
+      2. Resolver Design:
+         - Find all resolver files: **/*.resolver.ts
+         - Analyze resolver structure:
+           * @Query() handlers
+           * @Mutation() handlers
+           * @Subscription() handlers
+           * Field resolvers (@ResolveField)
+           * Guards and interceptors
+         
+      3. GraphQL Types:
+         - Input types (@InputType)
+         - Object types (@ObjectType)
+         - Interface types (@InterfaceType)
+         - Enum types (registerEnumType)
+         - Union types
+         
+      4. GraphQL Documentation:
+         - @Field() descriptions
+         - Type descriptions
+         - Deprecation notices (@Deprecated)
+
+      API SECURITY PATTERNS:
+
+      1. Authentication:
+         - Check for auth guards: JwtAuthGuard, LocalAuthGuard
+         - Verify @UseGuards(AuthGuard) usage
+         - Check for public routes (@Public decorator)
+         
+      2. Authorization:
+         - Check for role-based access: @Roles decorator
+         - Verify RolesGuard implementation
+         - Check for permission-based access
+         
+      3. Rate Limiting:
+         - Check for @nestjs/throttler integration
+         - Verify rate limiting on sensitive endpoints
+         
+      4. Input Sanitization:
+         - Check for XSS prevention
+         - Verify SQL injection prevention (parameterized queries)
+         - Check for CORS configuration
+
+      BEST PRACTICES VALIDATION:
+
+      1. RESTful Principles:
+         - Resource-based URLs (nouns, not verbs)
+         - Proper HTTP methods usage
+         - Stateless communication
+         - HATEOAS (if applicable)
+         
+      2. Error Handling:
+         - Custom exception filters
+         - Consistent error response format
+         - Appropriate HTTP status codes
+         - Error logging
+         
+      3. Performance:
+         - Response caching (@CacheInterceptor)
+         - Query optimization hints
+         - Pagination for large datasets
+         - Field selection (GraphQL only)
+
+      Output format:
+      - Repository structure type (single app / monorepo)
+      - API type detected (REST / GraphQL / Hybrid / Microservices)
+      - Total controllers/resolvers count (per app if monorepo)
+      - Total DTOs count (per app if monorepo)
+      - Validation coverage percentage (per app if monorepo)
+      - OpenAPI/Swagger setup status (per app if monorepo)
+      - Documentation completeness score (per app if monorepo)
+      - API versioning strategy (per app if monorepo)
+      - Security patterns detected (per app if monorepo)
+      - Best practices compliance (per app if monorepo)
+      - Identified issues and anti-patterns (per app if monorepo)
+      - Recommendations for improvement (per app if monorepo)
+      - Cross-app API consistency (if monorepo)
+

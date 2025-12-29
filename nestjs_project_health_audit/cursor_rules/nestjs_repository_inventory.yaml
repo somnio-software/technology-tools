@@ -1,0 +1,110 @@
+rules:
+  - name: NestJS Repository Inventory
+    description: Detect repository structure, module organization, monorepo packages, and feature structure for NestJS projects (single app or monorepo).
+    match: "*"
+    prompt: |
+      Goal: Detect repository structure, module organization, monorepo packages, and feature structure for single app or monorepo repositories.
+
+      IMPORTANT EXCLUSIONS:
+      - Do NOT analyze, recommend, or consider CODEOWNERS files
+      - Do NOT analyze, recommend, or consider SECURITY.md files
+      - These are governance decisions, not technical requirements
+
+      MONOREPO DETECTION:
+      - First detect repository structure: single app or monorepo (nx, turborepo, lerna, or apps/ structure)
+      - If apps/ directory exists, analyze each app individually
+      - If packages/ or libs/ directory exists, analyze each package/library individually
+
+      SINGLE APP INVENTORY:
+      - NestJS module structure in src/ directory
+      - Core directories: src/modules/, src/common/, src/config/
+      - All modules in src/modules/ (list names and structure)
+      - Shared components: src/common/, src/shared/, src/utils/
+      - Configuration structure: src/config/, .env files
+      - Database-related: src/database/, src/entities/, src/repositories/
+      - Presence of nest-cli.json file
+      - TypeScript configuration: tsconfig.json, tsconfig.build.json
+
+      MULTI-APP MONOREPO INVENTORY:
+      - Root-level structure:
+        * Overall repository structure type (monorepo type: nx, turborepo, lerna, custom)
+        * Root-level libs/ or packages/ directory (if exists)
+        * Workspace configuration: nx.json, turbo.json, lerna.json, pnpm-workspace.yaml
+        * Root-level shared modules (if any)
+      - Per-app inventory:
+        * For each app in apps/ directory:
+          - NestJS module structure in apps/<app_name>/src/
+          - Core directories per app
+          - All modules per app
+          - Shared components per app
+          - Configuration structure per app
+          - Database structure per app
+          - App-specific nest-cli.json
+      - Cross-app analysis:
+        * Compare module organization across apps
+        * Compare shared component patterns across apps
+        * Identify shared vs app-specific modules
+        * Identify shared vs app-specific configurations
+
+      PACKAGE/LIBRARY ANALYSIS (if libs/ or packages/ exists):
+      - For each package/library:
+        * Package name and purpose
+        * Export structure (index.ts, public API)
+        * Module organization within package
+        * Package-specific configuration (tsconfig.json, nest-cli.json)
+        * Dependencies and peer dependencies
+
+      MODULE STRUCTURE ANALYSIS:
+      - For each module detected:
+        * Module name and location
+        * Presence of: module.ts, controller.ts, service.ts
+        * DTOs organization:
+          - Request DTOs (create-*.dto.ts, update-*.dto.ts)
+          - Response DTOs (response-*.dto.ts, *-response.dto.ts)
+          - Query DTOs (query-*.dto.ts for query parameters)
+          - Clear separation within module's dto/ directory
+        * Entities directory and files (*.entity.ts)
+        * Repository files (*.repository.ts)
+        * Guards, interceptors, pipes specific to module
+        * Test files (*.spec.ts)
+        * CRITICAL: Check for clear separation of concerns:
+          - Controllers: Handle HTTP requests, call services, return responses (thin layer)
+          - Services: Contain business logic, orchestrate repositories
+          - Repositories: EXCLUSIVELY handle data source communication (database queries)
+          - Verify repositories don't contain business logic
+          - Verify services don't contain direct database queries (should use repositories)
+          - Verify controllers don't contain business logic (should call services)
+
+      ARCHITECTURAL PATTERNS DETECTION:
+      - CRITICAL: Layered architecture validation (controllers → services → repositories):
+        * Verify each module has clear layering
+        * Controllers should only inject services (not repositories directly)
+        * Services should inject repositories for data access
+        * Repositories should ONLY contain data access logic (queries, ORM operations)
+        * Check for violation patterns:
+          - Controllers injecting repositories directly (VIOLATION)
+          - Services with direct database queries instead of using repositories (VIOLATION)
+          - Repositories with business logic (VIOLATION)
+      - Feature-based organization:
+        * Each feature should be in its own module directory
+        * Related features can be grouped under feature folders
+        * Verify modules are organized by business domain, not by layer type
+      - Domain-driven design: entities, aggregates, value objects
+      - CQRS pattern: commands, queries, handlers
+      - Event-driven: events, event handlers, sagas
+      - Microservices: message patterns, transport layers
+
+      Output format:
+      - Repository structure type (single app / monorepo with type)
+      - Monorepo tool detected (nx, turborepo, lerna, custom, or none)
+      - Total number of modules (per app if monorepo)
+      - List specific module names found (per app if monorepo)
+      - Shared components structure (per app if monorepo)
+      - Configuration management approach (per app if monorepo)
+      - Database integration approach (per app if monorepo)
+      - Architectural patterns detected (per app if monorepo)
+      - Cross-app consistency analysis (if monorepo)
+      - Shared vs app-specific modules breakdown (if monorepo)
+      - Package/library organization (if applicable)
+      - Note any missing expected directories (per app if monorepo)
+
