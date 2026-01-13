@@ -1,0 +1,45 @@
+rules:
+  - name: Flutter Architecture Compliance Analysis
+    description: Analyze codebase for adherence to Layered Architecture, dependency rules, and separation of concerns.
+    match: "**/*.dart"
+    prompt: |
+      Goal: Analyze the Flutter codebase for strict adherence to Layered Architecture and Separation of Concerns.
+
+      STANDARDS SOURCE:
+      - Validates against: `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-architecture.mdc`
+      - Validates against: `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-ai-rules.mdc`
+      
+      INSTRUCTIONS:
+      1. USE the `read_url_content` tool to fetch the latest standards from the URLs above.
+      2. Proceed with the analysis below using strict adherence to those rules.
+
+      LAYER DEFINITIONS:
+      1.  **Presentation Layer**: Widgets, Pages, Screens.
+      2.  **Business Logic Layer**: BLoCs, Cubits, ViewModels, UseCases.
+      3.  **Repository Layer**: Repositories (Data aggregation/composition).
+      4.  **Data Layer**: DataProviders, API Clients, DTOs.
+
+      ANALYSIS TARGETS:
+      1.  **Layer Boundary Violations**:
+          *   **CRITICAL**: BLoC/Cubit MUST NOT access `ApiClient`, `http`, or `Dio` directly. They MUST use a Repository.
+          *   **CRITICAL**: Widgets SHOULD NOT contain complex logic or direct data fetching. They should dispatch events/call methods on BLoC/Cubit.
+          *   **CRITICAL**: Repositories SHOULD NOT return DTOs to the Business Layer (unless DTO is the domain model, but domain models preferred).
+
+      2.  **Dependency Injection**:
+          *   Check for proper dependency injection (e.g., passing Repositories to BLoCs).
+          *   Flag rigid dependencies (e.g., `final repo = UserRepository();` inside a BLoC instead of constructor injection).
+
+      3.  **Repository Pattern**:
+          *   Verify Repositories abstract the data sources.
+          *   Check for "One Repo, One Responsibility" principle.
+
+      4.  **Composition over Inheritance**:
+          *   Flag excessive class inheritance (extends) where composition (mixins/properties) would be better.
+
+      OUTPUT FORMAT:
+      *   **Architecture Score**: (1-10) based on layer separation.
+      *   **Violations**:
+          *   `[Layer Violation]` [file:line]: Description of the leak (e.g., "BLoC accessing Dio directly").
+          *   `[DI Issue]` [file:line]: Hardcoded dependency.
+          *   `[Logic in UI]` [file:line]: Complex logic in Widget build method.
+      *   **Recommendations**: Specific refactoring advice for correcting layer violations.

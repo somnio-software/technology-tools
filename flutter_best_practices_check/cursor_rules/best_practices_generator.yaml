@@ -1,0 +1,16 @@
+rules:
+  - name: Flutter Best Practices Report Generator
+    description: Generates a final consolidated report from the findings of the Testing, Architecture, and Code Standards analysis.
+    match: "**/*_audit.txt"
+    prompt: |
+      Goal: Generate a consolidated "Flutter Best Practices Check Report" by aggregating findings from previous analysis steps.
+
+      Apply the "Flutter Best Practices Report Format Enforcer" rule to ensure the output matches the template in templates/best_practices_report_template.txt.
+
+      INPUTS:
+      - Testing Quality Analysis findings
+      - Architecture Compliance Analysis findings
+      - Code Standards Analysis findings
+
+      REPORT STRUCTURE:
+      Must explicitly follow the sections defined in templates/best_practices_report_template.txt.
