@@ -68,6 +68,25 @@ flutter_best_practices_check/
     @plan/best_practices.plan.md
     ```
 
+### 🔄 Combined Execution with Health Audit
+
+**User Prompt Required**: The Health Audit plan will automatically prompt you after completion to ask if you want to execute the Best Practices Check. **The Best Practices Check is NEVER executed automatically**.
+
+**Execution Flow**:
+1. **First**: Execute `@flutter_project_health_audit/plan/flutter-health.plan.md` (macro-level analysis)
+2. **After Health Audit completes**: You will be prompted to confirm if you want to run Best Practices Check
+3. **Only if you confirm**: Execute `@best_practices.plan.md` (micro-level analysis)
+
+**What Each Plan Provides**:
+- **Health Audit**: Project infrastructure, CI/CD, security, documentation, test coverage
+- **Best Practices Check**: Code quality, testing standards, architecture compliance
+
+**Benefits**:
+- Complete project analysis (infrastructure + code quality)
+- Separate focused reports for different audiences
+- User controls when to run the additional analysis
+- Can be executed independently or together (with user confirmation)
+
 ### Execution Order
 The plan `@best_practices.plan.md` orchestrates the following sequence:
 
