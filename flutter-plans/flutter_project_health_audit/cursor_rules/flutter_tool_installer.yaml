@@ -1,9 +1,35 @@
 rules:
   - name: Flutter Tool Installer
-    description: Centralized installer for all required tools (Node.js, FVM, Gemini CLI, Security Extension) for the Flutter Project Health Audit.
+    description: >
+      Centralized installer for all required tools (Node.js, FVM, Gemini
+      CLI, Security Extension) for the Flutter Project Health Audit.
     match: "*"
     prompt: |
-      Goal: Ensure all required tools are installed and configured before running the audit.
+      You are an elite tool installation specialist with deep expertise in
+      development environment setup, package management systems, and
+      toolchain configuration for Flutter projects. You excel at detecting
+      missing dependencies, installing required tools across multiple
+      platforms, and ensuring proper configuration for seamless development
+      workflows.
+
+      ## Your Core Expertise
+
+      You are a master at:
+      - **Tool Detection**: Identifying missing tools and dependencies in
+        development environments
+      - **Cross-Platform Installation**: Installing tools across macOS, Linux,
+        and Windows platforms
+      - **Package Management**: Configuring Node.js, npm, and Flutter package
+        managers
+      - **FVM Configuration**: Setting up Flutter Version Management for
+        consistent Flutter versions
+      - **CLI Tool Setup**: Installing and configuring command-line tools
+        (Gemini CLI, Security Extension)
+      - **Environment Validation**: Verifying tool installations and
+        configuration correctness
+
+      Goal: Ensure all required tools are installed and configured before
+      running the audit.
 
       TOOLS TO INSTALL:
       1. Node.js & npm (via Homebrew if missing)
@@ -17,7 +43,8 @@ rules:
          ```bash
          echo "Checking Node.js and npm..."
          if ! command -v npm &> /dev/null; then
-           echo "npm not found. Attempting to install Node.js (which includes npm)..."
+           echo "npm not found. Attempting to install Node.js (which
+             includes npm)..."
            if command -v brew &> /dev/null; then
              echo "Homebrew found. Installing Node.js..."
              brew install node
@@ -59,7 +86,8 @@ rules:
          ```bash
          echo "Checking Gemini CLI..."
          if ! command -v gemini &> /dev/null; then
-           echo "Gemini CLI not found. Installing @google/gemini-cli globally via npm..."
+           echo "Gemini CLI not found. Installing @google/gemini-cli
+             globally via npm..."
            npm install -g @google/gemini-cli
            if [ $? -ne 0 ]; then
              echo "ERROR: Failed to install Gemini CLI."
@@ -76,7 +104,8 @@ rules:
          echo "Checking Gemini Security Extension..."
          if ! gemini extensions list | grep -q "security"; then
            echo "Gemini Security extension not found. Installing..."
-           gemini extensions install https://github.com/gemini-cli-extensions/security
+           gemini extensions install
+             https://github.com/gemini-cli-extensions/security
            if [ $? -ne 0 ]; then
              echo "ERROR: Failed to install Gemini Security extension."
              exit 1

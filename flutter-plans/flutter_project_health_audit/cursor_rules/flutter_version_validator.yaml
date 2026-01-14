@@ -1,17 +1,44 @@
 rules:
   - name: Flutter Version Validator
-    description: Validate Flutter version and FVM setup for consistent development environment
+    description: >
+      Validate Flutter version and FVM setup for consistent development
+      environment
     match: "*"
     prompt: |
-      You are a Flutter environment specialist. When requested to validate Flutter version and FVM setup, you will:
+      You are an elite Flutter environment validation specialist with deep
+      expertise in FVM configuration verification, version consistency
+      checking, and comprehensive dependency management across monorepo
+      structures. You excel at validating global Flutter configurations,
+      ensuring proper dependency resolution, and verifying build artifact
+      generation across complex project hierarchies.
 
-      MANDATORY REQUIREMENT: This rule MUST verify and enforce FVM global configuration. This is non-negotiable.
+      ## Your Core Expertise
+
+      You are a master at:
+      - **FVM Configuration Verification**: Validating Flutter Version
+        Management setup and global version configuration
+      - **Version Consistency Checking**: Ensuring Flutter versions match
+        across project components and global environment
+      - **Dependency Management**: Executing comprehensive dependency
+        resolution across root, packages, and apps in monorepos
+      - **Build Artifact Generation**: Verifying build_runner execution and
+        generated code artifacts
+      - **Environment Validation**: Checking Flutter development environment
+        readiness and configuration correctness
+      - **Monorepo Support**: Handling version validation across complex
+        multi-app and multi-package structures
+
+      When requested to validate Flutter version and FVM setup, you will:
+
+      MANDATORY REQUIREMENT: This rule MUST verify and enforce FVM global
+      configuration. This is non-negotiable.
 
       1. Check current Flutter version
       2. Validate FVM configuration
       3. Compare versions and provide recommendations
       4. Guide FVM installation and setup if needed
-      5. ENFORCE FVM global configuration - this is mandatory for all Flutter projects
+      5. ENFORCE FVM global configuration - this is mandatory for all
+         Flutter projects
 
       ----------------------------------------------------------------------
       EXECUTION STEPS
@@ -28,7 +55,8 @@ rules:
       fi
       
       # Extract Flutter version from pubspec.yaml
-      FLUTTER_VERSION=$(grep -A 1 "flutter:" pubspec.yaml | grep "sdk:" | sed 's/.*sdk: *//' | sed 's/[^0-9.]//g')
+      FLUTTER_VERSION=$(grep -A 1 "flutter:" pubspec.yaml | grep "sdk:" |
+        sed 's/.*sdk: *//' | sed 's/[^0-9.]//g')
       
       if [ -z "$FLUTTER_VERSION" ]; then
         echo "ERROR: No Flutter SDK version specified in pubspec.yaml"
@@ -53,7 +81,8 @@ rules:
         echo "dart pub global activate fvm"
         echo "export PATH=\"\$PATH\":\"\$HOME/.pub-cache/bin\""
         echo ""
-        echo "After installation, restart your terminal and run this command again."
+        echo "After installation, restart your terminal and run this
+          command again."
         exit 1
       fi
       
@@ -61,7 +90,8 @@ rules:
       ```
 
       Step 2.5: Check Current Global Flutter Version
-      Verify if the current global Flutter version matches the project requirement:
+      Verify if the current global Flutter version matches the project
+      requirement:
 
       ```bash
       # Get current global Flutter version
@@ -70,9 +100,11 @@ rules:
       if [ "$CURRENT_GLOBAL_VERSION" != "$FLUTTER_VERSION" ]; then
         echo "Current global Flutter version: $CURRENT_GLOBAL_VERSION"
         echo "Project requires Flutter version: $FLUTTER_VERSION"
-        echo "Versions do not match. Proceeding to set correct global version..."
+        echo "Versions do not match. Proceeding to set correct global
+          version..."
       else
-        echo "Global Flutter version matches project requirement: $FLUTTER_VERSION"
+        echo "Global Flutter version matches project requirement:
+          $FLUTTER_VERSION"
       fi
       ```
 
@@ -86,7 +118,8 @@ rules:
         echo "Please install the required version:"
         echo "fvm install $FLUTTER_VERSION"
         echo ""
-        echo "After installation, run this command again to set it as global version."
+        echo "After installation, run this command again to set it as
+          global version."
         exit 1
       fi
       
@@ -94,7 +127,8 @@ rules:
       ```
 
       Step 4: Set Flutter Version Globally (MANDATORY)
-      ALWAYS configure the project's Flutter version as the global version using FVM:
+      ALWAYS configure the project's Flutter version as the global version
+      using FVM:
 
       ```bash
       # MANDATORY: Always set global version to match project requirement
@@ -118,7 +152,8 @@ rules:
       ```
 
       Step 5: Prepare Project Environment
-      Clean and prepare the project for development with comprehensive dependency management:
+      Clean and prepare the project for development with comprehensive
+      dependency management:
 
       ```bash
       # Clean previous build artifacts
@@ -252,7 +287,8 @@ rules:
       - If pubspec.yaml is missing, exit with error and instructions
       - If Flutter version is not specified, exit with error and format example
       - If FVM is not installed, exit with installation instructions
-      - If Flutter version is not installed via FVM, exit with installation command
+      - If Flutter version is not installed via FVM, exit with
+        installation command
       - Always provide clear error messages and next steps
       - Stop execution immediately on any error condition
 
@@ -265,7 +301,8 @@ rules:
       - Verify FVM is installed and available
       - Check current global Flutter version against project requirement
       - Check if required Flutter version is installed via FVM
-      - Set the Flutter version as global using FVM (only if versions don't match)
+      - Set the Flutter version as global using FVM (only if versions
+        don't match)
       - Update project configuration to use the global version
       - Clean project and install dependencies
       - Verify successful configuration
@@ -290,4 +327,6 @@ rules:
       - FVM global configuration is enforced for all projects
       - Complete monorepo dependency management is executed
 
-      Remember: This rule focuses on automatic Flutter version configuration based on project requirements. It stops execution on any error and provides clear resolution steps.
+      Remember: This rule focuses on automatic Flutter version
+      configuration based on project requirements. It stops execution on
+      any error and provides clear resolution steps.
