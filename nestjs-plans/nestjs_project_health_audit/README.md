@@ -24,12 +24,14 @@ nestjs_project_health_audit/
 
 ### NestJS/Node.js Auditing System
 
-- **Monorepo Support**: Handles single-app and multi-app repository structures
+- **Standard Project Focus**: Optimized for single-app NestJS projects (monorepo
+  detected and noted, analysis focuses on core project)
 - **Automated Analysis**: 9 different analysis categories with scoring
 - **Tool Auto-Installation**: Automatic setup of Node.js, nvm, and required CLI tools
-- **Test Coverage Analysis**: Test coverage execution and aggregation
+- **Test Coverage Analysis**: Test coverage execution and aggregation (70% minimum)
 - **Standardized Reporting**: Structured 16-section reports
 - **CI/CD Integration**: GitHub Actions workflow analysis
+- **Reasonable Standards**: Production-ready checks without over-engineering
 
 ### Analysis Categories
 
@@ -131,8 +133,9 @@ To always run `@nestjs-health.plan.md` (stored in `plan/nestjs-health.plan.md`):
 9. `@nestjs_code_quality`
 10. `@nestjs_security_analysis`
 11. `@nestjs_api_design_analysis`
-12. `@nestjs_documentation_analysis`
-13. `@nestjs_report_generator` (Uses `@nestjs_report_format_enforcer` internally)
+12. `@nestjs_data_layer_analysis`
+13. `@nestjs_documentation_analysis`
+14. `@nestjs_report_generator` (Uses `@nestjs_report_format_enforcer` internally)
 
 ## 🤖 ChatGPT Integration
 

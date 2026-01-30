@@ -1,12 +1,32 @@
 # NestJS Project Health Audit - Rules Index
 
-This directory contains all the individual rules for the NestJS Project Health Audit system, supporting both single-app and monorepo structures (nx, turborepo, lerna, custom).
+This directory contains all the individual rules for the NestJS Project
+Health Audit system, supporting both single-app and monorepo structures
+(nx, turborepo, lerna, custom).
+
+## Location Note
+
+These rules are located in `nestjs_project_health_audit/cursor_rules/`.
+
+## Templates Directory
+
+The `templates/` directory contains template files used by the rules:
+- **`templates/nestjs_report_template.txt`** - Template showing exact
+  format structure for reports
+- **`templates/README.md`** - Documentation for template files
+
+## Prompts Directory
+
+The `prompts/` directory contains AI prompts for enhanced analysis:
+- **`prompts/nestjs_health_prompt.txt`** - ChatGPT prompt for generating
+  executive summaries from audit outputs
 
 ## Core Rules (Required for every audit)
 
 ### 1. NestJS Tool Installer
 - **File**: `nestjs_tool_installer.yaml`
-- **Purpose**: Centralized installer for all required tools (Node.js, nvm, npm/yarn/pnpm)
+- **Purpose**: Centralized installer for all required tools (Node.js,
+  nvm, npm/yarn/pnpm)
 - **Usage**: `@nestjs_tool_installer`
 - **Dependencies**: None (must run first)
 
@@ -24,7 +44,8 @@ This directory contains all the individual rules for the NestJS Project Health A
 
 ### 4. NestJS Test Coverage
 - **File**: `nestjs_test_coverage.yaml`
-- **Purpose**: Generate test coverage reports and validate `coverage >= 70%`
+- **Purpose**: Generate test coverage reports and validate
+  `coverage >= 70%`
 - **Usage**: `@nestjs_test_coverage`
 - **Dependencies**: `@nestjs_version_alignment`
 
@@ -32,60 +53,83 @@ This directory contains all the individual rules for the NestJS Project Health A
 
 ### 5. Repository Inventory
 - **File**: `nestjs_repository_inventory.yaml`
-- **Purpose**: Detect repository structure, module organization, and monorepo packages
+- **Purpose**: Detect repository structure, module organization, and
+  monorepo packages
 - **Usage**: `@nestjs_repository_inventory`
 - **Dependencies**: None
 
 ### 6. Configuration Analysis
 - **File**: `nestjs_config_analysis.yaml`
-- **Purpose**: Analyze NestJS/Node.js configuration files, TypeScript setup, dependencies
+- **Purpose**: Analyze NestJS/Node.js configuration files, TypeScript
+  setup, dependencies
 - **Usage**: `@nestjs_config_analysis`
 - **Dependencies**: None
 
 ### 7. CI/CD Analysis
 - **File**: `nestjs_cicd_analysis.yaml`
-- **Purpose**: Analyze GitHub Actions workflows, Docker setup, and coverage enforcement
+- **Purpose**: Analyze GitHub Actions workflows, Docker setup, and
+  coverage enforcement
 - **Usage**: `@nestjs_cicd_analysis`
 - **Dependencies**: None
 
 ### 8. Testing Analysis
 - **File**: `nestjs_testing_analysis.yaml`
-- **Purpose**: Find and classify test files (unit, integration, e2e) and coverage config
+- **Purpose**: Find and classify test files (unit, integration, e2e)
+  and coverage config
 - **Usage**: `@nestjs_testing_analysis`
 - **Dependencies**: `@nestjs_test_coverage` (for coverage integration)
 
 ### 9. Code Quality Analysis
 - **File**: `nestjs_code_quality.yaml`
-- **Purpose**: Analyze ESLint, Prettier, TypeScript strict mode, and code quality
+- **Purpose**: Analyze ESLint, Prettier, TypeScript strict mode, and
+  code quality
 - **Usage**: `@nestjs_code_quality`
 - **Dependencies**: None
 
 ### 10. Security Analysis
 - **File**: `nestjs_security_analysis.yaml`
-- **Purpose**: Identify sensitive files, analyze authentication/authorization, security best practices
+- **Purpose**: Identify sensitive files, analyze authentication/
+  authorization, security best practices, OWASP Top 10
 - **Usage**: `@nestjs_security_analysis`
 - **Dependencies**: None
 
 ### 11. API Design Analysis
 - **File**: `nestjs_api_design_analysis.yaml`
-- **Purpose**: Analyze REST/GraphQL API design, DTOs, validation, OpenAPI/Swagger documentation
+- **Purpose**: Analyze REST/GraphQL API design, DTOs, validation,
+  OpenAPI/Swagger documentation, API versioning
 - **Usage**: `@nestjs_api_design_analysis`
 - **Dependencies**: None
 
-### 12. Documentation Analysis
+### 12. Data Layer Analysis
+- **File**: `nestjs_data_layer_analysis.yaml`
+- **Purpose**: Analyze ORM/database integration, repository patterns,
+  migrations, and data access layer organization
+- **Usage**: `@nestjs_data_layer_analysis`
+- **Dependencies**: None
+
+### 13. Documentation Analysis
 - **File**: `nestjs_documentation_analysis.yaml`
-- **Purpose**: Review technical documentation, API docs, and environment setup
+- **Purpose**: Review technical documentation, API docs, and
+  environment setup
 - **Usage**: `@nestjs_documentation_analysis`
 - **Dependencies**: None
 
 ## Report Generation
 
-### 13. Report Generator
-- **File**: `nestjs_report_generator.yaml` (to be created when needed)
-- **Purpose**: Generate final audit report integrating all analysis results
+### 14. Report Generator
+- **File**: `nestjs_report_generator.yaml`
+- **Purpose**: Generate final audit report integrating all analysis
+  results using standardized format
 - **Usage**: `@nestjs_report_generator`
 - **Dependencies**: All previous rules
-- **Template**: Uses `templates/nestjs_report_template.txt` (to be created)
+- **Template**: Uses `templates/nestjs_report_template.txt`
+
+### 15. Report Format Enforcer
+- **File**: `nestjs_report_format_enforcer.yaml`
+- **Purpose**: Enforce consistent report format structure
+- **Usage**: `@nestjs_report_format_enforcer`
+- **Dependencies**: Used by report generation rules
+- **Template**: References `templates/nestjs_report_template.txt`
 
 ## Execution Order
 
@@ -100,12 +144,14 @@ This directory contains all the individual rules for the NestJS Project Health A
 9. `@nestjs_code_quality`
 10. `@nestjs_security_analysis`
 11. `@nestjs_api_design_analysis`
-12. `@nestjs_documentation_analysis`
-13. `@nestjs_report_generator`
+12. `@nestjs_data_layer_analysis`
+13. `@nestjs_documentation_analysis`
+14. `@nestjs_report_generator`
 
 ## Standardized Report Format
 
-All reports follow a consistent 16-section structure:
+All reports follow a consistent 16-section structure defined in
+`templates/nestjs_report_template.txt`:
 
 1. Executive Summary
 2. At-a-Glance Scorecard
@@ -132,14 +178,17 @@ All reports follow a consistent 16-section structure:
 
 ### Important Exclusions
 The audit system will NEVER recommend:
-- **Governance Files**: CODEOWNERS or SECURITY.md files (governance decisions, not technical requirements)
-- **Deployment-Specific Workflows**: Environment-specific deployment scripts (deployment decisions, not technical requirements)
+- **Governance Files**: CODEOWNERS or SECURITY.md files (governance
+  decisions, not technical requirements)
+- **Deployment-Specific Workflows**: Environment-specific deployment
+  scripts (deployment decisions, not technical requirements)
 
 ## ChatGPT Integration
 
 ### Executive Summary Generation
 
-After completing the full audit using the execution plan, you can use the ChatGPT prompt to generate an executive summary:
+After completing the full audit using the execution plan, you can use
+the ChatGPT prompt to generate an executive summary:
 
 **Process**:
 1. Execute the complete `@nestjs-health.plan.md` following all steps
@@ -150,7 +199,8 @@ After completing the full audit using the execution plan, you can use the ChatGP
 **Benefits**:
 - Generates executive-ready summaries (max 1 A4 page, ~600 words)
 - Analyzes Node.js/NestJS versions and provides update recommendations
-- Estimates work time for each improvement (XS=1-2h, S=8h, M=16h, L=24h, XL=40h)
+- Estimates work time for each improvement (XS=1-2h, S=8h, M=16h,
+  L=24h, XL=40h)
 - Breaks down large tasks into manageable subtasks
 - Ready-to-copy format for executive documents
 - Spanish language output for leadership communication
@@ -164,16 +214,3 @@ After completing the full audit using the execution plan, you can use the ChatGP
 - **Clear Separation**: Each rule has a single responsibility
 - **Maintainable**: Easier to update individual components
 - **Comprehensive**: Covers all aspects of NestJS project health
-
-## Templates Directory
-
-The `templates/` directory contains template files used by the rules:
-- **`templates/nestjs_report_template.txt`** - Template showing exact format structure for reports (to be created)
-- **`templates/README.md`** - Documentation for template files
-
-## Prompts Directory
-
-The `prompts/` directory contains AI prompts for enhanced analysis:
-- **`prompts/nestjs_health_prompt.txt`** - ChatGPT prompt for generating executive summaries from audit outputs
-
-
