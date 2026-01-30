@@ -41,9 +41,9 @@ Complete auditing system for NestJS/Node.js backend projects that includes:
 - **Test coverage**: Execution, aggregation, and 70% minimum threshold validation
 - **ChatGPT integration**: Specialized prompt for generating executive summaries
 
-**Location**: `nestjs_project_health_audit/`
+**Location**: `nestjs-plans/nestjs_project_health_audit/`
 
-**Documentation**: See `nestjs_project_health_audit/README.md` for detailed instructions.
+**Documentation**: See `nestjs-plans/nestjs_project_health_audit/README.md` for detailed instructions.
 
 ## 📁 Repository Structure
 
@@ -78,13 +78,13 @@ cd nestjs-plans/
 # See nestjs-plans/README.md for current status and TODO items
 ```
 
-### For NestJS projects
+### For NestJS Health Audit
 ```bash
 # Navigate to the specific tool
-cd nestjs_project_health_audit/
+cd nestjs-plans/nestjs_project_health_audit/
 
 # Follow instructions in the specific README
-# See nestjs_project_health_audit/README.md
+# See nestjs-plans/nestjs_project_health_audit/README.md
 ```
 
 ### For new tools

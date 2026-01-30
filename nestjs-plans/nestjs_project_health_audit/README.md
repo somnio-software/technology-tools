@@ -85,7 +85,7 @@ nestjs_project_health_audit/
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/somnio-software/technology-tools.git
-   cd technology-tools/nestjs_project_health_audit
+   cd technology-tools/nestjs-plans/nestjs_project_health_audit
    ```
 
 2. **Setup Environment**:
