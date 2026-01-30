@@ -34,6 +34,11 @@ rules:
       for advanced patterns that aren't strictly necessary. Focus on
       clarity, maintainability, and correctness.
 
+      PROJECT STRUCTURE:
+      - If monorepo detected (apps/ directory): Note in report and
+        focus analysis on main application
+      - Standard project: Analyze src/ directory
+
       ORM/DATABASE DETECTION:
 
       1. Identify ORM in Use:
