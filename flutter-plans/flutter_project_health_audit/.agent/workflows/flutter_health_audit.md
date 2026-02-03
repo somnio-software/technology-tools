@@ -50,3 +50,10 @@ description: Automated Flutter Project Health Audit
     ```bash
     mkdir -p reports
     ```
+
+15. **Optional Best Practices Check**
+    Ask the user if they want to execute the Best Practices Check.
+
+    Workflow: `flutter_best_practices_check/.agent/workflows/flutter_best_practices.md`
+
+    **CRITICAL**: NEVER execute this automatically. MUST wait for user confirmation.

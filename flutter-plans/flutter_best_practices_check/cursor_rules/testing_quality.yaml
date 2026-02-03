@@ -38,9 +38,13 @@ rules:
           `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/bloc-test.mdc`
       
       INSTRUCTIONS:
-      1. USE the `read_url_content` tool to fetch the latest standards
-         from the URLs above.
-      2. Proceed with the analysis below using strict adherence to those rules.
+      1.  **SCOPE**: You must analyze **ALL** test files in the project.
+      2.  **DISCOVERY**: Execute `find . -type f -name "*_test.dart" -not -path "*/.*"` to list all test files.
+      3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest standards from the URLs above.
+      4.  **ANALYSIS**: Iterate through **EACH** file found in step 2:
+          a. Read the file content.
+          b. Analyze strictly against the standards.
+          c. Accumulate findings.
 
       ANALYSIS TARGETS:
       1.  **Test Naming Conventions**:

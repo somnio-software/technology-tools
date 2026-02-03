@@ -39,9 +39,11 @@ rules:
           `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-ai-rules.mdc`
       
       INSTRUCTIONS:
-      1. USE the `read_url_content` tool to fetch the latest standards
-         from the URLs above.
-      2. Proceed with the analysis below using strict adherence to those rules.
+      1.  **SCOPE**: You must analyze **ALL** Dart files in the project to insure architecture compliance.
+      2.  **DISCOVERY**: Execute `find . -type f -name "*.dart" -not -path "*/.*" -not -name "*.g.dart" -not -name "*.freezed.dart"` to list all source files.
+      3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest standards from the URLs above.
+      4.  **ANALYSIS**: Iterate through **EACH** file found in step 2:
+          a. Read and analyze for layer boundary violations.
 
       LAYER DEFINITIONS:
       1.  **Presentation Layer**: Widgets, Pages, Screens.
