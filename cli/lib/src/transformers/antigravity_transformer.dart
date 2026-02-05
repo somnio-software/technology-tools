@@ -34,9 +34,9 @@ class AntigravityOutput {
 
 /// Transforms workflow files + rules into Antigravity format.
 ///
-/// Antigravity stores workflows in `.agent/workflows/` and supporting
-/// files in `.agent/somnio_rules/`. The transformer copies files and
-/// rewrites paths in workflow content.
+/// Antigravity stores workflows in `~/.gemini/antigravity/global_workflows/`
+/// and supporting files in `~/.gemini/antigravity/somnio_rules/`. The
+/// transformer copies files and rewrites paths in workflow content.
 class AntigravityTransformer {
   /// Transforms a skill bundle into Antigravity format.
   AntigravityOutput transform(
@@ -100,12 +100,13 @@ class AntigravityTransformer {
     //   `<prefix>_project_health_audit/cursor_rules/...`
     //   `<prefix>_best_practices_check/cursor_rules/...`
     // to:
-    //   `.agent/somnio_rules/<prefix>_project_health_audit/cursor_rules/...`
+    //   `../somnio_rules/<prefix>_project_health_audit/cursor_rules/...`
+    // (relative from global_workflows/ to sibling somnio_rules/)
     final pathPattern = RegExp(
       r'`(\w+_(?:project_health_audit|best_practices_check)/[^`]+)`',
     );
     content = content.replaceAllMapped(pathPattern, (match) {
-      return '`.agent/somnio_rules/${match.group(1)}`';
+      return '`../somnio_rules/${match.group(1)}`';
     });
 
     return content;

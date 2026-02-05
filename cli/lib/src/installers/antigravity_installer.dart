@@ -8,10 +8,10 @@ import '../transformers/antigravity_transformer.dart';
 import '../utils/platform_utils.dart';
 import 'installer.dart';
 
-/// Installs workflows and rules into Antigravity's .agent/ directory.
+/// Installs workflows and rules into Antigravity's global directory.
 ///
-/// Antigravity uses `.agent/workflows/` for workflow files and
-/// `.agent/somnio_rules/` for supporting rule files.
+/// Antigravity uses `~/.gemini/antigravity/global_workflows/` for workflow
+/// files and `~/.gemini/antigravity/somnio_rules/` for supporting rule files.
 class AntigravityInstaller extends Installer {
   AntigravityInstaller({required super.logger, required super.loader});
 
@@ -23,10 +23,8 @@ class AntigravityInstaller extends Installer {
     String? projectPath,
     bool force = false,
   }) async {
-    final baseDir = PlatformUtils.antigravityProjectDir(
-      projectPath ?? Directory.current.path,
-    );
-    final workflowsDir = p.join(baseDir, 'workflows');
+    final baseDir = PlatformUtils.antigravityGlobalDir;
+    final workflowsDir = p.join(baseDir, 'global_workflows');
     final rulesDir = p.join(baseDir, 'somnio_rules');
 
     var skillCount = 0;
@@ -120,10 +118,8 @@ class AntigravityInstaller extends Installer {
 
   @override
   bool isInstalled({String? projectPath}) {
-    final baseDir = PlatformUtils.antigravityProjectDir(
-      projectPath ?? Directory.current.path,
-    );
-    final workflowsDir = Directory(p.join(baseDir, 'workflows'));
+    final baseDir = PlatformUtils.antigravityGlobalDir;
+    final workflowsDir = Directory(p.join(baseDir, 'global_workflows'));
     if (!workflowsDir.existsSync()) return false;
 
     return workflowsDir
@@ -134,10 +130,8 @@ class AntigravityInstaller extends Installer {
 
   @override
   int installedCount({String? projectPath}) {
-    final baseDir = PlatformUtils.antigravityProjectDir(
-      projectPath ?? Directory.current.path,
-    );
-    final workflowsDir = Directory(p.join(baseDir, 'workflows'));
+    final baseDir = PlatformUtils.antigravityGlobalDir;
+    final workflowsDir = Directory(p.join(baseDir, 'global_workflows'));
     if (!workflowsDir.existsSync()) return 0;
 
     return workflowsDir

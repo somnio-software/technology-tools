@@ -24,9 +24,9 @@ class PlatformUtils {
   static String cursorProjectCommandsDir(String projectRoot) =>
       p.join(projectRoot, '.cursor', 'commands');
 
-  /// Returns the path to Antigravity's project-level agent directory.
-  static String antigravityProjectDir(String projectRoot) =>
-      p.join(projectRoot, '.agent');
+  /// Returns the path to Antigravity's global directory.
+  static String get antigravityGlobalDir =>
+      p.join(homeDirectory, '.gemini', 'antigravity');
 
   /// Runs `which` (Unix) or `where` (Windows) to find a binary.
   static Future<String?> whichBinary(String binary) async {
