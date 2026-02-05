@@ -107,13 +107,13 @@ configuration fails.
 - All apps: `find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
 - Verification: `fvm flutter pub deps`
 - Build artifacts generation (only where build_runner is declared):
-  - Root: `fvm dart run build_runner build --delete-conflicting-output`
+  - Root: `fvm dart run build_runner build --delete-conflicting-outputs`
   - Packages: `find packages/ -name "pubspec.yaml" -execdir sh -c 'if
     grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run
-    build_runner build --delete-conflicting-output; fi' \;`
+    build_runner build --delete-conflicting-outputs; fi' \;`
   - Apps: `find apps/ -name "pubspec.yaml" -execdir sh -c 'if grep -q
     "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run
-    build_runner build --delete-conflicting-output; fi' \;`
+    build_runner build --delete-conflicting-outputs; fi' \;`
 
 **Integration**: Save all outputs from these rules for integration into
 the final audit report.
