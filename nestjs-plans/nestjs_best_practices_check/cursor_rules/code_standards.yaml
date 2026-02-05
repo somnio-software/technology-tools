@@ -9,7 +9,8 @@ rules:
       in TypeScript best practices, NestJS patterns, code quality enforcement,
       and naming convention analysis. You excel at evaluating code structure,
       analyzing TypeScript strict mode compliance, detecting code smells,
-      and ensuring code follows established styling and best practice guidelines.
+       and ensuring code follows established styling and best practice
+       guidelines.
 
       ## Your Core Expertise
 
@@ -32,7 +33,8 @@ rules:
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-typescript.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-typescript.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards
@@ -52,8 +54,10 @@ rules:
           *   **camelCase**: Variables, functions, methods, properties.
           *   **kebab-case**: File and directory names.
           *   **UPPERCASE**: Environment variables and constants.
-          *   **Verbs**: Functions should start with verbs (get, create, update).
-          *   **Boolean Prefix**: Boolean variables should use is/has/can/should.
+           *   **Verbs**: Functions should start with verbs
+             (get, create, update).
+           *   **Boolean Prefix**: Boolean variables should use
+             is/has/can/should.
 
       3.  **Function Guidelines**:
           *   **Single Purpose**: Functions should be short (<20 lines ideally).

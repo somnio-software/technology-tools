@@ -49,14 +49,22 @@ Complete auditing system for NestJS/Node.js backend projects that includes:
 
 ```
 technology-tools/
-├── flutter-plans/                        # Flutter-related plans and tools
-│   ├── flutter_project_health_audit/    # Flutter auditing system
-│   ├── flutter_best_practices_check/     # Micro-level code auditing
-│   └── README.md                         # Flutter tools documentation
-├── nestjs-plans/                        # NestJS-related plans and tools
-│   └── README.md                        # NestJS tools documentation
+├── flutter-plans/                        # Flutter tools
+│   ├── flutter_project_health_audit/    # Health audit system
+│   ├── flutter_best_practices_check/     # Code quality checker
+│   └── README.md
+├── nestjs-plans/                        # NestJS tools
+│   ├── nestjs_project_health_audit/    # Health audit system
+│   ├── nestjs_best_practices_check/     # Code quality checker
+│   └── README.md
 └── README.md                            # This file
 ```
+
+Each tool directory contains:
+- `cursor_rules/` - Analysis rules (YAML files)
+- `plan/` - Execution plans
+- `prompts/` - AI prompts for enhanced analysis
+- `README.md` - Tool-specific documentation
 
 ## 🚀 Quick Start
 
@@ -109,6 +117,26 @@ cd nestjs-plans/nestjs_project_health_audit/
 - Practical examples
 - Documented file structure
 - Tool-specific details should be in the technology folder's README
+
+### Code Quality Standards
+
+All YAML rule files follow strict formatting standards:
+- **Line Length**: Maximum 80 characters per line
+- **Formatting**: Commands split using shell continuation (`\`)
+- **Descriptions**: Use folded scalar format (`>`) for multi-line text
+- **Readability**: Optimized for maintainability and consistency
+
+### Validation & Testing
+
+The repository includes validation scripts to ensure code quality:
+- **Plan Simulation**: Validates all plans and their referenced rules
+- **YAML Validation**: Checks syntax and structure of all YAML files
+- **Reference Verification**: Ensures all rule references are valid
+
+Run validation:
+```bash
+./simulate_plans.sh  # Simulates all plans and validates rules
+```
 
 ## 📈 Roadmap
 

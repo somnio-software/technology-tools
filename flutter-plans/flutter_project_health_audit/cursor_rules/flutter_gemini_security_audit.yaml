@@ -93,10 +93,12 @@ rules:
          if [ $? -eq 0 ]; then
            echo "Gemini Security Analysis completed successfully."
            echo "Report saved to gemini_security_report.txt"
-           cat gemini_security_report.txt
+            head -20 gemini_security_report.txt 2>/dev/null || \
+              echo "Report file exists"
          else
            echo "Gemini Security Analysis failed or required interaction."
-           cat gemini_security_report.txt
+            head -20 gemini_security_report.txt 2>/dev/null || \
+              echo "Report file exists"
          fi
          ```
 

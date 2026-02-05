@@ -20,7 +20,8 @@ rules:
       - **Assertion Quality Assessment**: Evaluating assertion usage,
         matcher selection, and test completeness
       - **Standards Validation**: Validating test code against live standards
-        from GitHub repositories (nestjs-testing-unit.mdc, nestjs-testing-integration.mdc)
+         from GitHub repositories
+         (nestjs-testing-unit.mdc, nestjs-testing-integration.mdc)
       - **Anti-Pattern Detection**: Identifying testing anti-patterns and
         violations of best practices
       - **Test Structure Optimization**: Analyzing test grouping, setup/teardown
@@ -33,9 +34,11 @@ rules:
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-testing-unit.mdc`
+           `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-testing-unit.mdc`
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-testing-integration.mdc`
+           `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-testing-integration.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards
@@ -47,7 +50,8 @@ rules:
           *   Check for verbose, descriptive names (e.g., 'should return
               user when found' vs 'works').
           *   Ensure names explain the "what" and expected outcome.
-          *   Verify `describe` blocks group tests logically (by method/feature).
+           *   Verify `describe` blocks group tests logically
+             (by method/feature).
 
       2.  **Assertion Quality**:
           *   Check for specific matchers (e.g., `toHaveBeenCalledWith`
@@ -67,7 +71,8 @@ rules:
               and mocks are cleared between tests.
 
       4.  **Unit Test Specifics**:
-          *   Verify all dependencies are mocked using `jest.fn()` or mock objects.
+           *   Verify all dependencies are mocked using `jest.fn()` or mock
+             objects.
           *   Check for `@nestjs/testing` TestingModule usage.
           *   Ensure services/controllers are properly instantiated.
           *   Verify mock implementations match interface contracts.

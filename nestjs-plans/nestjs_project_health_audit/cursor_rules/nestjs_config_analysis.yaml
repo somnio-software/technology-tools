@@ -1,19 +1,27 @@
 rules:
   - name: NestJS Configuration Analysis
-    description: Read and analyze NestJS/Node.js configuration files for version info, dependencies, TypeScript setup, and environment configuration (single app or monorepo).
+    description: >
+      Read and analyze NestJS/Node.js configuration files for version info,
+      dependencies, TypeScript setup, and environment configuration
+      (single app or monorepo).
     match: "*"
     prompt: |
-      Goal: Read and analyze NestJS/Node.js configuration files for single app or monorepo repositories.
+      Goal: Read and analyze NestJS/Node.js configuration files for single
+      app or monorepo repositories.
 
       MONOREPO DETECTION:
-      - First detect repository structure: single app or monorepo (nx, turborepo, lerna, apps/ structure)
+      - First detect repository structure: single app or monorepo
+        (nx, turborepo, lerna, apps/ structure)
       - If apps/ directory exists, analyze each app individually
-      - If packages/ or libs/ directory exists, analyze each package/library individually
+      - If packages/ or libs/ directory exists, analyze each package/library
+        individually
 
       SINGLE APP ANALYSIS:
       - Read completely and analyze:
-        * package.json (Node.js version, NestJS version, dependencies, dev_dependencies, scripts)
-        * tsconfig.json (TypeScript configuration, compiler options, strict mode)
+        * package.json (Node.js version, NestJS version, dependencies,
+          dev_dependencies, scripts)
+        * tsconfig.json (TypeScript configuration, compiler options,
+          strict mode)
         * tsconfig.build.json (Build-specific TypeScript configuration)
         * nest-cli.json (NestJS CLI configuration, monorepo settings)
         * .nvmrc or .node-version (Node.js version management)
@@ -81,7 +89,8 @@ rules:
         * Read root tsconfig.json (base configuration)
         * Read root nest-cli.json (monorepo settings)
         * Check for root .nvmrc or .node-version
-        * Workspace configuration: nx.json, turbo.json, lerna.json, pnpm-workspace.yaml
+        * Workspace configuration: nx.json, turbo.json, lerna.json,
+          pnpm-workspace.yaml
       - Compare configurations across apps:
         * Node.js/NestJS version consistency
         * Dependency version alignment
@@ -107,7 +116,8 @@ rules:
       - Check for .env files (should NOT be in repo)
       - Verify .env.example exists with all required variables
       - Analyze environment variable usage in src/config/
-      - Check for environment-specific configs: .env.development, .env.production
+      - Check for environment-specific configs: .env.development,
+        .env.production
       - Verify .env is in .gitignore
       - CRITICAL: Check for environment variable validation:
         * ConfigModule with validationSchema (Joi)

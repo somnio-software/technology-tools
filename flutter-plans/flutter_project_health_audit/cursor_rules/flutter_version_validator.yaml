@@ -86,7 +86,7 @@ rules:
         exit 1
       fi
       
-      echo "FVM is installed: $(fvm --version)"
+      echo "FVM is installed: $(fvm --version 2>/dev/null)"
       ```
 
       Step 2.5: Check Current Global Flutter Version
@@ -137,18 +137,18 @@ rules:
       
       # Verify the global version
       echo "Verifying global Flutter version:"
-      fvm flutter --version
+      fvm flutter --version 2>/dev/null | head -1
       
       # Update project to use global version
-      fvm use $FLUTTER_VERSION --force
+      fvm use $FLUTTER_VERSION --force > /dev/null 2>&1
       
       echo "Successfully configured Flutter $FLUTTER_VERSION as global version"
       
       # Additional verification
       echo "Final verification - Global Flutter version:"
-      fvm global --version
+      fvm global --version 2>/dev/null
       echo "Project Flutter version:"
-      fvm flutter --version
+      fvm flutter --version 2>/dev/null | head -1
       ```
 
       Step 5: Prepare Project Environment
@@ -158,44 +158,53 @@ rules:
       ```bash
       # Clean previous build artifacts
       echo "Cleaning project..."
-      fvm flutter clean
+      fvm flutter clean > /dev/null 2>&1
       
       # Get root project dependencies
       echo "Getting root project dependencies..."
-      fvm flutter pub get
+      fvm flutter pub get > /dev/null 2>&1
       
       # Get all packages dependencies (if packages/ directory exists)
       if [ -d "packages" ]; then
         echo "Getting dependencies for all packages..."
-        find packages/ -name "pubspec.yaml" -execdir fvm flutter pub get \;
+         find packages/ -name "pubspec.yaml" -execdir sh -c \
+           'fvm flutter pub get > /dev/null 2>&1' \;
         echo "Packages dependencies installed successfully"
       fi
       
       # Get all apps dependencies (if apps/ directory exists)
       if [ -d "apps" ]; then
         echo "Getting dependencies for all apps..."
-        find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;
+         find apps/ -name "pubspec.yaml" -execdir sh -c \
+           'fvm flutter pub get > /dev/null 2>&1' \;
         echo "Apps dependencies installed successfully"
       fi
       
       # Verify all dependencies are resolved
       echo "Verifying dependency resolution..."
-      fvm flutter pub deps
+      fvm flutter pub deps > /dev/null 2>&1
       
       # Run build_runner where applicable
       if grep -q "build_runner" pubspec.yaml 2>/dev/null; then
         echo "Running build_runner at root..."
-        fvm dart run build_runner build --delete-conflicting-output
+         fvm dart run build_runner build --delete-conflicting-output \
+           > /dev/null 2>&1
       fi
       
       if [ -d "packages" ]; then
         echo "Running build_runner in all packages that declare build_runner..."
-        find packages/ -name "pubspec.yaml" -execdir sh -c 'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run build_runner build --delete-conflicting-output; fi' \;
+         find packages/ -name "pubspec.yaml" -execdir sh -c \
+           'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then \
+           fvm dart run build_runner build --delete-conflicting-output \
+           > /dev/null 2>&1; fi' \;
       fi
       
       if [ -d "apps" ]; then
         echo "Running build_runner in all apps that declare build_runner..."
-        find apps/ -name "pubspec.yaml" -execdir sh -c 'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run build_runner build --delete-conflicting-output; fi' \;
+         find apps/ -name "pubspec.yaml" -execdir sh -c \
+           'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then \
+           fvm dart run build_runner build --delete-conflicting-output \
+           > /dev/null 2>&1; fi' \;
       fi
       
       echo "Project environment prepared successfully with all dependencies"

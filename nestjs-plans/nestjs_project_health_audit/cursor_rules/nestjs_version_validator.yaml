@@ -1,12 +1,16 @@
 rules:
   - name: NestJS Version Validator
-    description: Verify nvm installation, Node.js environment setup, and dependency management for NestJS projects (single app or monorepo).
+    description: >
+      Verify nvm installation, Node.js environment setup, and dependency
+      management for NestJS projects (single app or monorepo).
     match: "*"
     prompt: |
-      Goal: Verify nvm installation, Node.js environment setup, and comprehensive dependency management.
+      Goal: Verify nvm installation, Node.js environment setup, and
+      comprehensive dependency management.
 
       MONOREPO DETECTION:
-      - First detect repository structure: single app or monorepo (nx, turborepo, lerna, apps/ structure)
+      - First detect repository structure: single app or monorepo
+        (nx, turborepo, lerna, apps/ structure)
       - If apps/ directory exists, analyze each app individually
       - If packages/ directory exists, analyze each package individually
 
@@ -29,7 +33,7 @@ rules:
          # Check if .nvmrc exists
          if [ -f ".nvmrc" ]; then
            echo "✓ .nvmrc file found"
-           cat .nvmrc
+           cat .nvmrc 2>/dev/null | head -1
          else
            echo "! .nvmrc file not found"
          fi
@@ -37,7 +41,7 @@ rules:
          # Check if .node-version exists
          if [ -f ".node-version" ]; then
            echo "✓ .node-version file found"
-           cat .node-version
+           cat .node-version 2>/dev/null | head -1
          else
            echo "! .node-version file not found"
          fi
@@ -81,13 +85,16 @@ rules:
            echo "✓ node_modules directory exists"
            echo "Number of dependencies installed: $(ls node_modules | wc -l)"
          else
-           echo "✗ node_modules directory NOT found - dependencies not installed"
+            echo "✗ node_modules directory NOT found - dependencies not \
+installed"
          fi
 
          # Verify root dependencies are installed
          if [ -f "package.json" ]; then
            echo "Verifying root dependencies..."
-           npm list --depth=0 2>/dev/null | head -n 20
+            echo "Dependencies: $(npm list --depth=0 2>/dev/null | wc -l) \
+packages" && npm list --depth=0 2>/dev/null | \
+              grep -E "@nestjs|@typescript|typescript" | head -5
          fi
          ```
 
@@ -145,7 +152,7 @@ rules:
            # Check NestJS CLI
            if command -v nest &> /dev/null; then
              echo "✓ NestJS CLI is installed"
-             nest --version
+             nest --version 2>/dev/null | head -1
            else
              echo "! NestJS CLI not installed globally"
            fi
@@ -157,7 +164,9 @@ rules:
          # Check TypeScript configuration
          if [ -f "tsconfig.json" ]; then
            echo "✓ tsconfig.json found"
-           cat tsconfig.json | head -n 30
+           PATTERN='"strict"|"target"|"module"|"esModuleInterop"|"skipLibCheck"'
+           grep -E "$PATTERN" tsconfig.json | head -5 || \
+             cat tsconfig.json | head -n 10
          else
            echo "✗ tsconfig.json NOT found"
          fi

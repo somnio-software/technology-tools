@@ -118,6 +118,14 @@ cd flutter_project_health_audit/
 - Practical examples
 - Documented file structure
 
+### Code Quality Standards
+
+All YAML rule files follow strict formatting standards:
+- **Line Length**: Maximum 80 characters per line
+- **Formatting**: Commands split using shell continuation (`\`)
+- **Descriptions**: Use folded scalar format (`>`) for multi-line text
+- **Readability**: Optimized for maintainability and consistency
+
 ## 📈 Roadmap
 
 - [x] Flutter Project Health Audit

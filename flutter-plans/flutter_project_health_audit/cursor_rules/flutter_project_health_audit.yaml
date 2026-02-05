@@ -105,7 +105,8 @@ rules:
         - section_failed_ratio = failed_checks / expected_checks
         - section_score = 100 − round(section_failed_ratio × 100)
         - Neutral (do NOT count as failed or expected):
-            ▸ Absence of platform folders (ios/android/web/desktop) → neutral
+             ▸ Absence of platform folders (ios/android/web/desktop) →
+               neutral
             ▸ Using BLoC without a written guide → neutral
             ▸ Absence of lcov.info → neutral
             ▸ No stored analyzer outputs → neutral
@@ -277,7 +278,8 @@ rules:
         opened, mark UNKNOWN and name the exact file needed.
       • Neutral cases explicitly listed above must not count as FAIL nor
         as expected.
-      • Heuristics for workflows: search step names and run lines for keywords:
+       • Heuristics for workflows: search step names and run lines for
+         keywords:
         "flutter analyze", "dart format", "flutter test", "coverage",
         "lcov", "cspell", "release", "tag".
       • Heuristics for testing types:

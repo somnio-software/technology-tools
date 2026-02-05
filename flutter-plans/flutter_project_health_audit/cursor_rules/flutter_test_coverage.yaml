@@ -61,10 +61,12 @@ rules:
       echo "Running tests in root app directory"
       if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
         echo "Using FVM Flutter version"
-        fvm flutter test --coverage --coverage-path=coverage/app/lcov.info
+        fvm flutter test --coverage --reporter=compact \
+          --coverage-path=coverage/app/lcov.info
       else
         echo "Using system Flutter version"
-        flutter test --coverage --coverage-path=coverage/app/lcov.info
+        flutter test --coverage --reporter=compact \
+          --coverage-path=coverage/app/lcov.info
       fi
       
       # 2. Run tests in all packages (if packages/ exists)
@@ -77,9 +79,11 @@ rules:
           cd "$package_dir"
           
           if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
-            fvm flutter test --coverage --coverage-path=coverage/packages/$package_name/lcov.info
+            fvm flutter test --coverage --reporter=compact \
+              --coverage-path=coverage/packages/$package_name/lcov.info
           else
-            flutter test --coverage --coverage-path=coverage/packages/$package_name/lcov.info
+            flutter test --coverage --reporter=compact \
+              --coverage-path=coverage/packages/$package_name/lcov.info
           fi
           
           cd ../..
@@ -102,25 +106,34 @@ rules:
         # Run tests in app directory
         if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
           echo "Using FVM Flutter version for $app_name"
-          fvm flutter test --coverage --coverage-path=coverage/apps/$app_name/lcov.info
+          fvm flutter test --coverage --reporter=compact \
+            --coverage-path=coverage/apps/$app_name/lcov.info
         else
           echo "Using system Flutter version for $app_name"
-          flutter test --coverage --coverage-path=coverage/apps/$app_name/lcov.info
+          flutter test --coverage --reporter=compact \
+            --coverage-path=coverage/apps/$app_name/lcov.info
         fi
         
-        # Run tests in app-specific packages (if apps/<app_name>/packages/ exists)
+        # Run tests in app-specific packages
+        # (if apps/<app_name>/packages/ exists)
         if [ -d "packages/" ]; then
           echo "Running tests in app-specific packages for $app_name"
           for package_dir in packages/*/; do
             package_name=$(basename "$package_dir")
-            echo "Running tests for app-specific package: $app_name/$package_name"
+            echo "Running tests for app-specific package: \
+$app_name/$package_name"
             
             cd "$package_dir"
             
-            if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
-              fvm flutter test --coverage --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info
+            if command -v fvm &> /dev/null && \
+              [ -f ".fvm/fvm_config.json" ]; then
+              fvm flutter test --coverage --reporter=compact \
+                --coverage-path=coverage/apps/$app_name/packages/\
+$package_name/lcov.info
             else
-              flutter test --coverage --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info
+              flutter test --coverage --reporter=compact \
+                --coverage-path=coverage/apps/$app_name/packages/\
+$package_name/lcov.info
             fi
             
             cd ../..
@@ -140,9 +153,11 @@ rules:
           cd "$package_dir"
           
           if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
-            fvm flutter test --coverage --coverage-path=coverage/packages/$package_name/lcov.info
+            fvm flutter test --coverage --reporter=compact \
+              --coverage-path=coverage/packages/$package_name/lcov.info
           else
-            flutter test --coverage --coverage-path=coverage/packages/$package_name/lcov.info
+            flutter test --coverage --reporter=compact \
+              --coverage-path=coverage/packages/$package_name/lcov.info
           fi
           
           cd ../..
@@ -156,12 +171,14 @@ rules:
       SINGLE APP ANALYSIS:
       ```bash
       # Check if coverage directory exists
-      ls -la coverage/
+      echo "Coverage files: $(find coverage/ -name '*.info' \
+-o -name '*.json' 2>/dev/null | wc -l)"
       
       # Analyze app coverage
       if [ -f "coverage/app/lcov.info" ]; then
         echo "App coverage analysis:"
-        cat coverage/app/lcov.info | head -20
+        grep -E "^DA:|^SF:" coverage/app/lcov.info | head -5 || \
+          echo "Coverage file exists"
         grep -c "^DA:" coverage/app/lcov.info || echo "0"
       fi
       
@@ -171,7 +188,8 @@ rules:
         for package_coverage in coverage/packages/*/lcov.info; do
           package_name=$(basename $(dirname "$package_coverage"))
           echo "Package $package_name coverage:"
-          cat "$package_coverage" | head -10
+          grep -E "^DA:|^SF:" "$package_coverage" | head -3 || \
+            echo "Coverage file exists"
           grep -c "^DA:" "$package_coverage" || echo "0"
         done
       fi
@@ -187,7 +205,8 @@ rules:
         # App coverage
         if [ -f "coverage/apps/$app_name/lcov.info" ]; then
           echo "App $app_name coverage:"
-          cat coverage/apps/$app_name/lcov.info | head -20
+          grep -E "^DA:|^SF:" coverage/apps/$app_name/lcov.info | \
+            head -5 || echo "Coverage file exists"
           grep -c "^DA:" coverage/apps/$app_name/lcov.info || echo "0"
         else
           echo "No coverage data found for app $app_name"
@@ -196,10 +215,12 @@ rules:
         # App-specific packages coverage
         if [ -d "coverage/apps/$app_name/packages/" ]; then
           echo "App-specific packages coverage for $app_name:"
-          for package_coverage in coverage/apps/$app_name/packages/*/lcov.info; do
+          for package_coverage in \
+            coverage/apps/$app_name/packages/*/lcov.info; do
             package_name=$(basename $(dirname "$package_coverage"))
             echo "Package $app_name/$package_name coverage:"
-            cat "$package_coverage" | head -10
+            grep -E "^DA:|^SF:" "$package_coverage" | head -3 || \
+              echo "Coverage file exists"
             grep -c "^DA:" "$package_coverage" || echo "0"
           done
         fi
@@ -211,7 +232,8 @@ rules:
         for package_coverage in coverage/packages/*/lcov.info; do
           package_name=$(basename $(dirname "$package_coverage"))
           echo "Shared package $package_name coverage:"
-          cat "$package_coverage" | head -10
+          grep -E "^DA:|^SF:" "$package_coverage" | head -3 || \
+            echo "Coverage file exists"
           grep -c "^DA:" "$package_coverage" || echo "0"
         done
       fi
@@ -230,7 +252,8 @@ rules:
       # Add app coverage
       if [ -f "coverage/app/lcov.info" ]; then
         app_lines=$(grep -c "^DA:" coverage/app/lcov.info || echo "0")
-        app_covered=$(grep "^DA:" coverage/app/lcov.info | grep -c ",[1-9]" || echo "0")
+        app_covered=$(grep "^DA:" coverage/app/lcov.info | \
+          grep -c ",[1-9]" || echo "0")
         total_lines=$((total_lines + app_lines))
         covered_lines=$((covered_lines + app_covered))
       fi
@@ -240,7 +263,8 @@ rules:
         for package_coverage in coverage/packages/*/lcov.info; do
           if [ -f "$package_coverage" ]; then
             package_lines=$(grep -c "^DA:" "$package_coverage" || echo "0")
-            package_covered=$(grep "^DA:" "$package_coverage" | grep -c ",[1-9]" || echo "0")
+            package_covered=$(grep "^DA:" "$package_coverage" | \
+              grep -c ",[1-9]" || echo "0")
             total_lines=$((total_lines + package_lines))
             covered_lines=$((covered_lines + package_covered))
           fi
@@ -266,18 +290,22 @@ rules:
       for app_dir in apps/*/; do
         app_name=$(basename "$app_dir")
         if [ -f "coverage/apps/$app_name/lcov.info" ]; then
-          app_lines=$(grep -c "^DA:" coverage/apps/$app_name/lcov.info || echo "0")
-          app_covered=$(grep "^DA:" coverage/apps/$app_name/lcov.info | grep -c ",[1-9]" || echo "0")
+          app_lines=$(grep -c "^DA:" coverage/apps/$app_name/lcov.info || \
+            echo "0")
+          app_covered=$(grep "^DA:" coverage/apps/$app_name/lcov.info | \
+            grep -c ",[1-9]" || echo "0")
           total_lines=$((total_lines + app_lines))
           covered_lines=$((covered_lines + app_covered))
         fi
         
         # Add app-specific packages coverage
         if [ -d "coverage/apps/$app_name/packages/" ]; then
-          for package_coverage in coverage/apps/$app_name/packages/*/lcov.info; do
+          for package_coverage in \
+            coverage/apps/$app_name/packages/*/lcov.info; do
             if [ -f "$package_coverage" ]; then
               package_lines=$(grep -c "^DA:" "$package_coverage" || echo "0")
-              package_covered=$(grep "^DA:" "$package_coverage" | grep -c ",[1-9]" || echo "0")
+              package_covered=$(grep "^DA:" "$package_coverage" | \
+                grep -c ",[1-9]" || echo "0")
               total_lines=$((total_lines + package_lines))
               covered_lines=$((covered_lines + package_covered))
             fi
@@ -290,7 +318,8 @@ rules:
         for package_coverage in coverage/packages/*/lcov.info; do
           if [ -f "$package_coverage" ]; then
             package_lines=$(grep -c "^DA:" "$package_coverage" || echo "0")
-            package_covered=$(grep "^DA:" "$package_coverage" | grep -c ",[1-9]" || echo "0")
+            package_covered=$(grep "^DA:" "$package_coverage" | \
+              grep -c ",[1-9]" || echo "0")
             total_lines=$((total_lines + package_lines))
             covered_lines=$((covered_lines + package_covered))
           fi
@@ -312,7 +341,8 @@ rules:
       SINGLE APP SUMMARY:
       - App test count and coverage percentage
       - Packages test counts and coverage percentages (if packages/ exists)
-      - Overall aggregated coverage percentage (weighted average of app + packages)
+      - Overall aggregated coverage percentage
+        (weighted average of app + packages)
       - Files with low coverage (< 70%) in app and packages
       - Files with no coverage in app and packages
       - Test execution time for app and packages
@@ -322,7 +352,8 @@ rules:
       - Per-app test counts and coverage percentages
       - Per-app packages test counts and coverage percentages
       - Shared packages test counts and coverage percentages
-      - Overall monorepo coverage aggregation (weighted average of all apps and packages)
+      - Overall monorepo coverage aggregation
+        (weighted average of all apps and packages)
       - Cross-app coverage consistency analysis
       - Cross-package coverage consistency analysis
       - Files with low coverage per app and package
@@ -370,7 +401,8 @@ rules:
       2. COVERAGE OVERVIEW
          - App coverage percentage (per app if multi-app)
          - Packages coverage percentage (per package if applicable)
-         - Overall aggregated coverage percentage (weighted average of all components)
+         - Overall aggregated coverage percentage
+           (weighted average of all components)
          - Total lines of code (per app and package if applicable)
          - Lines covered (per app and package if applicable)
          - Lines missed (per app and package if applicable)
@@ -390,7 +422,8 @@ rules:
          - Performance considerations (per app and package if applicable)
 
       5. RECOMMENDATIONS
-         - Priority files for test coverage improvement (per app and package if applicable)
+         - Priority files for test coverage improvement
+           (per app and package if applicable)
          - Specific testing strategies (per app and package if applicable)
          - Test architecture suggestions (per app and package if applicable)
          - CI/CD integration recommendations (per app and package if applicable)
@@ -412,22 +445,38 @@ rules:
 
       SINGLE APP EXECUTION:
       Always execute commands in this order:
-      1. flutter test --coverage --coverage-path=coverage/app/lcov.info (or fvm flutter test --coverage if FVM is configured)
-      2. For each package in packages/: cd packages/<package_name> && flutter test --coverage --coverage-path=coverage/packages/<package_name>/lcov.info
+      1. flutter test --coverage --reporter=compact \
+         --coverage-path=coverage/app/lcov.info
+         (or fvm flutter test --coverage --reporter=compact if FVM is
+         configured)
+      2. For each package in packages/: cd packages/<package_name> && \
+         flutter test --coverage --reporter=compact \
+         --coverage-path=coverage/packages/<package_name>/lcov.info
       3. Analysis commands for coverage data (app + packages)
 
       MULTI-APP EXECUTION:
       Always execute commands in this order:
-      1. For each app: cd apps/<app_name> && flutter test --coverage --coverage-path=coverage/apps/<app_name>/lcov.info
-      2. For each app-specific package: cd apps/<app_name>/packages/<package_name> && flutter test --coverage --coverage-path=coverage/apps/<app_name>/packages/<package_name>/lcov.info
-      3. For each shared package: cd packages/<package_name> && flutter test --coverage --coverage-path=coverage/packages/<package_name>/lcov.info
+      1. For each app: cd apps/<app_name> && flutter test --coverage \
+         --reporter=compact \
+         --coverage-path=coverage/apps/<app_name>/lcov.info
+      2. For each app-specific package: \
+         cd apps/<app_name>/packages/<package_name> && \
+         flutter test --coverage --reporter=compact \
+         --coverage-path=coverage/apps/<app_name>/packages/\
+<package_name>/lcov.info
+      3. For each shared package: cd packages/<package_name> && \
+         flutter test --coverage --reporter=compact \
+         --coverage-path=coverage/packages/<package_name>/lcov.info
       4. Analysis commands for coverage data per app and package
       5. Cross-app and cross-package analysis and aggregation
 
       Handle errors gracefully:
-      - If tests fail, provide detailed error analysis (per app and package if applicable)
-      - If coverage generation fails, troubleshoot step by step (per app and package if applicable)
-      - Always provide actionable next steps (per app and package if applicable)
+      - If tests fail, provide detailed error analysis
+        (per app and package if applicable)
+      - If coverage generation fails, troubleshoot step by step
+        (per app and package if applicable)
+      - Always provide actionable next steps
+        (per app and package if applicable)
 
       ----------------------------------------------------------------------
       COVERAGE THRESHOLDS
@@ -463,4 +512,6 @@ rules:
       - Package testing coordination (if packages exist)
       - Cross-package dependency testing strategies
 
-      Remember: Focus on actionable insights and specific recommendations for improving test coverage and quality, considering single app, multi-app, and package scenarios.
+      Remember: Focus on actionable insights and specific recommendations
+      for improving test coverage and quality, considering single app,
+      multi-app, and package scenarios.
