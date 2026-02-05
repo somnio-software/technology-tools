@@ -1,0 +1,5 @@
+linter:
+  rules:
+    prefer_relative_imports: true
+    prefer_final_locals: true
+    avoid_print: false

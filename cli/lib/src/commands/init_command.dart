@@ -1,0 +1,202 @@
+import 'package:args/command_runner.dart';
+import 'package:mason_logger/mason_logger.dart';
+
+import '../content/content_loader.dart';
+import '../content/skill_registry.dart';
+import '../installers/antigravity_installer.dart';
+import '../installers/claude_installer.dart';
+import '../installers/cursor_installer.dart';
+import '../utils/agent_detector.dart';
+import '../utils/package_resolver.dart';
+
+/// First-time setup command.
+///
+/// Detects installed agents, lets the user choose which to target,
+/// and installs all skills.
+class InitCommand extends Command<int> {
+  InitCommand({required Logger logger}) : _logger = logger {
+    argParser.addFlag(
+      'force',
+      abbr: 'f',
+      help: 'Overwrite existing skills without prompting.',
+    );
+  }
+
+  final Logger _logger;
+
+  @override
+  String get name => 'init';
+
+  @override
+  String get description =>
+      'Auto-detect agents, select targets, and install skills.';
+
+  @override
+  Future<int> run() async {
+    final force = argResults!['force'] as bool;
+
+    // Print banner
+    _printBanner();
+
+    // Detect agents
+    final detectProgress = _logger.progress('Detecting installed AI agents');
+    final detector = AgentDetector();
+    final agents = await detector.detect();
+    detectProgress.complete('Agent detection complete');
+
+    _logger.info('');
+
+    // Display detection results
+    for (final entry in agents.entries) {
+      final name = AgentDetector.displayName(entry.key);
+      final info = entry.value;
+      if (info.installed) {
+        _logger.info(
+          '  ${lightGreen.wrap('[x]')} $name '
+          '(${info.path ?? 'found'})',
+        );
+      } else {
+        _logger.info(
+          '  ${lightRed.wrap('[ ]')} $name (not found)',
+        );
+      }
+    }
+    _logger.info('');
+
+    // Check if any agents are installed
+    final installedAgents = agents.entries
+        .where((e) => e.value.installed)
+        .map((e) => e.key)
+        .toList();
+
+    if (installedAgents.isEmpty) {
+      _logger.err('No AI agents detected.');
+      _logger.info('');
+      _logger.info('Install one of the following:');
+      _logger.info('  Claude Code: https://claude.ai/download');
+      _logger.info('  Cursor: https://cursor.com');
+      _logger.info('  Antigravity: https://antigravity.dev');
+      return ExitCode.software.code;
+    }
+
+    // Select agents
+    List<AgentType> selectedAgents;
+    if (installedAgents.length == 1) {
+      final agentName = AgentDetector.displayName(installedAgents.first);
+      final confirm = _logger.confirm(
+        'Install skills to $agentName?',
+      );
+      if (!confirm) return ExitCode.success.code;
+      selectedAgents = installedAgents;
+    } else {
+      selectedAgents = <AgentType>[];
+      for (final agent in installedAgents) {
+        final agentName = AgentDetector.displayName(agent);
+        final install = _logger.confirm(
+          'Install skills to $agentName?',
+          defaultValue: true,
+        );
+        if (install) selectedAgents.add(agent);
+      }
+
+      if (selectedAgents.isEmpty) {
+        _logger.info('No agents selected.');
+        return ExitCode.success.code;
+      }
+    }
+
+    _logger.info('');
+    _logger.info('Installing skills...');
+    _logger.info('');
+
+    // Resolve repo root
+    final resolver = PackageResolver();
+    final String repoRoot;
+    try {
+      repoRoot = await resolver.resolveRepoRoot();
+    } catch (e) {
+      _logger.err('$e');
+      return ExitCode.software.code;
+    }
+
+    final loader = ContentLoader(repoRoot);
+    final bundles = SkillRegistry.skills;
+
+    // Install to each selected agent
+    var totalSkills = 0;
+    var totalRules = 0;
+
+    for (final agent in selectedAgents) {
+      _logger.info('  ${AgentDetector.displayName(agent)}:');
+
+      switch (agent) {
+        case AgentType.claude:
+          final installer = ClaudeInstaller(
+            logger: _logger,
+            loader: loader,
+          );
+          final result = await installer.install(
+            bundles: bundles,
+            force: force,
+          );
+          totalSkills += result.skillCount;
+
+        case AgentType.cursor:
+          final installer = CursorInstaller(
+            logger: _logger,
+            loader: loader,
+          );
+          final result = await installer.install(
+            bundles: bundles,
+            force: force,
+          );
+          totalSkills += result.skillCount;
+
+        case AgentType.antigravity:
+          final installer = AntigravityInstaller(
+            logger: _logger,
+            loader: loader,
+          );
+          final result = await installer.install(
+            bundles: bundles,
+            force: force,
+          );
+          totalSkills += result.skillCount;
+          totalRules += result.ruleCount;
+      }
+
+      _logger.info('');
+    }
+
+    // Print summary
+    final parts = <String>[];
+    if (totalSkills > 0) parts.add('$totalSkills commands');
+    if (totalRules > 0) parts.add('$totalRules rules');
+    _logger.success('Done! Installed ${parts.join(', ')}.');
+    _logger.info('');
+
+    // Usage hints
+    _logger.info('Usage:');
+    for (final skill in bundles) {
+      if (selectedAgents.contains(AgentType.claude)) {
+        _logger.info('  Claude Code: /${skill.name}');
+      }
+      if (selectedAgents.contains(AgentType.cursor)) {
+        _logger.info('  Cursor:      /${skill.name}');
+      }
+    }
+
+    return ExitCode.success.code;
+  }
+
+  void _printBanner() {
+    _logger.info('''
+
+  ____                        _
+ / ___|  ___  _ __ ___  _ __ (_) ___
+ \\___ \\ / _ \\| '_ ` _ \\| '_ \\| |/ _ \\
+  ___) | (_) | | | | | | | | | | (_) |
+ |____/ \\___/|_| |_| |_|_| |_|_|\\___/  v1.0.0
+''');
+  }
+}
