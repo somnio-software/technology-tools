@@ -305,16 +305,12 @@ class AddCommand extends Command<int> {
         name: 'somnio-${suffixes['health']}',
         displayName: displayNames['health']!,
         description: descriptions['health']!,
-        planRelativePath:
-            '$tech-plans/${tech}_project_health_audit/plan/'
+        planRelativePath: '$tech-plans/${tech}_project_health_audit/plan/'
             '$tech-health.plan.md',
-        rulesDirectory:
-            '$tech-plans/${tech}_project_health_audit/cursor_rules',
-        workflowPath:
-            '$tech-plans/${tech}_project_health_audit/.agent/'
+        rulesDirectory: '$tech-plans/${tech}_project_health_audit/cursor_rules',
+        workflowPath: '$tech-plans/${tech}_project_health_audit/.agent/'
             'workflows/${tech}_health_audit.md',
-        templatePath:
-            '$tech-plans/${tech}_project_health_audit/cursor_rules/'
+        templatePath: '$tech-plans/${tech}_project_health_audit/cursor_rules/'
             'templates/${tech}_report_template.txt',
       ));
     }
@@ -325,16 +321,12 @@ class AddCommand extends Command<int> {
         name: 'somnio-${suffixes['practices']}',
         displayName: displayNames['practices']!,
         description: descriptions['practices']!,
-        planRelativePath:
-            '$tech-plans/${tech}_best_practices_check/plan/'
+        planRelativePath: '$tech-plans/${tech}_best_practices_check/plan/'
             'best_practices.plan.md',
-        rulesDirectory:
-            '$tech-plans/${tech}_best_practices_check/cursor_rules',
-        workflowPath:
-            '$tech-plans/${tech}_best_practices_check/.agent/'
+        rulesDirectory: '$tech-plans/${tech}_best_practices_check/cursor_rules',
+        workflowPath: '$tech-plans/${tech}_best_practices_check/.agent/'
             'workflows/${tech}_best_practices.md',
-        templatePath:
-            '$tech-plans/${tech}_best_practices_check/cursor_rules/'
+        templatePath: '$tech-plans/${tech}_best_practices_check/cursor_rules/'
             'templates/best_practices_report_template.txt',
       ));
     }
@@ -399,8 +391,7 @@ class AddCommand extends Command<int> {
     _logger.info('');
 
     // Filter registrable bundles
-    final registrable =
-        results.where((r) => r.isRegistrable).toList();
+    final registrable = results.where((r) => r.isRegistrable).toList();
 
     if (registrable.isEmpty) {
       _logger.err(
@@ -632,8 +623,7 @@ class AddCommand extends Command<int> {
     _logger.info('');
     _logger.info('Existing commands: ${allTaken.join(', ')}');
 
-    final defaultSuffix =
-        _isShortNameAvailable(candidate) ? candidate : null;
+    final defaultSuffix = _isShortNameAvailable(candidate) ? candidate : null;
 
     for (var attempts = 0; attempts < 5; attempts++) {
       final input = _logger.prompt(
@@ -641,8 +631,7 @@ class AddCommand extends Command<int> {
         defaultValue: defaultSuffix,
       );
 
-      if (input.length != 2 ||
-          !RegExp(r'^[a-z0-9]{2}$').hasMatch(input)) {
+      if (input.length != 2 || !RegExp(r'^[a-z0-9]{2}$').hasMatch(input)) {
         _logger.err(
           'Must be exactly 2 lowercase alphanumeric characters '
           '(a-z, 0-9).',

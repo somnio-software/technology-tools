@@ -75,8 +75,7 @@ class UninstallCommand extends Command<int> {
         .listSync()
         .whereType<File>()
         .where((f) =>
-            f.path.endsWith('.md') &&
-            p.basename(f.path).startsWith('somnio-'))
+            f.path.endsWith('.md') && p.basename(f.path).startsWith('somnio-'))
         .toList();
 
     if (files.isEmpty) return false;

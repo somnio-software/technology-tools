@@ -5,7 +5,7 @@ CLI tool that installs AI agent skills from the technology-tools repository into
 ## Installation
 
 ```bash
-dart pub global activate -sgit https://github.com/somnio-software/technology-tools --git-path cli
+dart pub global activate --source git https://github.com/somnio-software/technology-tools --git-path cli
 ```
 
 ## Quick Start
