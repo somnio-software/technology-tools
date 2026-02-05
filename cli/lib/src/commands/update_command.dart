@@ -16,8 +16,7 @@ class UpdateCommand extends Command<int> {
 
   final Logger _logger;
 
-  static const _repoUrl =
-      'https://github.com/somnio-software/technology-tools';
+  static const _repoUrl = 'https://github.com/somnio-software/technology-tools';
 
   @override
   String get name => 'update';
@@ -35,9 +34,10 @@ class UpdateCommand extends Command<int> {
         'pub',
         'global',
         'activate',
-        '-sgit',
+        '--source',
+        'git',
         _repoUrl,
-        '--path',
+        '--git-path',
         'cli',
       ]);
       if (result.exitCode != 0) {
@@ -46,7 +46,7 @@ class UpdateCommand extends Command<int> {
         _logger.info('');
         _logger.info(
           'You can update manually:\n'
-          '  dart pub global activate -sgit $_repoUrl --path cli',
+          '  dart pub global activate --source git $_repoUrl --git-path cli',
         );
         return ExitCode.software.code;
       }

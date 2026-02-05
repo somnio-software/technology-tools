@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 
 /// Resolves the technology-tools repo root at runtime.
 ///
-/// When installed via `dart pub global activate -sgit`, the repo is
+/// When installed via `dart pub global activate --source git`, the repo is
 /// cached in `~/.pub-cache/git/`. This resolver finds the repo root
 /// so the CLI can access `flutter-plans/`.
 class PackageResolver {
@@ -54,7 +54,7 @@ class PackageResolver {
       '  1. Set SOMNIO_ROOT environment variable:\n'
       '     export SOMNIO_ROOT=/path/to/technology-tools\n\n'
       '  2. Reinstall the CLI:\n'
-      '     dart pub global activate -sgit <repo-url> --path cli',
+      '     dart pub global activate --source git <repo-url> --git-path cli',
     );
   }
 

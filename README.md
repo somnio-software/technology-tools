@@ -12,6 +12,42 @@ This repository's main objectives are:
 - **Optimize processes**: Automate repetitive analysis and auditing tasks
 - **Facilitate maintenance**: Create reusable and scalable tools
 
+## ⚡ Getting Started
+
+### 📦 Install the CLI
+
+Before using any tools, install the Somnio CLI to easily install and manage AI agent skills:
+
+```bash
+dart pub global activate --source git https://github.com/somnio-software/technology-tools --git-path cli
+```
+
+### 🚀 Quick Start
+
+Once installed, auto-detect available agents (Claude Code, Cursor, Antigravity) and install all skills:
+
+```bash
+somnio init
+```
+
+This command will:
+- 🔍 Detect which AI agents are available on your system
+- 📥 Install all available skills to each detected agent
+- ✅ Set up everything you need to start using the tools
+
+### 📚 CLI Documentation
+
+For detailed CLI usage, commands, and advanced options, see the [CLI README](cli/README.md).
+
+**Available CLI Commands:**
+- `somnio init` - Auto-detect and install skills to all agents
+- `somnio claude` - Install skills to Claude Code
+- `somnio cursor` - Install commands to Cursor
+- `somnio antigravity` - Install workflows to Antigravity
+- `somnio status` - Show installed skills status
+- `somnio update` - Update CLI and reinstall skills
+- `somnio add` - Add new technology skill bundles
+
 ## 🛠️ Available Tools
 
 This repository contains technology-specific auditing and analysis tools organized by technology stack:
@@ -125,18 +161,6 @@ All YAML rule files follow strict formatting standards:
 - **Formatting**: Commands split using shell continuation (`\`)
 - **Descriptions**: Use folded scalar format (`>`) for multi-line text
 - **Readability**: Optimized for maintainability and consistency
-
-### Validation & Testing
-
-The repository includes validation scripts to ensure code quality:
-- **Plan Simulation**: Validates all plans and their referenced rules
-- **YAML Validation**: Checks syntax and structure of all YAML files
-- **Reference Verification**: Ensures all rule references are valid
-
-Run validation:
-```bash
-./simulate_plans.sh  # Simulates all plans and validates rules
-```
 
 ## 📈 Roadmap
 
