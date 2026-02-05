@@ -187,7 +187,7 @@ rules:
       # Run build_runner where applicable
       if grep -q "build_runner" pubspec.yaml 2>/dev/null; then
         echo "Running build_runner at root..."
-         fvm dart run build_runner build --delete-conflicting-output \
+         fvm dart run build_runner build --delete-conflicting-outputs \
            > /dev/null 2>&1
       fi
       
@@ -195,7 +195,7 @@ rules:
         echo "Running build_runner in all packages that declare build_runner..."
          find packages/ -name "pubspec.yaml" -execdir sh -c \
            'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then \
-           fvm dart run build_runner build --delete-conflicting-output \
+           fvm dart run build_runner build --delete-conflicting-outputs \
            > /dev/null 2>&1; fi' \;
       fi
       
@@ -203,7 +203,7 @@ rules:
         echo "Running build_runner in all apps that declare build_runner..."
          find apps/ -name "pubspec.yaml" -execdir sh -c \
            'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then \
-           fvm dart run build_runner build --delete-conflicting-output \
+           fvm dart run build_runner build --delete-conflicting-outputs \
            > /dev/null 2>&1; fi' \;
       fi
       
