@@ -20,7 +20,6 @@ class AntigravityInstaller extends Installer {
   @override
   Future<InstallResult> install({
     required List<SkillBundle> bundles,
-    String? projectPath,
     bool force = false,
   }) async {
     final baseDir = PlatformUtils.antigravityGlobalDir;
@@ -117,7 +116,7 @@ class AntigravityInstaller extends Installer {
   }
 
   @override
-  bool isInstalled({String? projectPath}) {
+  bool isInstalled() {
     final baseDir = PlatformUtils.antigravityGlobalDir;
     final workflowsDir = Directory(p.join(baseDir, 'global_workflows'));
     if (!workflowsDir.existsSync()) return false;
@@ -129,7 +128,7 @@ class AntigravityInstaller extends Installer {
   }
 
   @override
-  int installedCount({String? projectPath}) {
+  int installedCount() {
     final baseDir = PlatformUtils.antigravityGlobalDir;
     final workflowsDir = Directory(p.join(baseDir, 'global_workflows'));
     if (!workflowsDir.existsSync()) return 0;

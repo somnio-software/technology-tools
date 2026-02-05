@@ -100,13 +100,14 @@ class AntigravityTransformer {
     //   `<prefix>_project_health_audit/cursor_rules/...`
     //   `<prefix>_best_practices_check/cursor_rules/...`
     // to:
-    //   `../somnio_rules/<prefix>_project_health_audit/cursor_rules/...`
-    // (relative from global_workflows/ to sibling somnio_rules/)
+    //   `~/.gemini/antigravity/somnio_rules/<prefix>_.../cursor_rules/...`
+    // Absolute path because Antigravity resolves paths relative to the
+    // workspace, not relative to the workflow file.
     final pathPattern = RegExp(
       r'`(\w+_(?:project_health_audit|best_practices_check)/[^`]+)`',
     );
     content = content.replaceAllMapped(pathPattern, (match) {
-      return '`../somnio_rules/${match.group(1)}`';
+      return '`~/.gemini/antigravity/somnio_rules/${match.group(1)}`';
     });
 
     return content;

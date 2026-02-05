@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
@@ -150,7 +148,6 @@ class InitCommand extends Command<int> {
           );
           final result = await installer.install(
             bundles: bundles,
-            projectPath: Directory.current.path,
             force: force,
           );
           totalSkills += result.skillCount;
@@ -162,7 +159,6 @@ class InitCommand extends Command<int> {
           );
           final result = await installer.install(
             bundles: bundles,
-            projectPath: Directory.current.path,
             force: force,
           );
           totalSkills += result.skillCount;

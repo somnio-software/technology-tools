@@ -27,20 +27,18 @@ abstract class Installer {
   final Logger logger;
   final ContentLoader loader;
 
-  /// Installs all skill bundles to the target agent.
+  /// Installs all skill bundles to the agent's global directory.
   ///
   /// [bundles] - The skill bundles to install.
-  /// [projectPath] - If provided, install to project-level directory.
   /// [force] - If true, overwrite existing files without prompting.
   Future<InstallResult> install({
     required List<SkillBundle> bundles,
-    String? projectPath,
     bool force = false,
   });
 
-  /// Checks if skills are already installed at the target location.
-  bool isInstalled({String? projectPath});
+  /// Checks if skills are already installed.
+  bool isInstalled();
 
   /// Returns the count of installed items.
-  int installedCount({String? projectPath});
+  int installedCount();
 }

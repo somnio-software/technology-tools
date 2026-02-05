@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
@@ -11,17 +9,11 @@ import '../utils/package_resolver.dart';
 /// Installs skills into Claude Code.
 class ClaudeCommand extends Command<int> {
   ClaudeCommand({required Logger logger}) : _logger = logger {
-    argParser
-      ..addFlag(
-        'project',
-        help: 'Install to .claude/skills/ in current directory '
-            'instead of ~/.claude/skills/',
-      )
-      ..addFlag(
-        'force',
-        abbr: 'f',
-        help: 'Overwrite existing skills without prompting.',
-      );
+    argParser.addFlag(
+      'force',
+      abbr: 'f',
+      help: 'Overwrite existing skills without prompting.',
+    );
   }
 
   final Logger _logger;
@@ -34,7 +26,6 @@ class ClaudeCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final isProject = argResults!['project'] as bool;
     final force = argResults!['force'] as bool;
 
     final resolver = PackageResolver();
@@ -49,10 +40,8 @@ class ClaudeCommand extends Command<int> {
     final loader = ContentLoader(repoRoot);
     final installer = ClaudeInstaller(logger: _logger, loader: loader);
 
-    final projectPath = isProject ? Directory.current.path : null;
     final result = await installer.install(
       bundles: SkillRegistry.skills,
-      projectPath: projectPath,
       force: force,
     );
 

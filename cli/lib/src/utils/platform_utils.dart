@@ -16,13 +16,9 @@ class PlatformUtils {
   static String get claudeGlobalSkillsDir =>
       p.join(homeDirectory, '.claude', 'skills');
 
-  /// Returns the path to Claude Code's project-level skills directory.
-  static String claudeProjectSkillsDir(String projectRoot) =>
-      p.join(projectRoot, '.claude', 'skills');
-
-  /// Returns the path to Cursor's project-level commands directory.
-  static String cursorProjectCommandsDir(String projectRoot) =>
-      p.join(projectRoot, '.cursor', 'commands');
+  /// Returns the path to Cursor's global commands directory.
+  static String get cursorGlobalCommandsDir =>
+      p.join(homeDirectory, '.cursor', 'commands');
 
   /// Returns the path to Antigravity's global directory.
   static String get antigravityGlobalDir =>

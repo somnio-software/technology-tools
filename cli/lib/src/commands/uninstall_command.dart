@@ -29,11 +29,11 @@ class UninstallCommand extends Command<int> {
     final claudeRemoved = _removeClaude();
     removedAnything |= claudeRemoved;
 
-    // Cursor: .cursor/commands/somnio-*.md
+    // Cursor: ~/.cursor/commands/somnio-*.md
     final cursorRemoved = _removeCursor();
     removedAnything |= cursorRemoved;
 
-    // Antigravity: .agent/workflows/somnio_* + .agent/somnio_rules/
+    // Antigravity: ~/.gemini/antigravity/global_workflows/somnio_* + somnio_rules/
     final antigravityRemoved = _removeAntigravity();
     removedAnything |= antigravityRemoved;
 
@@ -68,8 +68,7 @@ class UninstallCommand extends Command<int> {
   }
 
   bool _removeCursor() {
-    final cwd = Directory.current.path;
-    final commandsDir = Directory(p.join(cwd, '.cursor', 'commands'));
+    final commandsDir = Directory(PlatformUtils.cursorGlobalCommandsDir);
     if (!commandsDir.existsSync()) return false;
 
     final files = commandsDir
@@ -91,11 +90,11 @@ class UninstallCommand extends Command<int> {
   }
 
   bool _removeAntigravity() {
-    final cwd = Directory.current.path;
+    final baseDir = PlatformUtils.antigravityGlobalDir;
     var removed = false;
 
     // Remove workflow files
-    final workflowsDir = Directory(p.join(cwd, '.agent', 'workflows'));
+    final workflowsDir = Directory(p.join(baseDir, 'global_workflows'));
     if (workflowsDir.existsSync()) {
       final files = workflowsDir
           .listSync()
@@ -112,10 +111,10 @@ class UninstallCommand extends Command<int> {
     }
 
     // Remove somnio_rules directory
-    final rulesDir = Directory(p.join(cwd, '.agent', 'somnio_rules'));
+    final rulesDir = Directory(p.join(baseDir, 'somnio_rules'));
     if (rulesDir.existsSync()) {
       rulesDir.deleteSync(recursive: true);
-      _logger.info('  Removed Antigravity rules: .agent/somnio_rules/');
+      _logger.info('  Removed Antigravity rules: somnio_rules/');
       removed = true;
     }
 

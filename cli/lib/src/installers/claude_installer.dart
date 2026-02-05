@@ -7,10 +7,9 @@ import '../transformers/claude_transformer.dart';
 import '../utils/platform_utils.dart';
 import 'installer.dart';
 
-/// Installs skills into Claude Code's skill directory.
+/// Installs skills into Claude Code's global skill directory.
 ///
-/// Global: `~/.claude/skills/<skill-name>/`
-/// Project: `.claude/skills/<skill-name>/`
+/// Location: `~/.claude/skills/<skill-name>/`
 class ClaudeInstaller extends Installer {
   ClaudeInstaller({required super.logger, required super.loader});
 
@@ -19,12 +18,9 @@ class ClaudeInstaller extends Installer {
   @override
   Future<InstallResult> install({
     required List<SkillBundle> bundles,
-    String? projectPath,
     bool force = false,
   }) async {
-    final baseDir = projectPath != null
-        ? PlatformUtils.claudeProjectSkillsDir(projectPath)
-        : PlatformUtils.claudeGlobalSkillsDir;
+    final baseDir = PlatformUtils.claudeGlobalSkillsDir;
 
     var skillCount = 0;
     var ruleCount = 0;
@@ -83,12 +79,8 @@ class ClaudeInstaller extends Installer {
   }
 
   @override
-  bool isInstalled({String? projectPath}) {
-    final baseDir = projectPath != null
-        ? PlatformUtils.claudeProjectSkillsDir(projectPath)
-        : PlatformUtils.claudeGlobalSkillsDir;
-
-    final dir = Directory(baseDir);
+  bool isInstalled() {
+    final dir = Directory(PlatformUtils.claudeGlobalSkillsDir);
     if (!dir.existsSync()) return false;
 
     return dir
@@ -98,12 +90,8 @@ class ClaudeInstaller extends Installer {
   }
 
   @override
-  int installedCount({String? projectPath}) {
-    final baseDir = projectPath != null
-        ? PlatformUtils.claudeProjectSkillsDir(projectPath)
-        : PlatformUtils.claudeGlobalSkillsDir;
-
-    final dir = Directory(baseDir);
+  int installedCount() {
+    final dir = Directory(PlatformUtils.claudeGlobalSkillsDir);
     if (!dir.existsSync()) return 0;
 
     return dir

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
@@ -11,17 +9,11 @@ import '../utils/package_resolver.dart';
 /// Installs commands into Cursor.
 class CursorCommand extends Command<int> {
   CursorCommand({required Logger logger}) : _logger = logger {
-    argParser
-      ..addFlag(
-        'project',
-        help: 'Install to .cursor/commands/ in current directory (default).',
-        defaultsTo: true,
-      )
-      ..addFlag(
-        'force',
-        abbr: 'f',
-        help: 'Overwrite existing commands without prompting.',
-      );
+    argParser.addFlag(
+      'force',
+      abbr: 'f',
+      help: 'Overwrite existing commands without prompting.',
+    );
   }
 
   final Logger _logger;
@@ -50,7 +42,6 @@ class CursorCommand extends Command<int> {
 
     final result = await installer.install(
       bundles: SkillRegistry.skills,
-      projectPath: Directory.current.path,
       force: force,
     );
 

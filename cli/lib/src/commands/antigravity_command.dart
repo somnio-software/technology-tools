@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
@@ -11,17 +9,11 @@ import '../utils/package_resolver.dart';
 /// Installs workflows into Antigravity.
 class AntigravityCommand extends Command<int> {
   AntigravityCommand({required Logger logger}) : _logger = logger {
-    argParser
-      ..addFlag(
-        'project',
-        help: 'Install to .agent/ in current directory (default).',
-        defaultsTo: true,
-      )
-      ..addFlag(
-        'force',
-        abbr: 'f',
-        help: 'Overwrite existing workflows without prompting.',
-      );
+    argParser.addFlag(
+      'force',
+      abbr: 'f',
+      help: 'Overwrite existing workflows without prompting.',
+    );
   }
 
   final Logger _logger;
@@ -53,7 +45,6 @@ class AntigravityCommand extends Command<int> {
 
     final result = await installer.install(
       bundles: SkillRegistry.skills,
-      projectPath: Directory.current.path,
       force: force,
     );
 

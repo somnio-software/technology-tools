@@ -7,10 +7,12 @@ import '../transformers/cursor_transformer.dart';
 import '../utils/platform_utils.dart';
 import 'installer.dart';
 
-/// Installs commands into Cursor's .cursor/commands/ directory.
+/// Installs commands into Cursor's global commands directory.
 ///
 /// Cursor commands are plain `.md` files triggered via `/command-name`
 /// in chat. Each skill becomes a single command file.
+///
+/// Location: `~/.cursor/commands/`
 class CursorInstaller extends Installer {
   CursorInstaller({required super.logger, required super.loader});
 
@@ -19,12 +21,9 @@ class CursorInstaller extends Installer {
   @override
   Future<InstallResult> install({
     required List<SkillBundle> bundles,
-    String? projectPath,
     bool force = false,
   }) async {
-    final targetDir = PlatformUtils.cursorProjectCommandsDir(
-      projectPath ?? Directory.current.path,
-    );
+    final targetDir = PlatformUtils.cursorGlobalCommandsDir;
 
     var commandCount = 0;
 
@@ -40,8 +39,7 @@ class CursorInstaller extends Installer {
 
       if (existing.isNotEmpty) {
         final overwrite = logger.confirm(
-          'Found ${existing.length} existing Somnio commands in '
-          '${_displayPath(targetDir)}. Overwrite?',
+          'Found ${existing.length} existing Somnio commands. Overwrite?',
         );
         if (!overwrite) {
           logger.info('Skipped Cursor installation.');
@@ -83,11 +81,8 @@ class CursorInstaller extends Installer {
   }
 
   @override
-  bool isInstalled({String? projectPath}) {
-    final targetDir = PlatformUtils.cursorProjectCommandsDir(
-      projectPath ?? Directory.current.path,
-    );
-    final dir = Directory(targetDir);
+  bool isInstalled() {
+    final dir = Directory(PlatformUtils.cursorGlobalCommandsDir);
     if (!dir.existsSync()) return false;
 
     return dir
@@ -99,11 +94,8 @@ class CursorInstaller extends Installer {
   }
 
   @override
-  int installedCount({String? projectPath}) {
-    final targetDir = PlatformUtils.cursorProjectCommandsDir(
-      projectPath ?? Directory.current.path,
-    );
-    final dir = Directory(targetDir);
+  int installedCount() {
+    final dir = Directory(PlatformUtils.cursorGlobalCommandsDir);
     if (!dir.existsSync()) return 0;
 
     return dir
@@ -119,13 +111,5 @@ class CursorInstaller extends Installer {
     final file = File(path);
     file.parent.createSync(recursive: true);
     file.writeAsStringSync(content);
-  }
-
-  String _displayPath(String path) {
-    final cwd = Directory.current.path;
-    if (path.startsWith(cwd)) {
-      return p.relative(path, from: cwd);
-    }
-    return path;
   }
 }

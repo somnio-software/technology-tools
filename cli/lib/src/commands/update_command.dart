@@ -91,7 +91,7 @@ class UpdateCommand extends Command<int> {
       updated++;
     }
 
-    // Check Cursor (project-level)
+    // Check Cursor
     final cursorInstaller = CursorInstaller(
       logger: _logger,
       loader: loader,
@@ -99,7 +99,6 @@ class UpdateCommand extends Command<int> {
     if (cursorInstaller.isInstalled()) {
       final result = await cursorInstaller.install(
         bundles: bundles,
-        projectPath: Directory.current.path,
         force: true,
       );
       _logger.info(
@@ -108,7 +107,7 @@ class UpdateCommand extends Command<int> {
       updated++;
     }
 
-    // Check Antigravity (project-level)
+    // Check Antigravity
     final antigravityInstaller = AntigravityInstaller(
       logger: _logger,
       loader: loader,
@@ -116,7 +115,6 @@ class UpdateCommand extends Command<int> {
     if (antigravityInstaller.isInstalled()) {
       final result = await antigravityInstaller.install(
         bundles: bundles,
-        projectPath: Directory.current.path,
         force: true,
       );
       _logger.info(
