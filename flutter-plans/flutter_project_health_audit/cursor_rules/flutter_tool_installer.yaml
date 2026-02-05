@@ -47,7 +47,7 @@ rules:
              includes npm)..."
            if command -v brew &> /dev/null; then
              echo "Homebrew found. Installing Node.js..."
-             brew install node
+             brew install node > /dev/null 2>&1
              if [ $? -ne 0 ]; then
                echo "ERROR: Failed to install Node.js via Homebrew."
                echo "Please install Node.js manually: https://nodejs.org/"
@@ -61,6 +61,8 @@ rules:
            fi
          else
            echo "Node.js and npm are installed."
+           node --version > /dev/null 2>&1
+           npm --version > /dev/null 2>&1
          fi
          ```
 
@@ -69,7 +71,7 @@ rules:
          echo "Checking FVM..."
          if ! command -v fvm &> /dev/null; then
            echo "FVM not found. Installing via dart pub global activate..."
-           dart pub global activate fvm
+           dart pub global activate fvm > /dev/null 2>&1
            if [ $? -ne 0 ]; then
              echo "ERROR: Failed to install FVM."
              exit 1
@@ -79,6 +81,7 @@ rules:
            echo "FVM installed successfully."
          else
            echo "FVM is installed."
+           fvm --version > /dev/null 2>&1
          fi
          ```
 
@@ -88,7 +91,7 @@ rules:
          if ! command -v gemini &> /dev/null; then
            echo "Gemini CLI not found. Installing @google/gemini-cli
              globally via npm..."
-           npm install -g @google/gemini-cli
+           npm install -g @google/gemini-cli > /dev/null 2>&1
            if [ $? -ne 0 ]; then
              echo "ERROR: Failed to install Gemini CLI."
              exit 1
@@ -96,16 +99,17 @@ rules:
            echo "Gemini CLI installed successfully."
          else
            echo "Gemini CLI is installed."
+           gemini --version > /dev/null 2>&1
          fi
          ```
 
       4. Check/Install Gemini Security Extension:
          ```bash
          echo "Checking Gemini Security Extension..."
-         if ! gemini extensions list | grep -q "security"; then
+         if ! gemini extensions list 2>/dev/null | grep -q "security"; then
            echo "Gemini Security extension not found. Installing..."
-           gemini extensions install
-             https://github.com/gemini-cli-extensions/security
+           gemini extensions install \
+             https://github.com/gemini-cli-extensions/security > /dev/null 2>&1
            if [ $? -ne 0 ]; then
              echo "ERROR: Failed to install Gemini Security extension."
              exit 1

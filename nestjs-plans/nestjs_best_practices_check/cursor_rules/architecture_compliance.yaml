@@ -27,18 +27,22 @@ rules:
       - **Standards Validation**: Validating architecture against live standards
         from GitHub (nestjs-module-structure.mdc, nestjs-service-patterns.mdc,
         nestjs-repository-patterns.mdc)
-      - **Module Organization**: Ensuring proper module structure and dependencies
+      - **Module Organization**: Ensuring proper module structure and
+        dependencies
 
       Goal: Analyze the NestJS codebase for strict adherence to Layered
       Architecture and Separation of Concerns.
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-module-structure.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-module-structure.mdc`
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-service-patterns.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-service-patterns.mdc`
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-repository-patterns.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-repository-patterns.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards
@@ -90,6 +94,7 @@ rules:
               (e.g., "Controller accessing Prisma directly").
           *   `[DI Issue]` [file:line]: Hardcoded dependency.
           *   `[Logic in Controller]` [file:line]: Business logic in Controller.
-          *   `[Module Issue]` [file:line]: Missing export or circular dependency.
+           *   `[Module Issue]` [file:line]: Missing export or circular
+             dependency.
       * **Recommendations**: Specific refactoring advice for correcting layer
       violations.

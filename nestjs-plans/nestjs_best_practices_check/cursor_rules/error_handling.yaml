@@ -31,7 +31,8 @@ rules:
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-error-handling.mdc`
+           `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-error-handling.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards
@@ -57,7 +58,8 @@ rules:
               readable codes.
 
       3.  **Exception Filters**:
-          *   **Global Filters**: Check for global exception filter registration.
+           *   **Global Filters**: Check for global exception filter
+             registration.
           *   **Prisma Error Handling**: Verify Prisma-specific errors are
               properly handled.
           *   **Error Response Format**: Check for consistent error response
@@ -75,7 +77,8 @@ rules:
               in production.
           *   **No Stack Exposure**: Check that stack traces are not returned
               in responses.
-          *   **Sensitive Data**: Ensure errors don't leak sensitive information.
+           *   **Sensitive Data**: Ensure errors don't leak sensitive
+             information.
 
       6.  **Service Layer Patterns**:
           *   **findOneOrFail Pattern**: Check for existence validation

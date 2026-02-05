@@ -1,12 +1,16 @@
 rules:
   - name: NestJS CI/CD Analysis
-    description: Read all GitHub Actions workflows and related CI/CD configuration files including Docker setup for NestJS projects (single app or monorepo).
+    description: >
+      Read all GitHub Actions workflows and related CI/CD configuration files
+      including Docker setup for NestJS projects (single app or monorepo).
     match: "*"
     prompt: |
-      Goal: Read all GitHub Actions workflows and related CI/CD configuration files for single app or monorepo repositories.
+      Goal: Read all GitHub Actions workflows and related CI/CD configuration
+      files for single app or monorepo repositories.
 
       IMPORTANT EXCLUSIONS:
-      - Do NOT recommend operational workflows (deployment, monitoring, performance tracking)
+      - Do NOT recommend operational workflows (deployment, monitoring,
+        performance tracking)
       - Do NOT recommend platform-specific deployment beyond basic Docker
       - Focus ONLY on technical CI/CD (lint, test, build, coverage, security)
       - Do NOT analyze, recommend, or consider CODEOWNERS files
@@ -14,9 +18,11 @@ rules:
       - These are governance decisions, not technical CI/CD requirements
 
       MONOREPO DETECTION:
-      - First detect repository structure: single app or monorepo (nx, turborepo, lerna, apps/ structure)
+      - First detect repository structure: single app or monorepo
+        (nx, turborepo, lerna, apps/ structure)
       - If apps/ directory exists, analyze each app individually
-      - If packages/ or libs/ directory exists, analyze each package/library individually
+      - If packages/ or libs/ directory exists, analyze each package/library
+        individually
 
       SINGLE APP CI/CD ANALYSIS:
       
@@ -95,7 +101,8 @@ rules:
          
       2. Per-App CI/CD:
          - For each app in apps/ directory:
-           * Verify .github/workflows/<app_name>.yaml or .github/workflows/<app_name>.yml exists
+            * Verify .github/workflows/<app_name>.yaml or
+              .github/workflows/<app_name>.yml exists
            * Read app-specific workflow files
            * For each app workflow, identify:
              - Trigger events (path filters for app changes)
@@ -236,7 +243,8 @@ rules:
       - Do NOT expect dependabot/PR template in packages/ directories
       - Do NOT recommend CODEOWNERS or SECURITY.md files
       
-      CRITICAL: Do NOT report missing CODEOWNERS or SECURITY.md files as CI/CD configuration gaps.
+      CRITICAL: Do NOT report missing CODEOWNERS or SECURITY.md files as CI/CD
+      configuration gaps.
       These are governance decisions, not technical CI/CD requirements.
 
 

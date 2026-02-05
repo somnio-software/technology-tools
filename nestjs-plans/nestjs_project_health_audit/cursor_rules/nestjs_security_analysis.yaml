@@ -1,9 +1,14 @@
 rules:
   - name: NestJS Security Analysis
-    description: Identify sensitive files, check .gitignore coverage, analyze authentication/authorization patterns, and find dependency scanning configuration for NestJS projects.
+    description: >
+      Identify sensitive files, check .gitignore coverage, analyze
+      authentication/authorization patterns, and find dependency scanning
+      configuration for NestJS projects.
     match: "*"
     prompt: |
-      Goal: Identify sensitive files, check .gitignore coverage, analyze security patterns, and find dependency scanning configuration for single app or monorepo repositories.
+      Goal: Identify sensitive files, check .gitignore coverage, analyze
+      security patterns, and find dependency scanning configuration for single
+      app or monorepo repositories.
 
       IMPORTANT EXCLUSIONS:
       - Do NOT analyze, recommend, or consider missing SECURITY.md files
@@ -14,7 +19,8 @@ rules:
       MONOREPO DETECTION:
       - First detect repository structure: single app or monorepo
       - If apps/ directory exists, analyze each app individually
-      - If packages/ or libs/ directory exists, analyze each package/library individually
+      - If packages/ or libs/ directory exists, analyze each package/library
+        individually
 
       SENSITIVE FILES DETECTION:
 
@@ -163,7 +169,8 @@ rules:
       1. Dependency Scanning:
          - Check for npm audit in CI/CD
          - Check for Snyk integration
-         - Verify Dependabot configuration (.github/dependabot.yaml or .github/dependabot.yml)
+          - Verify Dependabot configuration
+            (.github/dependabot.yaml or .github/dependabot.yml)
          - Check for automated security updates
          
       2. Package Integrity:
@@ -274,7 +281,8 @@ rules:
       - Recommendations for improvement (per app if monorepo)
       - Security consistency across apps (if monorepo)
       
-      CRITICAL: Do NOT report missing SECURITY.md or CODEOWNERS files as security risks or missing configurations.
+      CRITICAL: Do NOT report missing SECURITY.md or CODEOWNERS files as
+      security risks or missing configurations.
       These are governance decisions, not technical security requirements.
 
 

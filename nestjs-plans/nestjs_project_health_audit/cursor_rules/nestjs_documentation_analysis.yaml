@@ -1,19 +1,26 @@
 rules:
   - name: NestJS Documentation Analysis
-    description: Review technical documentation, API documentation, build instructions, and environment setup (no operational/runbook content).
+    description: >
+      Review technical documentation, API documentation, build instructions,
+      and environment setup (no operational/runbook content).
     match: "*"
     prompt: |
-      Goal: Review technical documentation, API documentation, build instructions, and environment setup for single app or monorepo repositories.
+      Goal: Review technical documentation, API documentation, build
+      instructions, and environment setup for single app or monorepo
+      repositories.
 
       IMPORTANT EXCLUSIONS:
-      - Do NOT check for operational documentation (runbooks, troubleshooting, deployment procedures, monitoring)
-      - Do NOT recommend CODEOWNERS or SECURITY.md files - these are governance decisions
+      - Do NOT check for operational documentation (runbooks,
+        troubleshooting, deployment procedures, monitoring)
+      - Do NOT recommend CODEOWNERS or SECURITY.md files - these are
+        governance decisions
       - Focus ONLY on technical setup and API documentation
 
       MONOREPO DETECTION:
       - First detect repository structure: single app or monorepo
       - If apps/ directory exists, analyze each app individually
-      - If packages/ or libs/ directory exists, analyze each package/library individually
+      - If packages/ or libs/ directory exists, analyze each package/library
+        individually
 
       README.MD ANALYSIS:
 
@@ -118,7 +125,8 @@ rules:
       1. Architecture Documentation:
          - Check for docs/architecture.md or ARCHITECTURE.md
          - Check for module structure explanation
-         - Verify layer responsibilities documented (controller, service, repository)
+          - Verify layer responsibilities documented
+            (controller, service, repository)
          - Check for dependency injection patterns documentation
          
       2. Folder Structure:
@@ -161,7 +169,8 @@ rules:
       CODE DOCUMENTATION:
 
       1. Inline Documentation Philosophy:
-         - CRITICAL: Documentation should follow "document only non-obvious code" principle
+          - CRITICAL: Documentation should follow
+            "document only non-obvious code" principle
          - Good code should be self-documenting through:
            * Clear, descriptive function/method names
            * Well-named variables
@@ -187,7 +196,8 @@ rules:
            * Complex business logic methods
            * Non-standard implementations
          - Verify inline comments explain WHY, not WHAT:
-           * Good: // Using setTimeout to avoid race condition with DB connection
+           * Good: // Using setTimeout to avoid race condition with DB
+             connection
            * Bad: // Call the function to get data
          
       2. Generated Documentation:

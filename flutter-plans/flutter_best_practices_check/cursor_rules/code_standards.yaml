@@ -33,15 +33,24 @@ rules:
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/dart-model-from-json.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/flutter/dart-model-from-json.mdc`
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-ai-rules.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/flutter/flutter-ai-rules.mdc`
 
       INSTRUCTIONS:
-      1.  **SCOPE**: You must analyze **ALL** Dart files for code standards violations.
-      2.  **DISCOVERY**: Execute `find . -type f -name "*.dart" -not -path "*/.*" -not -name "*.g.dart" -not -name "*.freezed.dart"` to list all source files.
-      3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest standards from the URLs above.
-      4.  **ANALYSIS**: Iterate through **EACH** file found in step 2:
+       1.  **SCOPE**: You must analyze **ALL** Dart files for code standards
+           violations.
+       2.  **DISCOVERY**: Execute `echo "Dart files to analyze: $(find . \
+           -type f -name "*.dart" -not -path "*/.*" -not -name "*.g.dart" \
+           -not -name "*.freezed.dart" 2>/dev/null | wc -l)"` to count source
+           files. Then use `glob_file_search` with pattern `**/*.dart` to find
+           all Dart files for analysis (excluding generated files).
+       3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest
+           standards from the URLs above.
+       4.  **ANALYSIS**: Iterate through **EACH** file found using
+           glob_file_search in step 2:
           a. Read the file content.
           b. Analyze strictly against the standards.
 

@@ -1,14 +1,19 @@
 rules:
   - name: NestJS Code Quality Analysis
-    description: Analyze ESLint configuration, Prettier setup, TypeScript strict mode, and code quality enforcement for NestJS projects.
+    description: >
+      Analyze ESLint configuration, Prettier setup, TypeScript strict mode,
+      and code quality enforcement for NestJS projects.
     match: "*"
     prompt: |
-      Goal: Analyze ESLint configuration, Prettier setup, TypeScript strict mode, and code quality enforcement for single app or monorepo repositories.
+      Goal: Analyze ESLint configuration, Prettier setup, TypeScript strict
+      mode, and code quality enforcement for single app or monorepo
+      repositories.
 
       MONOREPO DETECTION:
       - First detect repository structure: single app or monorepo
       - If apps/ directory exists, analyze each app individually
-      - If packages/ or libs/ directory exists, analyze each package/library individually
+      - If packages/ or libs/ directory exists, analyze each package/library
+        individually
 
       ESLINT CONFIGURATION ANALYSIS:
 
@@ -32,7 +37,8 @@ rules:
            * @typescript-eslint/no-unused-vars
            * @typescript-eslint/no-floating-promises
            * @typescript-eslint/await-thenable
-         - NestJS-specific rules (if using @darraghor/eslint-plugin-nestjs-typed):
+          - NestJS-specific rules
+            (if using @darraghor/eslint-plugin-nestjs-typed):
            * @darraghor/nestjs-typed/injectable-should-be-provided
            * @darraghor/nestjs-typed/controllers-should-supply-api-tags
            * @darraghor/nestjs-typed/use-validation-pipe
@@ -210,11 +216,13 @@ rules:
            * Flag functions/methods > 50 lines (should be split)
            * Check for functions with multiple responsibilities
            * Verify large operations are split into smaller step methods
-           * Example: createUser() calls validateUserData(), hashPassword(), saveUser()
+            * Example: createUser() calls validateUserData(), hashPassword(),
+              saveUser()
          - Service file organization:
            * If service file > 300 lines, recommend splitting by functionality
            * Each service method should have single responsibility
-           * Large operations should be split into multiple private helper methods
+            * Large operations should be split into multiple private helper
+              methods
          
       2. Naming Conventions:
          - File naming:
@@ -232,7 +240,8 @@ rules:
            * Verb-based names: createUser, findUserById, updateUserProfile
            * Boolean methods: isValid, hasPermission, canAccess
            * Avoid generic names: process, handle, doWork
-           * Service methods should indicate intent: calculateTotalPrice, validateUserCredentials
+            * Service methods should indicate intent: calculateTotalPrice,
+              validateUserCredentials
          - Variable naming:
            * Use camelCase for variables
            * Use PascalCase for classes

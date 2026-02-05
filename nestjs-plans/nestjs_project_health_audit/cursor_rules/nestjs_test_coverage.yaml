@@ -1,11 +1,15 @@
 rules:
   - name: NestJS Test Coverage Runner
-    description: Execute NestJS tests and generate comprehensive coverage reports with detailed analysis and recommendations for single app or monorepo
+    description: >
+      Execute NestJS tests and generate comprehensive coverage reports with
+      detailed analysis and recommendations for single app or monorepo
     match: "*"
     prompt: |
-      You are a NestJS testing specialist. When requested to run tests and generate coverage, you will:
+      You are a NestJS testing specialist. When requested to run tests and
+      generate coverage, you will:
 
-      1. Execute NestJS tests with coverage collection (single app or per-app for monorepos)
+      1. Execute NestJS tests with coverage collection
+         (single app or per-app for monorepos)
       2. Generate detailed coverage reports
       3. Analyze coverage results and provide actionable insights
       4. Identify areas needing more test coverage
@@ -33,13 +37,13 @@ rules:
       # Detect package manager
       if [ -f "pnpm-lock.yaml" ]; then
         PKG_MANAGER="pnpm"
-        TEST_CMD="pnpm test:cov"
+        TEST_CMD="pnpm test:cov -- --silent"
       elif [ -f "yarn.lock" ]; then
         PKG_MANAGER="yarn"
-        TEST_CMD="yarn test:cov"
+        TEST_CMD="yarn test:cov -- --silent"
       else
         PKG_MANAGER="npm"
-        TEST_CMD="npm run test:cov"
+        TEST_CMD="npm run test:cov -- --silent"
       fi
 
       # 1. Run tests in root app directory
@@ -74,13 +78,13 @@ rules:
       # Detect package manager
       if [ -f "pnpm-lock.yaml" ]; then
         PKG_MANAGER="pnpm"
-        TEST_CMD="pnpm test:cov"
+        TEST_CMD="pnpm test:cov -- --silent"
       elif [ -f "yarn.lock" ]; then
         PKG_MANAGER="yarn"
-        TEST_CMD="yarn test:cov"
+        TEST_CMD="yarn test:cov -- --silent"
       else
         PKG_MANAGER="npm"
-        TEST_CMD="npm run test:cov"
+        TEST_CMD="npm run test:cov -- --silent"
       fi
 
       # 1. Run tests for each app in apps/ directory
@@ -135,15 +139,20 @@ rules:
       # Check if coverage directory exists
       if [ -d "coverage" ]; then
         echo "Coverage directory found"
-        ls -la coverage/
+        echo "Coverage files: $(find coverage/ -name '*.json' \
+-o -name '*.html' 2>/dev/null | wc -l)"
         
         # Display coverage summary if available
         if [ -f "coverage/coverage-summary.json" ]; then
-          cat coverage/coverage-summary.json
+          cat coverage/coverage-summary.json | \
+            jq '{lines,statements,functions,branches}' 2>/dev/null || \
+            grep -E '"lines"|"statements"|"functions"|"branches"' \
+            coverage/coverage-summary.json | head -4
         fi
         
         if [ -f "coverage/lcov-report/index.html" ]; then
-          echo "Coverage HTML report available at: coverage/lcov-report/index.html"
+          echo "Coverage HTML report available at: \
+coverage/lcov-report/index.html"
         fi
       else
         echo "No coverage directory found"
@@ -161,7 +170,10 @@ rules:
           if [ -d "$app_dir/coverage" ]; then
             echo "✓ Coverage data found for $app_name"
             if [ -f "$app_dir/coverage/coverage-summary.json" ]; then
-              cat "$app_dir/coverage/coverage-summary.json"
+              cat "$app_dir/coverage/coverage-summary.json" | \
+                jq '{lines,statements,functions,branches}' 2>/dev/null || \
+                grep -E '"lines"|"statements"|"functions"|"branches"' \
+                "$app_dir/coverage/coverage-summary.json" | head -4
             fi
           else
             echo "✗ No coverage data found for $app_name"
@@ -179,7 +191,10 @@ rules:
           if [ -d "$package_dir/coverage" ]; then
             echo "✓ Coverage data found for $package_name"
             if [ -f "$package_dir/coverage/coverage-summary.json" ]; then
-              cat "$package_dir/coverage/coverage-summary.json"
+              cat "$package_dir/coverage/coverage-summary.json" | \
+                jq '{lines,statements,functions,branches}' 2>/dev/null || \
+                grep -E '"lines"|"statements"|"functions"|"branches"' \
+                "$package_dir/coverage/coverage-summary.json" | head -4
             fi
           else
             echo "✗ No coverage data found for $package_name"
@@ -193,11 +208,14 @@ rules:
 
       ```bash
       echo "=== Coverage Aggregation ==="
-      # This is a simplified example - actual implementation would parse JSON files
+      # This is a simplified example - actual implementation would parse
+      # JSON files
       
       if [ -f "coverage/coverage-summary.json" ]; then
         echo "Overall project coverage:"
-        cat coverage/coverage-summary.json | grep -E "lines|statements|functions|branches" || echo "Parse coverage data manually"
+        cat coverage/coverage-summary.json | \
+          grep -E "lines|statements|functions|branches" || \
+          echo "Parse coverage data manually"
       fi
       ```
 
@@ -213,7 +231,8 @@ rules:
       - Critical: < 60%
 
       File Analysis:
-      - Core business logic (src/modules/**/services/, src/modules/**/repositories/)
+      - Core business logic
+        (src/modules/**/services/, src/modules/**/repositories/)
       - Controllers (src/modules/**/controllers/, src/**/*.controller.ts)
       - Guards and interceptors (src/guards/, src/interceptors/)
       - Pipes and middleware (src/pipes/, src/middleware/)
@@ -242,7 +261,8 @@ rules:
       2. COVERAGE OVERVIEW
          - App coverage percentage (per app if monorepo)
          - Packages coverage percentage (per package if applicable)
-         - Overall aggregated coverage percentage (weighted average of all components)
+         - Overall aggregated coverage percentage
+           (weighted average of all components)
          - Total lines of code (per app and package if applicable)
          - Lines covered (per app and package if applicable)
          - Lines missed (per app and package if applicable)
@@ -262,7 +282,8 @@ rules:
          - Performance considerations (per app and package if applicable)
 
       5. RECOMMENDATIONS
-         - Priority files for test coverage improvement (per app and package if applicable)
+         - Priority files for test coverage improvement
+           (per app and package if applicable)
          - Specific testing strategies (per app and package if applicable)
          - Test architecture suggestions (per app and package if applicable)
          - CI/CD integration recommendations (per app and package if applicable)
@@ -313,6 +334,8 @@ rules:
       - Package testing coordination (if packages exist)
       - Cross-package dependency testing strategies
 
-      Remember: Focus on actionable insights and specific recommendations for improving test coverage and quality, considering single app, monorepo, and package scenarios.
+      Remember: Focus on actionable insights and specific recommendations
+      for improving test coverage and quality, considering single app,
+      monorepo, and package scenarios.
 
 

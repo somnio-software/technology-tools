@@ -32,7 +32,8 @@ rules:
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-dto-validation.mdc`
+           `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/nestjs/nestjs-dto-validation.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards
@@ -68,7 +69,8 @@ rules:
           *   **Readonly Properties**: Check for readonly on DTO properties.
 
       5.  **Security Patterns**:
-          *   **Response DTOs**: Verify passwords, hashes, tokens are not exposed.
+           *   **Response DTOs**: Verify passwords, hashes, tokens are not
+             exposed.
           *   **@Exclude on Class**: Check for @Exclude() on response DTO class.
           *   **Sensitive Fields**: Flag any sensitive data in response DTOs.
 
@@ -76,8 +78,10 @@ rules:
       *   **DTO Score**: (1-10) based on validation and documentation quality.
       *   **Violations**:
           *   `[Validation Issue]` [file:line]: Missing or incorrect validator.
-          *   `[Swagger Issue]` [file:line]: Missing @ApiProperty or description.
+           *   `[Swagger Issue]` [file:line]: Missing @ApiProperty or
+             description.
           *   `[Security Issue]` [file:line]: Sensitive data exposure risk.
-          *   `[Structure Issue]` [file:line]: Missing DTO separation or improper
+           *   `[Structure Issue]` [file:line]: Missing DTO separation or
+             improper
               inheritance.
       *   **Recommendations**: Specific fixes for each violation type.

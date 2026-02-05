@@ -33,15 +33,22 @@ rules:
 
       STANDARDS SOURCE:
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-testing.mdc`
+           `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/flutter/flutter-testing.mdc`
       - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/bloc-test.mdc`
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
+main/.cursor/rules/flutter/bloc-test.mdc`
       
       INSTRUCTIONS:
       1.  **SCOPE**: You must analyze **ALL** test files in the project.
-      2.  **DISCOVERY**: Execute `find . -type f -name "*_test.dart" -not -path "*/.*"` to list all test files.
-      3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest standards from the URLs above.
-      4.  **ANALYSIS**: Iterate through **EACH** file found in step 2:
+       2.  **DISCOVERY**: Execute `echo "Test files to analyze: $(find . \
+           -type f -name "*_test.dart" -not -path "*/.*" 2>/dev/null | \
+           wc -l)"` to count test files. Then use `glob_file_search` with
+           pattern `**/*_test.dart` to find all test files for analysis.
+       3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest
+           standards from the URLs above.
+       4.  **ANALYSIS**: Iterate through **EACH** file found using
+           glob_file_search in step 2:
           a. Read the file content.
           b. Analyze strictly against the standards.
           c. Accumulate findings.

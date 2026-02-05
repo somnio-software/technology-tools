@@ -53,7 +53,8 @@ rules:
          - Identify the exact Flutter version the project requires
 
       2. **Check Current Global Flutter Version**:
-         - Run `flutter --version` to get current global Flutter version
+         - Run `flutter --version 2>/dev/null | head -1` to get current global
+           Flutter version
          - Compare with project requirement
 
       3. **Version Mismatch Detection**:
@@ -97,7 +98,8 @@ rules:
          - Determine the target Flutter version (most common or highest)
 
       3. **Check Current Global Flutter Version**:
-         - Run `flutter --version` to get current global Flutter version
+         - Run `flutter --version 2>/dev/null | head -1` to get current global
+           Flutter version
          - Compare with target project requirement
 
       4. **Version Mismatch Detection**:
@@ -120,8 +122,10 @@ rules:
            pub get`
          - Clean root dependencies if applicable: `fvm flutter clean &&
            fvm flutter pub get`
-         - Execute pub get in ALL packages: `find packages/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
-         - Execute pub get in ALL apps: `find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
+         - Execute pub get in ALL packages:
+           `find packages/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
+         - Execute pub get in ALL apps:
+           `find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;`
 
       6. **Documentation**:
          - Log the version change process
@@ -148,51 +152,67 @@ rules:
       After setting FVM global version, execute comprehensive dependency
       management:
 
-      ```bash
-      # Root project dependencies
-      echo "Installing root project dependencies..."
-      fvm flutter pub get
-      
-      # All packages dependencies (if packages/ directory exists)
-      if [ -d "packages" ]; then
-        echo "Installing dependencies for all packages..."
-        find packages/ -name "pubspec.yaml" -execdir fvm flutter pub get \;
-        echo "Packages dependencies installed successfully"
-      fi
-      
-      # All apps dependencies (if apps/ directory exists)
-      if [ -d "apps" ]; then
-        echo "Installing dependencies for all apps..."
-        find apps/ -name "pubspec.yaml" -execdir fvm flutter pub get \;
-        echo "Apps dependencies installed successfully"
-      fi
-      
-      # Verify all dependencies are resolved
-      echo "Verifying dependency resolution..."
-      fvm flutter pub deps
+       ```bash
+       # Root project dependencies
+       echo "Installing root project dependencies..."
+       fvm flutter pub get > /dev/null 2>&1
+       
+       # All packages dependencies (if packages/ directory exists)
+       if [ -d "packages" ]; then
+         echo "Installing dependencies for all packages..."
+         find packages/ -name "pubspec.yaml" -execdir sh -c \
+           'fvm flutter pub get > /dev/null 2>&1' \;
+         echo "Packages dependencies installed successfully"
+       fi
+       
+       # All apps dependencies (if apps/ directory exists)
+       if [ -d "apps" ]; then
+         echo "Installing dependencies for all apps..."
+         find apps/ -name "pubspec.yaml" -execdir sh -c \
+           'fvm flutter pub get > /dev/null 2>&1' \;
+         echo "Apps dependencies installed successfully"
+       fi
+       
+       # Verify all dependencies are resolved
+       echo "Verifying dependency resolution..."
+       fvm flutter pub deps > /dev/null 2>&1
+       
+       # Run build_runner where applicable
+       if grep -q "build_runner" pubspec.yaml 2>/dev/null; then
+         echo "Running build_runner at root..."
+         fvm dart run build_runner build --delete-conflicting-output \
+           > /dev/null 2>&1
+       fi
 
-      # Run build_runner where applicable
-      if grep -q "build_runner" pubspec.yaml 2>/dev/null; then
-        echo "Running build_runner at root..."
-        fvm dart run build_runner build --delete-conflicting-output
-      fi
+       if [ -d "packages" ]; then
+         echo "Running build_runner in all packages that declare \
+         build_runner..."
+         find packages/ -name "pubspec.yaml" -execdir sh -c \
+           'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then \
+           fvm dart run build_runner build --delete-conflicting-output \
+           > /dev/null 2>&1; fi' \;
+       fi
 
-      if [ -d "packages" ]; then
-        echo "Running build_runner in all packages that declare build_runner..."
-        find packages/ -name "pubspec.yaml" -execdir sh -c 'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run build_runner build --delete-conflicting-output; fi' \;
-      fi
-
-      if [ -d "apps" ]; then
-        echo "Running build_runner in all apps that declare build_runner..."
-        find apps/ -name "pubspec.yaml" -execdir sh -c 'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then fvm dart run build_runner build --delete-conflicting-output; fi' \;
-      fi
-      ```
+       if [ -d "apps" ]; then
+         echo "Running build_runner in all apps that declare build_runner..."
+         find apps/ -name "pubspec.yaml" -execdir sh -c \
+           'if grep -q "build_runner" pubspec.yaml 2>/dev/null; then \
+           fvm dart run build_runner build --delete-conflicting-output \
+           > /dev/null 2>&1; fi' \;
+       fi
+       ```
 
       Why This Is Critical:
       - Prevents Build Failures: Version mismatches cause compilation errors
-      - Ensures Accurate Analysis: Different Flutter versions have different capabilities
-      - Maintains Consistency: All team members should use the same Flutter version
-      - Avoids False Positives: Analysis results depend on the correct Flutter version
-      - Multi-app Consistency: Ensures all apps in monorepo use compatible Flutter versions
-      - Complete Dependency Resolution: All packages and apps have their dependencies properly installed
-      - Monorepo Support: Handles complex project structures with multiple packages and apps
+      - Ensures Accurate Analysis: Different Flutter versions have different
+        capabilities
+      - Maintains Consistency: All team members should use the same Flutter
+        version
+      - Avoids False Positives: Analysis results depend on the correct
+        Flutter version
+      - Multi-app Consistency: Ensures all apps in monorepo use compatible
+        Flutter versions
+      - Complete Dependency Resolution: All packages and apps have their
+        dependencies properly installed
+      - Monorepo Support: Handles complex project structures with multiple
+        packages and apps

@@ -1,14 +1,18 @@
 rules:
   - name: NestJS Testing Analysis
-    description: Find and classify all test files, identify coverage configuration and test types (unit, integration, e2e) for NestJS projects.
+    description: >
+      Find and classify all test files, identify coverage configuration and
+      test types (unit, integration, e2e) for NestJS projects.
     match: "*"
     prompt: |
-      Goal: Find and classify all test files, identify coverage configuration and test types for single app or monorepo repositories.
+      Goal: Find and classify all test files, identify coverage configuration
+      and test types for single app or monorepo repositories.
 
       MONOREPO DETECTION:
       - First detect repository structure: single app or monorepo
       - If apps/ directory exists, analyze each app individually
-      - If packages/ or libs/ directory exists, analyze each package/library individually
+      - If packages/ or libs/ directory exists, analyze each package/library
+        individually
 
       SINGLE APP TESTING ANALYSIS:
       - Search and classify testing setup:
