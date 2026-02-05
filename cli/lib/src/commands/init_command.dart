@@ -91,24 +91,14 @@ class InitCommand extends Command<int> {
       if (!confirm) return ExitCode.success.code;
       selectedAgents = installedAgents;
     } else {
-      final options = agents.entries.map((e) {
-        final name = AgentDetector.displayName(e.key);
-        return e.value.installed ? name : '$name (not installed)';
-      }).toList();
-
-      final selected = _logger.chooseAny(
-        'Which agents would you like to install skills into?',
-        choices: options,
-        defaultValues: options
-            .where((o) => !o.contains('not installed'))
-            .toList(),
-      );
-
       selectedAgents = <AgentType>[];
-      for (var i = 0; i < options.length; i++) {
-        if (selected.contains(options[i])) {
-          selectedAgents.add(AgentType.values[i]);
-        }
+      for (final agent in installedAgents) {
+        final agentName = AgentDetector.displayName(agent);
+        final install = _logger.confirm(
+          'Install skills to $agentName?',
+          defaultValue: true,
+        );
+        if (install) selectedAgents.add(agent);
       }
 
       if (selectedAgents.isEmpty) {

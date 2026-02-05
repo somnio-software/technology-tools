@@ -2,8 +2,8 @@ import 'skill_bundle.dart';
 
 /// Static registry of all available skill bundles.
 ///
-/// Each bundle maps to a set of source files in `flutter-plans/` and
-/// defines how they are installed into each agent.
+/// Each bundle maps to a set of source files in `flutter-plans/` or
+/// `nestjs-plans/` and defines how they are installed into each agent.
 class SkillRegistry {
   SkillRegistry._();
 
@@ -45,6 +45,40 @@ class SkillRegistry {
           'flutter-plans/flutter_best_practices_check/.agent/workflows/flutter_best_practices.md',
       templatePath:
           'flutter-plans/flutter_best_practices_check/cursor_rules/templates/best_practices_report_template.txt',
+    ),
+    SkillBundle(
+      id: 'nestjs_health',
+      name: 'somnio-nh',
+      displayName: 'NestJS Project Health Audit',
+      description:
+          'Execute a comprehensive NestJS Project Health Audit. '
+          'Analyzes tech stack, architecture, API design, data layer, '
+          'testing, code quality, security, CI/CD, and documentation. '
+          'Produces a Google Docs-ready report with section scores and '
+          'weighted overall score.',
+      planRelativePath:
+          'nestjs-plans/nestjs_project_health_audit/plan/nestjs-health.plan.md',
+      rulesDirectory:
+          'nestjs-plans/nestjs_project_health_audit/cursor_rules',
+      templatePath:
+          'nestjs-plans/nestjs_project_health_audit/cursor_rules/templates/nestjs_report_template.txt',
+    ),
+    SkillBundle(
+      id: 'nestjs_plan',
+      name: 'somnio-np',
+      displayName: 'NestJS Best Practices Check',
+      description:
+          'Execute a micro-level NestJS code quality audit. '
+          'Validates code against live GitHub standards for testing, '
+          'architecture, DTO validation, error handling, and code '
+          'implementation. Produces a detailed violations report with '
+          'prioritized action plan.',
+      planRelativePath:
+          'nestjs-plans/nestjs_best_practices_check/plan/best_practices.plan.md',
+      rulesDirectory:
+          'nestjs-plans/nestjs_best_practices_check/cursor_rules',
+      templatePath:
+          'nestjs-plans/nestjs_best_practices_check/cursor_rules/templates/best_practices_report_template.txt',
     ),
   ];
 

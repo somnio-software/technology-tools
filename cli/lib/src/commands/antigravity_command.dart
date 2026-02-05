@@ -65,6 +65,14 @@ class AntigravityCommand extends Command<int> {
       _logger.info('Location: ${result.targetDirectory}');
     }
 
+    if (result.skippedCount > 0) {
+      _logger.info(
+        'Skipped ${result.skippedCount} '
+        '${result.skippedCount == 1 ? 'skill' : 'skills'} '
+        '(workflow not yet available).',
+      );
+    }
+
     return ExitCode.success.code;
   }
 }

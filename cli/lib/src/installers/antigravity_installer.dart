@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 
 import '../content/skill_bundle.dart';
@@ -30,6 +31,7 @@ class AntigravityInstaller extends Installer {
 
     var skillCount = 0;
     var ruleCount = 0;
+    var skippedCount = 0;
 
     // Check for existing workflows
     if (!force && Directory(workflowsDir).existsSync()) {
@@ -55,6 +57,20 @@ class AntigravityInstaller extends Installer {
     }
 
     for (final bundle in bundles) {
+      // Soft-skip bundles without Antigravity workflow files
+      if (bundle.workflowPath == null) {
+        logger.info(
+          '  ${lightYellow.wrap('~')} ${bundle.displayName}: '
+          'Antigravity workflow not yet available.',
+        );
+        logger.info(
+          '    Contribute one at: '
+          'https://github.com/somnio-software/technology-tools',
+        );
+        skippedCount++;
+        continue;
+      }
+
       final progress = logger.progress(
         'Installing ${bundle.displayName} workflow',
       );
@@ -98,6 +114,7 @@ class AntigravityInstaller extends Installer {
       skillCount: skillCount,
       ruleCount: ruleCount,
       targetDirectory: baseDir,
+      skippedCount: skippedCount,
     );
   }
 

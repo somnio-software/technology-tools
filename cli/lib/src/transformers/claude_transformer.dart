@@ -71,6 +71,10 @@ class ClaudeTransformer {
 
     var content = planContent;
 
+    // Extract technology prefix for sibling skill resolution
+    // e.g., 'flutter_health' -> 'flutter', 'nestjs_plan' -> 'nestjs'
+    final techPrefix = _technologyPrefix(bundle);
+
     // Transform @rule_name references to file references
     // Matches: `@rule_name` (with backticks)
     content = content.replaceAllMapped(
@@ -83,11 +87,12 @@ class ClaudeTransformer {
     );
 
     // Transform cross-skill plan references
-    // Pattern: @flutter_best_practices_check/plan/best_practices.plan.md
+    // Pattern: @<prefix>_best_practices_check/plan/best_practices.plan.md
     content = content.replaceAllMapped(
-      RegExp(r'@flutter_best_practices_check/plan/best_practices\.plan\.md'),
+      RegExp(r'@(\w+)_best_practices_check/plan/best_practices\.plan\.md'),
       (match) {
-        final targetSkill = SkillRegistry.findById('flutter_plan');
+        final prefix = match.group(1)!;
+        final targetSkill = SkillRegistry.findById('${prefix}_plan');
         if (targetSkill != null) {
           return '`/${targetSkill.name}`';
         }
@@ -107,39 +112,51 @@ class ClaudeTransformer {
     );
 
     // Transform bare @best_practices.plan.md references
+    // Resolves to the sibling best practices skill for the same technology
     content = content.replaceAllMapped(
       RegExp(r'`@best_practices\.plan\.md`'),
       (match) {
-        final targetSkill = SkillRegistry.findById('flutter_plan');
-        return '`/${targetSkill?.name ?? 'somnio-fp'}`';
+        final targetSkill = SkillRegistry.findById('${techPrefix}_plan');
+        return '`/${targetSkill?.name ?? bundle.name}`';
       },
     );
 
     // Transform workflow references for Antigravity cross-refs
+    // Pattern: `<prefix>_best_practices_check/.agent/workflows/<name>.md`
     content = content.replaceAllMapped(
       RegExp(
-        r'`flutter_best_practices_check/\.agent/workflows/flutter_best_practices\.md`',
+        r'`(\w+)_best_practices_check/\.agent/workflows/\w+\.md`',
       ),
       (match) {
-        final targetSkill = SkillRegistry.findById('flutter_plan');
-        return '`/${targetSkill?.name ?? 'somnio-fp'}`';
+        final prefix = match.group(1)!;
+        final targetSkill = SkillRegistry.findById('${prefix}_plan');
+        return '`/${targetSkill?.name ?? bundle.name}`';
       },
     );
 
     // Transform plan step rule references
-    // Pattern: `flutter_best_practices_check/cursor_rules/rule_name.yaml`
+    // Pattern: `<prefix>_best_practices_check/cursor_rules/rule_name.yaml`
     content = content.replaceAllMapped(
       RegExp(
-        r'`flutter_best_practices_check/cursor_rules/(\w+)\.yaml`',
+        r'`(\w+)_best_practices_check/cursor_rules/(\w+)\.yaml`',
       ),
       (match) {
-        final ruleName = match.group(1)!;
-        final targetSkill = SkillRegistry.findById('flutter_plan');
-        return '`rules/$ruleName.md` (from `/${targetSkill?.name ?? 'somnio-fp'}`)';
+        final prefix = match.group(1)!;
+        final ruleName = match.group(2)!;
+        final targetSkill = SkillRegistry.findById('${prefix}_plan');
+        return '`rules/$ruleName.md` (from '
+            '`/${targetSkill?.name ?? bundle.name}`)';
       },
     );
 
     return frontmatter + content;
+  }
+
+  /// Extracts the technology prefix from a bundle ID.
+  ///
+  /// Examples: 'flutter_health' -> 'flutter', 'nestjs_plan' -> 'nestjs'
+  String _technologyPrefix(SkillBundle bundle) {
+    return bundle.id.replaceAll(RegExp(r'_(?:health|plan)$'), '');
   }
 
   String _ruleToMarkdown(ParsedRule rule) {

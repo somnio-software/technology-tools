@@ -85,22 +85,24 @@ class AntigravityTransformer {
   String _rewritePaths(String content) {
     // First: rewrite workflow cross-references (must be done before
     // the general path rewrite catches them)
+    // Pattern: `<prefix>_best_practices_check/.agent/workflows/<name>.md`
     content = content.replaceAllMapped(
       RegExp(
-        r'`(flutter_best_practices_check/\.agent/workflows/[^`]+)`',
+        r'`((\w+)_best_practices_check)/\.agent/workflows/(\w+)\.md`',
       ),
       (match) {
-        return '`somnio_flutter_best_practices.md`';
+        final workflowName = match.group(3)!;
+        return '`somnio_$workflowName.md`';
       },
     );
 
-    // Then: rewrite cursor_rules paths like:
-    //   `flutter_project_health_audit/cursor_rules/...`
-    //   `flutter_best_practices_check/cursor_rules/...`
+    // Then: rewrite cursor_rules and plan paths like:
+    //   `<prefix>_project_health_audit/cursor_rules/...`
+    //   `<prefix>_best_practices_check/cursor_rules/...`
     // to:
-    //   `.agent/somnio_rules/flutter_project_health_audit/cursor_rules/...`
+    //   `.agent/somnio_rules/<prefix>_project_health_audit/cursor_rules/...`
     final pathPattern = RegExp(
-      r'`(flutter_(?:project_health_audit|best_practices_check)/[^`]+)`',
+      r'`(\w+_(?:project_health_audit|best_practices_check)/[^`]+)`',
     );
     content = content.replaceAllMapped(pathPattern, (match) {
       return '`.agent/somnio_rules/${match.group(1)}`';

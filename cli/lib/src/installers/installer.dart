@@ -9,11 +9,15 @@ class InstallResult {
     required this.skillCount,
     required this.ruleCount,
     required this.targetDirectory,
+    this.skippedCount = 0,
   });
 
   final int skillCount;
   final int ruleCount;
   final String targetDirectory;
+
+  /// Number of bundles skipped (e.g., missing workflow files).
+  final int skippedCount;
 }
 
 /// Abstract base class for agent-specific installers.
