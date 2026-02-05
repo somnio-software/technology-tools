@@ -43,6 +43,7 @@ $RECYCLE.BIN/
 .project
 .classpath
 .settings/
+.claude
 
 # Logs
 *.log
@@ -58,3 +59,8 @@ yarn-error.log*
 # Reports (if generated locally)
 reports/
 *.txt.bak
+
+# Dart / CLI build artifacts
+cli/.dart_tool/
+cli/pubspec.lock
+cli/.packages
