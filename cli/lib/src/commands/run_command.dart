@@ -49,8 +49,14 @@ class RunCommand extends Command<int> {
   String get name => 'run';
 
   @override
-  String get description =>
-      'Execute a health audit step-by-step using an AI CLI.';
+  String get description => 'Execute a health audit from the project terminal.\n'
+      '\n'
+      'Run from the target project root (e.g., inside a Flutter or NestJS repo).\n'
+      'The CLI handles setup steps (tool install, version alignment, tests)\n'
+      'via pre-flight, then delegates analysis steps to an AI CLI.\n'
+      '\n'
+      'Artifacts are saved to ./reports/.artifacts/ and the final report\n'
+      'to ./reports/{tech}_audit.txt.';
 
   @override
   String get invocation => 'somnio run <code>';
