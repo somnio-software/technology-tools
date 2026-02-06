@@ -45,8 +45,28 @@ For detailed CLI usage, commands, and advanced options, see the [CLI README](cli
 - `somnio cursor` - Install commands to Cursor
 - `somnio antigravity` - Install workflows to Antigravity
 - `somnio status` - Show installed skills status
+- `somnio run <code>` - Run a health audit step-by-step from the project terminal
 - `somnio update` - Update CLI and reinstall skills
 - `somnio add` - Add new technology skill bundles
+
+### 🏃 Running Audits from the Terminal
+
+Use `somnio run` from the target project's root to execute a full health audit. The CLI handles setup steps (tool installation, version alignment, test coverage) directly via pre-flight, then delegates analysis steps to an AI CLI (Claude or Gemini) in fresh contexts.
+
+```bash
+# From a Flutter project root
+somnio run fh
+
+# From a NestJS project root
+somnio run nh
+```
+
+| Code | Audit |
+|------|-------|
+| `fh` | Flutter Project Health Audit |
+| `nh` | NestJS Project Health Audit |
+
+Artifacts are saved to `./reports/.artifacts/` and the final report to `./reports/`. See the [CLI README](cli/README.md) for flags (`--agent`, `--skip-validation`, `--no-preflight`).
 
 ## 🛠️ Available Tools
 
