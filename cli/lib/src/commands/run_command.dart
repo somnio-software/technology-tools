@@ -33,6 +33,13 @@ class RunCommand extends Command<int> {
       help: 'AI CLI to use (auto-detected if not specified).',
       allowed: ['claude', 'gemini'],
     );
+    argParser.addOption(
+      'model',
+      abbr: 'm',
+      help: 'Model to use (skips interactive selection).\n'
+          'Claude: haiku (default), sonnet, opus\n'
+          'Gemini: gemini-3-flash (default), gemini-2.5-flash, gemini-2.5-pro, gemini-3-pro',
+    );
     argParser.addFlag(
       'skip-validation',
       help: 'Skip project type validation.',
@@ -42,6 +49,9 @@ class RunCommand extends Command<int> {
       help: 'Skip CLI pre-flight (version setup, pub get, test coverage).',
     );
   }
+
+  static const _claudeModels = ['haiku', 'sonnet', 'opus'];
+  static const _geminiModels = ['gemini-3-flash', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro'];
 
   final Logger _logger;
 
@@ -192,7 +202,36 @@ class RunCommand extends Command<int> {
     final agentName = agent == RunAgent.claude ? 'Claude' : 'Gemini';
     _logger.info('${lightGreen.wrap('OK')} Using $agentName CLI.');
 
-    // 4. Resolve rule paths and verify installation
+    // 4b. Resolve model
+    final modelFlag = argResults!['model'] as String?;
+    String? model;
+
+    if (modelFlag != null) {
+      model = modelFlag;
+    } else {
+      final choices =
+          agent == RunAgent.claude ? _claudeModels : _geminiModels;
+      _logger.info('');
+      _logger.info('Available $agentName models:');
+      for (var i = 0; i < choices.length; i++) {
+        final tag = i == 0 ? ' (default)' : '';
+        _logger.info('  ${i + 1}. ${choices[i]}$tag');
+      }
+      final input = _logger.prompt(
+        'Select model (1-${choices.length})',
+        defaultValue: '1',
+      );
+      final index = int.tryParse(input);
+      if (index != null && index >= 1 && index <= choices.length) {
+        model = choices[index - 1];
+      } else {
+        model = choices.first;
+        _logger.warn('Invalid selection, using ${choices.first}.');
+      }
+    }
+    _logger.info('${lightGreen.wrap('OK')} Model: $model');
+
+    // 5. Resolve rule paths and verify installation
     final planSubDir = _planSubDirFromBundle(bundle);
     final templateFile = _templateFileFromBundle(bundle);
     final reportFile = _reportFileFromTechPrefix(techPrefix);
@@ -263,6 +302,7 @@ class RunCommand extends Command<int> {
       templatePath: templatePath,
       artifactsDir: artifactsDir,
       reportPath: reportPath,
+      model: model,
     );
 
     // 8. Clean previous run artifacts and report
@@ -281,7 +321,8 @@ class RunCommand extends Command<int> {
     _logger.info('${'=' * bundle.displayName.length}');
     _logger.info(
       'Steps: ${steps.length} '
-      '($preflightCount pre-flight, $aiCount AI) | Agent: $agentName',
+      '($preflightCount pre-flight, $aiCount AI) | '
+      'Agent: $agentName ($model)',
     );
     _logger.info('Artifacts: $artifactsDir');
     _logger.info('Report: $reportPath');

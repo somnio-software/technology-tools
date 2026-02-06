@@ -31,6 +31,33 @@ rules:
       Goal: Find and classify all test files, identify coverage configuration
       and test types for single app or multi-app repositories.
 
+      EFFICIENCY REQUIREMENTS:
+      - Minimize tool call round-trips to reduce context accumulation
+      - Use batch grep/find commands to classify test files instead of
+        reading individual files one by one
+      - Use ONE find+grep command to classify ALL test files at once:
+        ```bash
+        find . -name "*_test.dart" -type f \
+          ! -path "./.dart_tool/*" ! -path "./build/*" 2>/dev/null | \
+        while read f; do
+          if grep -q "import.*bloc_test\|BlocTest\|blocTest" "$f" 2>/dev/null; then
+            echo "BLOC|$f"
+          elif grep -q "testWidgets\|WidgetTester\|pumpWidget" "$f" 2>/dev/null; then
+            echo "WIDGET|$f"
+          else
+            echo "UNIT|$f"
+          fi
+        done | sort
+        ```
+      - Do NOT read individual test files to check their imports
+      - Coverage execution results are already available from the
+        @flutter_test_coverage artifact - reference those instead of
+        re-analyzing coverage data
+      - Coverage workflow thresholds are already available from the
+        @flutter_cicd_analysis artifact - reference those instead of
+        re-searching workflows
+      - Target: < 8 total tool calls for this entire analysis
+
       MONOREPO DETECTION:
       - First detect repository structure: single app (app/) or multi-app
         monorepo (apps/app1/, apps/app2/, etc.)

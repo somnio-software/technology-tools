@@ -33,12 +33,8 @@ rules:
       Architecture and Separation of Concerns.
 
       STANDARDS SOURCE:
-      - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
-main/.cursor/rules/flutter/flutter-architecture.mdc`
-      - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
-main/.cursor/rules/flutter/flutter-ai-rules.mdc`
+      - https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-architecture.mdc
+      - https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/flutter/flutter-ai-rules.mdc
       
       INSTRUCTIONS:
        1.  **SCOPE**: You must analyze **ALL** Dart files in the project to
@@ -50,7 +46,11 @@ main/.cursor/rules/flutter/flutter-ai-rules.mdc`
            all Dart files for analysis (excluding generated files).
        3.  **STANDARDS**: USE the `read_url_content` tool to fetch the latest
            standards from the URLs above.
-       4.  **ANALYSIS**: Iterate through **EACH** file found using
+       4.  **EFFICIENCY**: When iterating through files, read 3-5 files per
+           response using parallel tool calls. Do NOT read one file per
+           response — this causes massive context accumulation. Group files
+           by directory when possible.
+       5.  **ANALYSIS**: Iterate through **EACH** file found using
            glob_file_search in step 2:
           a. Read and analyze for layer boundary violations.
 

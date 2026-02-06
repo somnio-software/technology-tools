@@ -59,7 +59,7 @@ yarn-error.log*
 # Reports (if generated locally)
 reports/
 *.txt.bak
-
+reports_history/
 # Dart / CLI build artifacts
 cli/.dart_tool/
 cli/pubspec.lock

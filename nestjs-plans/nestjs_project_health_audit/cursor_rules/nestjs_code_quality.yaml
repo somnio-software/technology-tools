@@ -9,6 +9,13 @@ rules:
       mode, and code quality enforcement for single app or monorepo
       repositories.
 
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 8 total tool calls for this entire analysis
+      - Read 3-5 files per tool call using parallel reads
+      - Use batch grep commands to find lint suppressions across all files at once
+      - Group file reads by directory
+      - Pipe large outputs through `| head -50`
+
       MONOREPO DETECTION:
       - First detect repository structure: single app or monorepo
       - If apps/ directory exists, analyze each app individually
@@ -171,11 +178,15 @@ rules:
 
       1. Outdated Dependencies:
          - Run npm outdated or yarn outdated
+         - IMPORTANT: Pipe output through `| head -50` to avoid flooding
+           context with large dependency lists
          - Check for major version upgrades available
          - Identify deprecated packages
          
       2. Security Vulnerabilities:
          - Check for npm audit or yarn audit results
+         - IMPORTANT: Pipe audit output through `| head -50` to avoid
+           flooding context. Focus on high/critical vulnerabilities only.
          - Identify high/critical vulnerabilities
          - Check for dependency security tools (Snyk, Dependabot)
          

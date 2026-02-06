@@ -32,6 +32,13 @@ rules:
       Goal: Read and analyze Flutter/Dart configuration files for single app
       or multi-app repositories.
 
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 8 total tool calls for this entire analysis
+      - Read multiple config files per tool call using parallel reads (3-5 files per response)
+      - Use batch grep commands instead of reading files one by one
+      - Pipe dependency list outputs through `| head -50`
+      - Reference cached artifacts from previous steps when available
+
       MONOREPO DETECTION:
       - First detect repository structure: single app (app/) or multi-app
         monorepo (apps/app1/, apps/app2/, etc.)

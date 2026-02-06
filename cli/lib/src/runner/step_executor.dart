@@ -267,6 +267,7 @@ class StepExecutor {
             'Read,Bash,Glob,Grep,Write',
             '--output-format',
             'json',
+            if (config.model != null) ...['--model', config.model!],
           ],
           workingDirectory: Directory.current.path,
         );
@@ -279,6 +280,7 @@ class StepExecutor {
             '--yolo',
             '-o',
             'json',
+            if (config.model != null) ...['--model', config.model!],
           ],
           workingDirectory: Directory.current.path,
         );

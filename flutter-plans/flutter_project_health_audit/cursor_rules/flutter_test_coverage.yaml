@@ -56,36 +56,43 @@ rules:
       Step 1: Run Tests with Coverage (Single App + Packages)
       Execute the following commands in sequence:
 
+      IMPORTANT: Pipe all flutter test output through `tail -30` to
+      capture only the summary. Full verbose test output floods the
+      context window and is not needed for analysis. The actual coverage
+      data is captured in lcov.info files on disk, not in stdout.
+
       ```bash
       # 1. Run tests in root app directory
       echo "Running tests in root app directory"
       if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
         echo "Using FVM Flutter version"
         fvm flutter test --coverage --reporter=compact \
-          --coverage-path=coverage/app/lcov.info
+          --coverage-path=coverage/app/lcov.info 2>&1 | tail -30
       else
         echo "Using system Flutter version"
         flutter test --coverage --reporter=compact \
-          --coverage-path=coverage/app/lcov.info
+          --coverage-path=coverage/app/lcov.info 2>&1 | tail -30
       fi
-      
+
       # 2. Run tests in all packages (if packages/ exists)
       if [ -d "packages/" ]; then
         echo "Running tests in packages directory"
         for package_dir in packages/*/; do
           package_name=$(basename "$package_dir")
           echo "Running tests for package: $package_name"
-          
+
           cd "$package_dir"
-          
+
           if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
             fvm flutter test --coverage --reporter=compact \
-              --coverage-path=coverage/packages/$package_name/lcov.info
+              --coverage-path=coverage/packages/$package_name/lcov.info \
+              2>&1 | tail -30
           else
             flutter test --coverage --reporter=compact \
-              --coverage-path=coverage/packages/$package_name/lcov.info
+              --coverage-path=coverage/packages/$package_name/lcov.info \
+              2>&1 | tail -30
           fi
-          
+
           cd ../..
         done
       fi
@@ -100,20 +107,20 @@ rules:
       for app_dir in apps/*/; do
         app_name=$(basename "$app_dir")
         echo "Running tests for app: $app_name"
-        
+
         cd "$app_dir"
-        
+
         # Run tests in app directory
         if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
           echo "Using FVM Flutter version for $app_name"
           fvm flutter test --coverage --reporter=compact \
-            --coverage-path=coverage/apps/$app_name/lcov.info
+            --coverage-path=coverage/apps/$app_name/lcov.info 2>&1 | tail -30
         else
           echo "Using system Flutter version for $app_name"
           flutter test --coverage --reporter=compact \
-            --coverage-path=coverage/apps/$app_name/lcov.info
+            --coverage-path=coverage/apps/$app_name/lcov.info 2>&1 | tail -30
         fi
-        
+
         # Run tests in app-specific packages
         # (if apps/<app_name>/packages/ exists)
         if [ -d "packages/" ]; then
@@ -121,42 +128,46 @@ rules:
           for package_dir in packages/*/; do
             package_name=$(basename "$package_dir")
             echo "Running tests for app-specific package: $app_name/$package_name"
-            
+
             cd "$package_dir"
-            
+
             if command -v fvm &> /dev/null && \
               [ -f ".fvm/fvm_config.json" ]; then
               fvm flutter test --coverage --reporter=compact \
-                --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info
+                --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info \
+                2>&1 | tail -30
             else
               flutter test --coverage --reporter=compact \
-                --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info
+                --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info \
+                2>&1 | tail -30
             fi
-            
+
             cd ../..
           done
         fi
-        
+
         cd ../..
       done
-      
+
       # 2. Run tests in shared packages (if root packages/ exists)
       if [ -d "packages/" ]; then
         echo "Running tests in shared packages"
         for package_dir in packages/*/; do
           package_name=$(basename "$package_dir")
           echo "Running tests for shared package: $package_name"
-          
+
           cd "$package_dir"
-          
+
           if command -v fvm &> /dev/null && [ -f ".fvm/fvm_config.json" ]; then
             fvm flutter test --coverage --reporter=compact \
-              --coverage-path=coverage/packages/$package_name/lcov.info
+              --coverage-path=coverage/packages/$package_name/lcov.info \
+              2>&1 | tail -30
           else
             flutter test --coverage --reporter=compact \
-              --coverage-path=coverage/packages/$package_name/lcov.info
+              --coverage-path=coverage/packages/$package_name/lcov.info \
+              2>&1 | tail -30
           fi
-          
+
           cd ../..
         done
       fi

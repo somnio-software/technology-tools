@@ -67,7 +67,14 @@ somnio run nh
 | `fh` | Flutter Project Health Audit |
 | `nh` | NestJS Project Health Audit |
 
-Artifacts are saved to `./reports/.artifacts/` and the final report to `./reports/`. See the [CLI README](cli/README.md) for flags (`--agent`, `--skip-validation`, `--no-preflight`).
+You can specify a model with `--model` (`-m`) or select one interactively. Each CLI has a sensible default: **haiku** for Claude and **gemini-3-flash** for Gemini.
+
+```bash
+somnio run fh --model opus          # Use a specific Claude model
+somnio run nh --agent gemini -m gemini-3-pro  # Gemini with a specific model
+```
+
+Artifacts are saved to `./reports/.artifacts/` and the final report to `./reports/`. See the [CLI README](cli/README.md) for all flags (`--agent`, `--model`, `--skip-validation`, `--no-preflight`).
 
 ## 🛠️ Available Tools
 

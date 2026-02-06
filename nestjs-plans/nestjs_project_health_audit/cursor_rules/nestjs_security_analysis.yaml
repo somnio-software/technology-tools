@@ -6,9 +6,17 @@ rules:
       configuration for NestJS projects.
     match: "*"
     prompt: |
-      Goal: Identify sensitive files, check .gitignore coverage, analyze
-      security patterns, and find dependency scanning configuration for single
-      app or monorepo repositories.
+      Goal: Identify sensitive files, check .gitignore coverage, search
+      source code for dangerous secret patterns, analyze security patterns,
+      and find dependency scanning configuration for single app or monorepo
+      repositories.
+
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 12 total tool calls for this entire analysis
+      - Use batch grep/find commands instead of reading files one by one
+      - Read 3-5 files per tool call using parallel reads
+      - Pipe large outputs through `| head -50`
+      - Use a single grep command per pattern category (not per file)
 
       IMPORTANT EXCLUSIONS:
       - Do NOT analyze, recommend, or consider missing SECURITY.md files
@@ -266,10 +274,63 @@ rules:
         * Verify consistent auth implementation
         * Check for shared security configurations
 
+      SOURCE CODE SECRET PATTERNS (CRITICAL — MANDATORY CHECK):
+      After completing .gitignore and file detection analysis, you MUST
+      search source code for dangerous secret usage patterns. These are
+      HIGH severity findings when found. This section is MANDATORY and
+      must appear in the artifact even if no issues are found.
+
+      1. Hardcoded secrets in source code (HIGH severity):
+         ```bash
+         # Direct process.env usage (should use ConfigService)
+         grep -rn "process\.env\." src/ apps/ libs/ --include="*.ts" \
+           | grep -v "node_modules\|dist\|test\|spec\|\.d\.ts" \
+           | head -30 || echo "No direct process.env usage found"
+
+         # Hardcoded JWT secrets
+         grep -rn "secret.*[:=].*['\"][^'\"]\{8,\}" src/ apps/ libs/ \
+           --include="*.ts" | grep -v "node_modules\|dist\|test\|spec" \
+           | head -20 || echo "No hardcoded secret patterns found"
+
+         # Database connection strings with credentials
+         grep -rn "postgres://\|mysql://\|mongodb://\|redis://" src/ apps/ libs/ \
+           --include="*.ts" | grep -v "node_modules\|dist\|test\|spec\|\.env" \
+           | head -20 || echo "No hardcoded DB connection strings found"
+
+         # API keys and tokens in source
+         grep -rn "Bearer.*['\"][A-Za-z0-9]\{20,\}\|api_key.*[:=].*['\"]" \
+           src/ apps/ libs/ --include="*.ts" \
+           | grep -v "node_modules\|dist\|test\|spec" \
+           | head -20 || echo "No API key patterns found"
+         ```
+
+      2. Cloud credential patterns (MEDIUM severity):
+         ```bash
+         # AWS/GCP/Azure credentials
+         grep -rn "AKIA\|aws_secret\|gcp_credentials\|azure_secret\|service.account" \
+           src/ apps/ libs/ --include="*.ts" \
+           | grep -v "node_modules\|dist\|test\|spec" \
+           | head -20 || echo "No cloud credential patterns found"
+
+         # Stripe/payment secret keys
+         grep -rn "sk_live_\|sk_test_\|stripe.*[Ss]ecret\|payment.*secret" \
+           src/ apps/ libs/ --include="*.ts" \
+           | grep -v "node_modules\|dist\|test\|spec" \
+           | head -20 || echo "No payment secret patterns found"
+         ```
+
+      3. For each finding report: file path, line number, the pattern
+         matched, and severity (HIGH for secrets in source, MEDIUM for
+         cloud credentials).
+
+      If no issues are found, explicitly state:
+      "No hardcoded secret patterns detected in source code."
+
       Output format:
       - Repository structure type (single app / monorepo)
       - Sensitive files detected and protection status (per app if monorepo)
       - .gitignore coverage analysis (per app if monorepo)
+      - SOURCE CODE SECRET PATTERNS results (MANDATORY section)
       - Authentication strategy detected (per app if monorepo)
       - Authorization patterns found (per app if monorepo)
       - Security best practices compliance (per app if monorepo)
@@ -280,7 +341,7 @@ rules:
       - Missing security configurations (per app if monorepo)
       - Recommendations for improvement (per app if monorepo)
       - Security consistency across apps (if monorepo)
-      
+
       CRITICAL: Do NOT report missing SECURITY.md or CODEOWNERS files as
       security risks or missing configurations.
       These are governance decisions, not technical security requirements.
