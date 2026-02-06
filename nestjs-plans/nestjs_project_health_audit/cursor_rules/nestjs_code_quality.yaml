@@ -171,11 +171,15 @@ rules:
 
       1. Outdated Dependencies:
          - Run npm outdated or yarn outdated
+         - IMPORTANT: Pipe output through `| head -50` to avoid flooding
+           context with large dependency lists
          - Check for major version upgrades available
          - Identify deprecated packages
          
       2. Security Vulnerabilities:
          - Check for npm audit or yarn audit results
+         - IMPORTANT: Pipe audit output through `| head -50` to avoid
+           flooding context. Focus on high/critical vulnerabilities only.
          - Identify high/critical vulnerabilities
          - Check for dependency security tools (Snyk, Dependabot)
          

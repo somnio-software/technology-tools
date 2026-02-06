@@ -62,6 +62,10 @@ rules:
         individually
       - VERIFY the correct file locations based on detected structure
 
+      EFFICIENCY: When reading workflow files, make multiple parallel read
+      calls (3-5 files per response) instead of reading one file per
+      response. This reduces context accumulation from round-trips.
+
       SINGLE APP CI/CD ANALYSIS:
       MANDATORY VERIFICATION: Check ONLY root-level .github/ directory
       for single app projects.

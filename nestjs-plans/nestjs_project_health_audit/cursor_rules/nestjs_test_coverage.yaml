@@ -29,6 +29,10 @@ rules:
       EXECUTION STEPS
       ----------------------------------------------------------------------
 
+      IMPORTANT: Pipe all test command output through `tail -30` to capture
+      only the summary. Full test output floods the context window. The actual
+      coverage data is captured in coverage files on disk, not in stdout.
+
       SINGLE APP EXECUTION:
       Step 1: Run Tests with Coverage (Single App + Packages)
       Execute the following commands in sequence:
@@ -48,23 +52,23 @@ rules:
 
       # 1. Run tests in root app directory
       echo "Running tests in root app directory"
-      $TEST_CMD
-      
+      $TEST_CMD 2>&1 | tail -30
+
       # 2. Run tests in all packages (if packages/ exists)
       if [ -d "packages/" ]; then
         echo "Running tests in packages directory"
         for package_dir in packages/*/; do
           package_name=$(basename "$package_dir")
           echo "Running tests for package: $package_name"
-          
+
           cd "$package_dir"
-          
+
           if [ -f "package.json" ] && grep -q "test:cov" package.json; then
-            $TEST_CMD
+            $TEST_CMD 2>&1 | tail -30
           else
             echo "No test:cov script found for $package_name"
           fi
-          
+
           cd ../..
         done
       fi
@@ -96,30 +100,30 @@ rules:
           cd "$app_dir"
           
           if [ -f "package.json" ] && grep -q "test:cov" package.json; then
-            $TEST_CMD
+            $TEST_CMD 2>&1 | tail -30
           else
             echo "No test:cov script found for $app_name"
           fi
-          
+
           cd ../..
         done
       fi
-      
+
       # 2. Run tests in packages (if root packages/ exists)
       if [ -d "packages/" ]; then
         echo "Running tests in packages"
         for package_dir in packages/*/; do
           package_name=$(basename "$package_dir")
           echo "Running tests for package: $package_name"
-          
+
           cd "$package_dir"
-          
+
           if [ -f "package.json" ] && grep -q "test:cov" package.json; then
-            $TEST_CMD
+            $TEST_CMD 2>&1 | tail -30
           else
             echo "No test:cov script found for $package_name"
           fi
-          
+
           cd ../..
         done
       fi
@@ -127,7 +131,7 @@ rules:
       # 3. Run root tests if applicable
       if [ -f "package.json" ] && grep -q "test:cov" package.json; then
         echo "Running root tests..."
-        $TEST_CMD
+        $TEST_CMD 2>&1 | tail -30
       fi
       ```
 

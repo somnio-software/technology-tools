@@ -24,8 +24,12 @@ rules:
       - If packages/ or libs/ directory exists, analyze each package/library
         individually
 
+      EFFICIENCY: When reading workflow files, make multiple parallel read
+      calls (3-5 files per response) instead of reading one file per
+      response. This reduces context accumulation from round-trips.
+
       SINGLE APP CI/CD ANALYSIS:
-      
+
       1. GitHub Actions Workflows:
          - List all .github/workflows/*.yaml and .github/workflows/*.yml files
          - Read each workflow file completely
