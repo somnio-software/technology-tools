@@ -45,7 +45,8 @@ For detailed CLI usage, commands, and advanced options, see the [CLI README](cli
 - `somnio cursor` - Install commands to Cursor
 - `somnio antigravity` - Install workflows to Antigravity
 - `somnio status` - Show installed skills status
-- `somnio run <code>` - Run a health audit step-by-step from the project terminal
+- `somnio run <code>` - Run a health audit step-by-step from the project terminal (with per-step token usage tracking)
+- `somnio quote` (or `somnio q`) - Display a random Somnio team quote
 - `somnio update` - Update CLI and reinstall skills
 - `somnio add` - Add new technology skill bundles
 
