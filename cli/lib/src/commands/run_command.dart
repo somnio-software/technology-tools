@@ -319,18 +319,25 @@ class RunCommand extends Command<int> {
       results.add(result);
 
       if (result.success) {
-        final tag = preflightArtifact != null ? 'pre-flight' : '';
-        final duration = _formatDuration(result.durationSeconds);
-        final suffix =
-            preflightArtifact != null ? '($tag)' : '($duration)';
-        progress.complete(
-          'Step ${step.index}/${steps.length}: ${step.ruleName} $suffix',
-        );
+        if (preflightArtifact != null) {
+          progress.complete(
+            'Step ${step.index}/${steps.length}: ${step.ruleName} '
+            '(pre-flight)',
+          );
+        } else {
+          progress.complete(
+            'Step ${step.index}/${steps.length}: ${step.ruleName}  '
+            '${_formatStepStats(result)}',
+          );
+        }
       } else {
+        final stats = result.tokenUsage != null
+            ? '  ${_formatStepStats(result)}  '
+            : '';
         if (step.isMandatory) {
           progress.fail(
-            'Step ${step.index}/${steps.length}: ${step.ruleName} '
-            'FAILED (MANDATORY — aborting)',
+            'Step ${step.index}/${steps.length}: ${step.ruleName}'
+            '${stats}FAILED (MANDATORY — aborting)',
           );
           if (result.errorMessage != null) {
             _logger.err(result.errorMessage!);
@@ -339,8 +346,8 @@ class RunCommand extends Command<int> {
           break;
         } else {
           progress.fail(
-            'Step ${step.index}/${steps.length}: ${step.ruleName} '
-            'FAILED (continuing)',
+            'Step ${step.index}/${steps.length}: ${step.ruleName}'
+            '${stats}FAILED (continuing)',
           );
           if (result.errorMessage != null) {
             _logger.warn(result.errorMessage!);
@@ -358,6 +365,10 @@ class RunCommand extends Command<int> {
       0,
       (sum, r) => sum + r.durationSeconds,
     );
+    final aiTime = results
+        .where((r) => r.tokenUsage != null)
+        .fold<int>(0, (sum, r) => sum + r.durationSeconds);
+    final preflightTime = totalTime - aiTime;
 
     if (aborted) {
       _logger.err(
@@ -377,6 +388,9 @@ class RunCommand extends Command<int> {
       );
     }
 
+    // Token usage summary
+    _printUsageSummary(results, totalTime, aiTime, preflightTime);
+
     if (!aborted && File(reportPath).existsSync()) {
       _logger.info('');
       _logger.info('Report saved to: $reportPath');
@@ -390,6 +404,73 @@ class RunCommand extends Command<int> {
     final minutes = seconds ~/ 60;
     final remaining = seconds % 60;
     return '${minutes}m ${remaining}s';
+  }
+
+  /// Formats token count in K notation (e.g., 38200 → "38.2K").
+  String _formatTokens(int tokens) {
+    if (tokens < 1000) return '$tokens';
+    final k = tokens / 1000;
+    return '${k.toStringAsFixed(1)}K';
+  }
+
+  /// Formats per-step stats line: IT, OT, Time, and Cost (Claude only).
+  String _formatStepStats(StepResult result) {
+    final usage = result.tokenUsage;
+    if (usage == null) return _formatDuration(result.durationSeconds);
+
+    final it = _formatTokens(usage.totalInputTokens);
+    final ot = _formatTokens(usage.outputTokens);
+    final time = _formatDuration(result.durationSeconds);
+
+    final buffer = StringBuffer('IT: $it  OT: $ot  Time: $time');
+    if (usage.costUsd != null) {
+      buffer.write('  Cost: \$${usage.costUsd!.toStringAsFixed(2)}');
+    }
+    return buffer.toString();
+  }
+
+  /// Prints aggregated token usage summary after all steps.
+  void _printUsageSummary(
+    List<StepResult> results,
+    int totalTime,
+    int aiTime,
+    int preflightTime,
+  ) {
+    final aiResults = results.where((r) => r.tokenUsage != null).toList();
+    if (aiResults.isEmpty) return;
+
+    var totalInput = 0;
+    var totalOutput = 0;
+    var totalCost = 0.0;
+    var hasCost = false;
+
+    for (final r in aiResults) {
+      final u = r.tokenUsage!;
+      totalInput += u.totalInputTokens;
+      totalOutput += u.outputTokens;
+      if (u.costUsd != null) {
+        totalCost += u.costUsd!;
+        hasCost = true;
+      }
+    }
+
+    const divider = '────────────────────────────────────────────────────';
+    _logger.info(divider);
+    _logger.info(
+      'Total tokens  ─  Input: ${_formatTokens(totalInput)}  '
+      'Output: ${_formatTokens(totalOutput)}',
+    );
+    if (hasCost) {
+      _logger.info(
+        'Total cost    ─  \$${totalCost.toStringAsFixed(2)}',
+      );
+    }
+    _logger.info(
+      'Total time    ─  ${_formatDuration(totalTime)}  '
+      '(AI: ${_formatDuration(aiTime)} | '
+      'Pre-flight: ~${_formatDuration(preflightTime)})',
+    );
+    _logger.info(divider);
   }
 
   /// Removes previous run artifacts and report to prevent stale data.
