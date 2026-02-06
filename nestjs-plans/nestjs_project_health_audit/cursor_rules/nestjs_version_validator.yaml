@@ -85,15 +85,14 @@ rules:
            echo "✓ node_modules directory exists"
            echo "Number of dependencies installed: $(ls node_modules | wc -l)"
          else
-            echo "✗ node_modules directory NOT found - dependencies not \
-installed"
+            echo "✗ node_modules directory NOT found - dependencies not installed"
          fi
 
          # Verify root dependencies are installed
          if [ -f "package.json" ]; then
            echo "Verifying root dependencies..."
-            echo "Dependencies: $(npm list --depth=0 2>/dev/null | wc -l) \
-packages" && npm list --depth=0 2>/dev/null | \
+            echo "Dependencies: $(npm list --depth=0 2>/dev/null | wc -l) packages" && \
+              npm list --depth=0 2>/dev/null | \
               grep -E "@nestjs|@typescript|typescript" | head -5
          fi
          ```

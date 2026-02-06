@@ -120,20 +120,17 @@ rules:
           echo "Running tests in app-specific packages for $app_name"
           for package_dir in packages/*/; do
             package_name=$(basename "$package_dir")
-            echo "Running tests for app-specific package: \
-$app_name/$package_name"
+            echo "Running tests for app-specific package: $app_name/$package_name"
             
             cd "$package_dir"
             
             if command -v fvm &> /dev/null && \
               [ -f ".fvm/fvm_config.json" ]; then
               fvm flutter test --coverage --reporter=compact \
-                --coverage-path=coverage/apps/$app_name/packages/\
-$package_name/lcov.info
+                --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info
             else
               flutter test --coverage --reporter=compact \
-                --coverage-path=coverage/apps/$app_name/packages/\
-$package_name/lcov.info
+                --coverage-path=coverage/apps/$app_name/packages/$package_name/lcov.info
             fi
             
             cd ../..
@@ -171,8 +168,7 @@ $package_name/lcov.info
       SINGLE APP ANALYSIS:
       ```bash
       # Check if coverage directory exists
-      echo "Coverage files: $(find coverage/ -name '*.info' \
--o -name '*.json' 2>/dev/null | wc -l)"
+      echo "Coverage files: $(find coverage/ -name '*.info' -o -name '*.json' 2>/dev/null | wc -l)"
       
       # Analyze app coverage
       if [ -f "coverage/app/lcov.info" ]; then
@@ -462,8 +458,7 @@ $package_name/lcov.info
       2. For each app-specific package: \
          cd apps/<app_name>/packages/<package_name> && \
          flutter test --coverage --reporter=compact \
-         --coverage-path=coverage/apps/<app_name>/packages/\
-<package_name>/lcov.info
+         --coverage-path=coverage/apps/<app_name>/packages/<package_name>/lcov.info
       3. For each shared package: cd packages/<package_name> && \
          flutter test --coverage --reporter=compact \
          --coverage-path=coverage/packages/<package_name>/lcov.info

@@ -105,6 +105,55 @@ Remove all Somnio skills, commands, and workflows from all agents.
 somnio uninstall
 ```
 
+### `somnio run`
+
+Execute a health audit step-by-step from the target project's terminal. Each rule runs in a fresh AI context (Claude or Gemini), saving findings as artifacts and generating a final report.
+
+**Must be run from the project root** (e.g., inside a Flutter or NestJS repo).
+
+```bash
+# From a Flutter project root
+somnio run fh
+
+# From a NestJS project root
+somnio run nh
+
+# Force a specific AI CLI
+somnio run fh --agent gemini
+
+# Skip project type validation
+somnio run fh --skip-validation
+
+# Skip CLI pre-flight (send all steps to AI)
+somnio run fh --no-preflight
+```
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--agent` | `-a` | AI CLI to use: `claude` or `gemini` (auto-detected if omitted, prefers Claude) |
+| `--skip-validation` | | Skip project type check (e.g., pubspec.yaml for Flutter) |
+| `--no-preflight` | | Skip CLI pre-flight and send all steps to AI |
+
+**Available codes** are derived from the skill registry — any health audit bundle registered via `somnio add` is automatically available:
+
+| Code | Audit | Technology |
+|------|-------|------------|
+| `fh` | Flutter Project Health Audit | Flutter |
+| `nh` | NestJS Project Health Audit | NestJS |
+
+**How it works:**
+
+1. **Validates** the current directory is the correct project type
+2. **Pre-flight** — the CLI handles tool installation, version alignment, version validation, and test coverage directly (no AI needed). These steps complete in seconds instead of minutes
+3. **AI steps** — analysis rules (architecture, security, code quality, etc.) each run in a fresh AI context
+4. **Report** — the final step reads all artifacts and generates a Google Docs-ready audit report
+
+Pre-flight artifacts and the previous report are automatically cleaned before each run. Use `--no-preflight` to send all steps to AI (useful for debugging or when running as a skill in an IDE).
+
+Output is saved to `./reports/`:
+- `./reports/.artifacts/` — per-step findings
+- `./reports/{tech}_audit.txt` — final report
+
 ### `somnio add`
 
 Add a new technology skill bundle to the repository.

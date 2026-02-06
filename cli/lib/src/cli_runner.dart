@@ -7,6 +7,7 @@ import 'commands/antigravity_command.dart';
 import 'commands/claude_command.dart';
 import 'commands/cursor_command.dart';
 import 'commands/init_command.dart';
+import 'commands/run_command.dart';
 import 'commands/status_command.dart';
 import 'commands/uninstall_command.dart';
 import 'commands/update_command.dart';
@@ -32,13 +33,14 @@ class SomnioCliRunner extends CommandRunner<int> {
     addCommand(ClaudeCommand(logger: _logger));
     addCommand(CursorCommand(logger: _logger));
     addCommand(AntigravityCommand(logger: _logger));
+    addCommand(RunCommand(logger: _logger));
     addCommand(StatusCommand(logger: _logger));
     addCommand(UninstallCommand(logger: _logger));
   }
 
   final Logger _logger;
 
-  static const version = '1.0.0';
+  static const version = '1.0.1';
 
   @override
   Future<int> run(Iterable<String> args) async {

@@ -44,8 +44,7 @@ rules:
 
       4.  **GENERATE REPORT USING TEMPLATE**:
           Use the template at:
-           "nestjs_best_practices_check/cursor_rules/templates/\
-best_practices_report_template.txt"
+           "nestjs_best_practices_check/cursor_rules/templates/best_practices_report_template.txt"
 
       ## REPORT SECTIONS
 
