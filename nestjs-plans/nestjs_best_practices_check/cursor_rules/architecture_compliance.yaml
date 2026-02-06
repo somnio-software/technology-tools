@@ -34,15 +34,12 @@ rules:
       Architecture and Separation of Concerns.
 
       STANDARDS SOURCE:
-      - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
-main/.cursor/rules/nestjs/nestjs-module-structure.mdc`
-      - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
-main/.cursor/rules/nestjs/nestjs-service-patterns.mdc`
-      - Validates against: >
-          `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
-main/.cursor/rules/nestjs/nestjs-repository-patterns.mdc`
+      - Validates against:
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-module-structure.mdc`
+      - Validates against:
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-service-patterns.mdc`
+      - Validates against:
+          `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-repository-patterns.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards

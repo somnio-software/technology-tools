@@ -31,9 +31,8 @@ rules:
       documentation.
 
       STANDARDS SOURCE:
-      - Validates against: >
-           `https://raw.githubusercontent.com/somnio-software/cursor-rules/\
-main/.cursor/rules/nestjs/nestjs-dto-validation.mdc`
+      - Validates against:
+           `https://raw.githubusercontent.com/somnio-software/cursor-rules/main/.cursor/rules/nestjs/nestjs-dto-validation.mdc`
 
       INSTRUCTIONS:
       1. USE the `read_url_content` tool to fetch the latest standards

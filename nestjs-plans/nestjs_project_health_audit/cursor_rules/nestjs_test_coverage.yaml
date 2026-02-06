@@ -139,8 +139,7 @@ rules:
       # Check if coverage directory exists
       if [ -d "coverage" ]; then
         echo "Coverage directory found"
-        echo "Coverage files: $(find coverage/ -name '*.json' \
--o -name '*.html' 2>/dev/null | wc -l)"
+        echo "Coverage files: $(find coverage/ -name '*.json' -o -name '*.html' 2>/dev/null | wc -l)"
         
         # Display coverage summary if available
         if [ -f "coverage/coverage-summary.json" ]; then
@@ -151,8 +150,7 @@ rules:
         fi
         
         if [ -f "coverage/lcov-report/index.html" ]; then
-          echo "Coverage HTML report available at: \
-coverage/lcov-report/index.html"
+          echo "Coverage HTML report available at: coverage/lcov-report/index.html"
         fi
       else
         echo "No coverage directory found"
