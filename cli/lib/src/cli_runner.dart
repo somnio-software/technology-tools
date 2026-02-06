@@ -7,10 +7,13 @@ import 'commands/antigravity_command.dart';
 import 'commands/claude_command.dart';
 import 'commands/cursor_command.dart';
 import 'commands/init_command.dart';
+import 'commands/quote_command.dart';
 import 'commands/run_command.dart';
 import 'commands/status_command.dart';
 import 'commands/uninstall_command.dart';
 import 'commands/update_command.dart';
+import 'utils/quotes.dart';
+import 'version.dart';
 
 /// The main CLI runner for the Somnio tool.
 class SomnioCliRunner extends CommandRunner<int> {
@@ -33,6 +36,7 @@ class SomnioCliRunner extends CommandRunner<int> {
     addCommand(ClaudeCommand(logger: _logger));
     addCommand(CursorCommand(logger: _logger));
     addCommand(AntigravityCommand(logger: _logger));
+    addCommand(QuoteCommand());
     addCommand(RunCommand(logger: _logger));
     addCommand(StatusCommand(logger: _logger));
     addCommand(UninstallCommand(logger: _logger));
@@ -40,7 +44,7 @@ class SomnioCliRunner extends CommandRunner<int> {
 
   final Logger _logger;
 
-  static const version = '1.0.1';
+  static const version = packageVersion;
 
   @override
   Future<int> run(Iterable<String> args) async {
@@ -71,6 +75,22 @@ class SomnioCliRunner extends CommandRunner<int> {
       _logger.info('somnio v$version');
       return ExitCode.success.code;
     }
+    _printBanner();
     return super.runCommand(topLevelResults);
+  }
+
+  void _printBanner() {
+    final quote = getRandomQuote();
+    _logger.info('''
+
+  ____                        _
+ / ___|  ___  _ __ ___  _ __ (_) ___
+ \\___ \\ / _ \\| '_ ` _ \\| '_ \\| |/ _ \\
+  ___) | (_) | | | | | | | | | | (_) |
+ |____/ \\___/|_| |_| |_|_| |_|_|\\___/  v$version
+
+ "${quote.text}"
+    — ${quote.author}
+''');
   }
 }

@@ -150,9 +150,40 @@ somnio run fh --no-preflight
 
 Pre-flight artifacts and the previous report are automatically cleaned before each run. Use `--no-preflight` to send all steps to AI (useful for debugging or when running as a skill in an IDE).
 
+**Token usage tracking:**
+
+Each AI step displays real-time token consumption and cost when it completes:
+
+```
+✓ Step  5/13: flutter_architecture_analyzer  IT: 38.2K  OT: 4.1K  Time: 3m 12s  Cost: $0.28
+✓ Step  6/13: flutter_state_management       IT: 35.7K  OT: 3.8K  Time: 2m 45s  Cost: $0.25
+```
+
+- **IT** — Input tokens (includes cache)
+- **OT** — Output tokens
+- **Cost** — USD cost (Claude only; Gemini does not report cost)
+
+A summary is printed at the end of the run:
+
+```
+────────────────────────────────────────────────────
+Total tokens  ─  Input: 317.3K  Output: 35.1K
+Total cost    ─  $2.31
+Total time    ─  25m 55s  (AI: 25m 55s | Pre-flight: ~12s)
+────────────────────────────────────────────────────
+```
+
 Output is saved to `./reports/`:
 - `./reports/.artifacts/` — per-step findings
 - `./reports/{tech}_audit.txt` — final report
+
+### `somnio quote`
+
+Display the Somnio banner with a random team quote.
+
+```bash
+somnio quote   # or: somnio q
+```
 
 ### `somnio add`
 

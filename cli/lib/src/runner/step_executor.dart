@@ -1,9 +1,31 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 
 import 'run_config.dart';
+
+/// Token usage statistics from an AI CLI invocation.
+class TokenUsage {
+  const TokenUsage({
+    required this.inputTokens,
+    required this.outputTokens,
+    this.cacheReadTokens = 0,
+    this.cacheCreationTokens = 0,
+    this.costUsd,
+  });
+
+  final int inputTokens;
+  final int outputTokens;
+  final int cacheReadTokens;
+  final int cacheCreationTokens;
+  final double? costUsd;
+
+  /// Total input tokens including cache.
+  int get totalInputTokens =>
+      inputTokens + cacheReadTokens + cacheCreationTokens;
+}
 
 /// Result of executing a single step.
 class StepResult {
@@ -13,6 +35,7 @@ class StepResult {
     required this.artifactPath,
     required this.durationSeconds,
     this.errorMessage,
+    this.tokenUsage,
   });
 
   final ExecutionStep step;
@@ -20,6 +43,7 @@ class StepResult {
   final String artifactPath;
   final int durationSeconds;
   final String? errorMessage;
+  final TokenUsage? tokenUsage;
 }
 
 /// Executes individual plan steps by invoking an AI CLI in a fresh context.
@@ -63,12 +87,14 @@ class StepExecutor {
       stopwatch.stop();
 
       final artifactExists = File(artifactPath).existsSync();
+      final usage = _parseTokenUsage(result.stdout as String);
 
       return StepResult(
         step: step,
         success: result.exitCode == 0 && artifactExists,
         artifactPath: artifactPath,
         durationSeconds: stopwatch.elapsed.inSeconds,
+        tokenUsage: usage,
         errorMessage: result.exitCode != 0
             ? 'Process exited with code ${result.exitCode}'
             : (!artifactExists
@@ -143,12 +169,14 @@ class StepExecutor {
       stopwatch.stop();
 
       final reportExists = File(reportPath).existsSync();
+      final usage = _parseTokenUsage(result.stdout as String);
 
       return StepResult(
         step: step,
         success: result.exitCode == 0 && reportExists,
         artifactPath: reportPath,
         durationSeconds: stopwatch.elapsed.inSeconds,
+        tokenUsage: usage,
         errorMessage: result.exitCode != 0
             ? 'Process exited with code ${result.exitCode}'
             : (!reportExists
@@ -237,6 +265,8 @@ class StepExecutor {
             prompt,
             '--allowedTools',
             'Read,Bash,Glob,Grep,Write',
+            '--output-format',
+            'json',
           ],
           workingDirectory: Directory.current.path,
         );
@@ -247,9 +277,62 @@ class StepExecutor {
             '-p',
             prompt,
             '--yolo',
+            '-o',
+            'json',
           ],
           workingDirectory: Directory.current.path,
         );
     }
+  }
+
+  /// Parses token usage from the JSON stdout of an AI CLI invocation.
+  ///
+  /// Returns `null` if parsing fails (graceful degradation).
+  TokenUsage? _parseTokenUsage(String stdout) {
+    try {
+      final json = jsonDecode(stdout) as Map<String, dynamic>;
+
+      if (config.agent == RunAgent.claude) {
+        return _parseClaudeUsage(json);
+      } else {
+        return _parseGeminiUsage(json);
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
+  TokenUsage _parseClaudeUsage(Map<String, dynamic> json) {
+    final usage = json['usage'] as Map<String, dynamic>? ?? {};
+    return TokenUsage(
+      inputTokens: (usage['input_tokens'] as num?)?.toInt() ?? 0,
+      outputTokens: (usage['output_tokens'] as num?)?.toInt() ?? 0,
+      cacheReadTokens:
+          (usage['cache_read_input_tokens'] as num?)?.toInt() ?? 0,
+      cacheCreationTokens:
+          (usage['cache_creation_input_tokens'] as num?)?.toInt() ?? 0,
+      costUsd: (json['total_cost_usd'] as num?)?.toDouble(),
+    );
+  }
+
+  TokenUsage _parseGeminiUsage(Map<String, dynamic> json) {
+    final stats = json['stats'] as Map<String, dynamic>? ?? {};
+    final models = stats['models'] as Map<String, dynamic>? ?? {};
+
+    var promptTokens = 0;
+    var candidateTokens = 0;
+
+    for (final model in models.values) {
+      if (model is Map<String, dynamic>) {
+        final tokens = model['tokens'] as Map<String, dynamic>? ?? {};
+        promptTokens += (tokens['prompt'] as num?)?.toInt() ?? 0;
+        candidateTokens += (tokens['candidates'] as num?)?.toInt() ?? 0;
+      }
+    }
+
+    return TokenUsage(
+      inputTokens: promptTokens,
+      outputTokens: candidateTokens,
+    );
   }
 }

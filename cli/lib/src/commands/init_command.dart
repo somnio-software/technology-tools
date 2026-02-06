@@ -35,9 +35,6 @@ class InitCommand extends Command<int> {
   Future<int> run() async {
     final force = argResults!['force'] as bool;
 
-    // Print banner
-    _printBanner();
-
     // Detect agents
     final detectProgress = _logger.progress('Detecting installed AI agents');
     final detector = AgentDetector();
@@ -187,16 +184,5 @@ class InitCommand extends Command<int> {
     }
 
     return ExitCode.success.code;
-  }
-
-  void _printBanner() {
-    _logger.info('''
-
-  ____                        _
- / ___|  ___  _ __ ___  _ __ (_) ___
- \\___ \\ / _ \\| '_ ` _ \\| '_ \\| |/ _ \\
-  ___) | (_) | | | | | | | | | | (_) |
- |____/ \\___/|_| |_| |_|_| |_|_|\\___/  v1.0.0
-''');
   }
 }
