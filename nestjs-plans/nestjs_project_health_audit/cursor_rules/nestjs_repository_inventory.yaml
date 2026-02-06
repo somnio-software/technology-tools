@@ -27,6 +27,12 @@ rules:
       Goal: Detect repository structure, module organization, and
       validate architecture patterns for clean, maintainable code.
 
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 6 total tool calls for this entire analysis
+      - Use batch find/ls commands to inventory directory structure in one pass
+      - Read multiple package.json files per tool call using parallel reads
+      - Do NOT read individual source files to count them — use find + wc
+
       IMPORTANT: Apply REASONABLE production standards. Focus on
       clarity and maintainability, not perfection.
 

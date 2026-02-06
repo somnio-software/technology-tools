@@ -36,6 +36,7 @@ class RunConfig {
     required this.templatePath,
     required this.artifactsDir,
     required this.reportPath,
+    this.model,
   });
 
   /// Bundle identifier (e.g., 'flutter_health').
@@ -70,4 +71,9 @@ class RunConfig {
 
   /// Final report path (e.g., `./reports/flutter_audit.txt`).
   final String reportPath;
+
+  /// Optional model override passed to the AI CLI via `--model`.
+  ///
+  /// When `null`, the underlying CLI uses its default model.
+  final String? model;
 }

@@ -9,6 +9,13 @@ rules:
       mode, and code quality enforcement for single app or monorepo
       repositories.
 
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 8 total tool calls for this entire analysis
+      - Read 3-5 files per tool call using parallel reads
+      - Use batch grep commands to find lint suppressions across all files at once
+      - Group file reads by directory
+      - Pipe large outputs through `| head -50`
+
       MONOREPO DETECTION:
       - First detect repository structure: single app or monorepo
       - If apps/ directory exists, analyze each app individually

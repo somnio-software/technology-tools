@@ -33,6 +33,12 @@ rules:
       setup, and technical documentation for single app or multi-app
       repositories.
 
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 6 total tool calls for this entire analysis
+      - Read multiple README/doc files per tool call using parallel reads
+      - Use batch find commands to locate all documentation files at once
+      - Reference cached artifacts from previous steps when available
+
       IMPORTANT EXCLUSIONS:
       - Do NOT recommend operational documentation (runbooks,
         troubleshooting guides, incident response)

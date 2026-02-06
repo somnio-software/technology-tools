@@ -30,8 +30,16 @@ rules:
         protection mechanisms
 
       Goal: Identify sensitive files, check .gitignore coverage across all
-      project directories, find dependency scanning configuration for single
-      app or multi-app repositories.
+      project directories, search source code for dangerous secret patterns,
+      and find dependency scanning configuration for single app or multi-app
+      repositories.
+
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 10 total tool calls for this entire analysis
+      - Use batch grep/find commands instead of reading files one by one
+      - Read 3-5 .gitignore files per tool call using parallel reads
+      - Use a single grep command per pattern category (not per file)
+      - Pipe large outputs through `| head -50`
 
       IMPORTANT EXCLUSIONS:
       - Do NOT analyze, recommend, or consider missing SECURITY.md files
@@ -129,18 +137,62 @@ rules:
         covered by any relevant .gitignore patterns
       - Document which .gitignore files were found and analyzed
 
+      SOURCE CODE SECRET PATTERNS (CRITICAL — MANDATORY CHECK):
+      After completing .gitignore and file detection analysis, you MUST
+      search source code for dangerous secret usage patterns. These are
+      HIGH severity findings when found. This section is MANDATORY and
+      must appear in the artifact even if no issues are found.
+
+      1. Client-side secret key usage (HIGH severity):
+         Run these grep commands to detect secrets used in client code:
+
+         ```bash
+         # Bearer token patterns with secret keys in HTTP clients
+         grep -rn "Bearer.*secret\|Bearer.*_secret\|secretKey\|secret_key" \
+           lib/ packages/ --include="*.dart" || echo "No Bearer secret patterns found"
+
+         # Stripe secret keys used in client code
+         grep -rn "sk_live_\|sk_test_\|stripeSecret\|stripe_secret\|stripe.*[Ss]ecret" \
+           lib/ packages/ --include="*.dart" || echo "No Stripe secret patterns found"
+
+         # API secret/private keys in HTTP headers or Authorization
+         grep -rn "Authorization.*[Ss]ecret\|x-api-key\|private.key\|api_secret" \
+           lib/ packages/ --include="*.dart" || echo "No API secret header patterns found"
+         ```
+
+      2. Hardcoded credentials beyond Firebase (MEDIUM severity):
+         ```bash
+         # Password patterns in source (excluding test/mock files)
+         grep -rn "password\s*[:=]\s*['\"][^'\"]\+" lib/ packages/ \
+           --include="*.dart" | grep -v "test\|mock\|fake\|example\|sample" \
+           | head -20 || echo "No hardcoded password patterns found"
+
+         # AWS/GCP/Azure credential patterns
+         grep -rn "AKIA\|aws_secret\|gcp_credentials\|azure_secret\|service_account" \
+           lib/ packages/ --include="*.dart" | head -20 \
+           || echo "No cloud credential patterns found"
+         ```
+
+      3. For each finding report: file path, line number, the pattern
+         matched, and severity (HIGH for secret keys in client code,
+         MEDIUM for hardcoded credentials).
+
+      If no issues are found, explicitly state:
+      "No client-side secret patterns detected in source code."
+
       Output format:
       - Repository structure type (single app / multi-app monorepo)
       - List all .gitignore files found (per app if multi-app)
       - Sensitive files detected and their protection status (per app if
         multi-app)
+      - SOURCE CODE SECRET PATTERNS results (MANDATORY section)
       - Security risks identified (per app if multi-app)
       - Dependency scanning configuration (per app if multi-app)
       - Secret scanning patterns found (per app if multi-app)
       - Missing technical security configurations (per app if multi-app)
       - Security consistency across apps/packages (if multi-app)
       - Cross-app technical security practices (if multi-app)
-      
+
       CRITICAL: Do NOT report missing SECURITY.md or CODEOWNERS files as
       security risks or missing configurations.
       These are governance decisions, not technical security requirements.

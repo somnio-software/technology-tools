@@ -131,8 +131,29 @@ somnio run fh --no-preflight
 | Flag | Short | Description |
 |------|-------|-------------|
 | `--agent` | `-a` | AI CLI to use: `claude` or `gemini` (auto-detected if omitted, prefers Claude) |
+| `--model` | `-m` | Model to use (skips interactive selection) |
 | `--skip-validation` | | Skip project type check (e.g., pubspec.yaml for Flutter) |
 | `--no-preflight` | | Skip CLI pre-flight and send all steps to AI |
+
+**Model selection:**
+
+When `--model` is not provided, the CLI presents an interactive menu with the available models for the resolved agent. Each agent has a default model optimized for cost and speed:
+
+| Agent | Default | Available models |
+|-------|---------|------------------|
+| Claude | `haiku` | `haiku`, `sonnet`, `opus` |
+| Gemini | `gemini-3-flash` | `gemini-3-flash`, `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro` |
+
+Press Enter at the prompt to accept the default, or pass `--model` to skip the prompt entirely:
+
+```bash
+# Use the default model (haiku for Claude, gemini-3-flash for Gemini)
+somnio run fh
+
+# Specify a model explicitly (skips interactive selection)
+somnio run fh --model opus
+somnio run nh --agent gemini -m gemini-3-pro
+```
 
 **Available codes** are derived from the skill registry — any health audit bundle registered via `somnio add` is automatically available:
 

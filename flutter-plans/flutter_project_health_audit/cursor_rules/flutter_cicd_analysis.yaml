@@ -31,6 +31,13 @@ rules:
       Goal: Read all GitHub Actions workflows and related CI/CD
       configuration files for single app or multi-app repositories.
 
+      EFFICIENCY REQUIREMENTS:
+      - Target: ≤ 8 total tool calls for this entire analysis
+      - Read 3-5 workflow files per tool call using parallel reads
+      - Use batch grep commands to search across all workflow files at once
+      - Do NOT read workflow files one at a time
+      - Reference cached artifacts from previous steps when available
+
       IMPORTANT EXCLUSIONS:
       - Do NOT recommend operational workflows (deployment, monitoring,
         performance tracking)
