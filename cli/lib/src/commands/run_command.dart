@@ -9,6 +9,7 @@ import '../content/skill_bundle.dart';
 import '../content/skill_registry.dart';
 import '../runner/agent_resolver.dart';
 import '../runner/plan_parser.dart';
+import '../runner/preflight.dart';
 import '../runner/project_validator.dart';
 import '../runner/run_config.dart';
 import '../runner/step_executor.dart';
@@ -35,6 +36,10 @@ class RunCommand extends Command<int> {
     argParser.addFlag(
       'skip-validation',
       help: 'Skip project type validation.',
+    );
+    argParser.addFlag(
+      'no-preflight',
+      help: 'Skip CLI pre-flight (version setup, pub get, test coverage).',
     );
   }
 
@@ -148,7 +153,14 @@ class RunCommand extends Command<int> {
       );
     }
 
-    // 3. Resolve AI agent
+    // 3. Run pre-flight checks
+    final noPreflight = argResults!['no-preflight'] as bool;
+    if (!noPreflight) {
+      final preflight = PreflightRunner(logger: _logger);
+      await preflight.run(techPrefix, cwd);
+    }
+
+    // 4. Resolve AI agent
     final agentFlag = argResults!['agent'] as String?;
     RunAgent? preferredAgent;
     if (agentFlag != null) {
