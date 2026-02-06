@@ -87,6 +87,34 @@ class StepExecutor {
     }
   }
 
+  /// Writes a pre-flight artifact directly to disk, skipping AI invocation.
+  ///
+  /// Used when the CLI pre-flight already completed this step's work
+  /// (e.g., tool installation, version alignment, test coverage).
+  Future<StepResult> writePreflightArtifact(
+    ExecutionStep step,
+    String content,
+  ) async {
+    final artifactPath = _artifactPath(step);
+    try {
+      File(artifactPath).writeAsStringSync(content);
+      return StepResult(
+        step: step,
+        success: true,
+        artifactPath: artifactPath,
+        durationSeconds: 0,
+      );
+    } catch (e) {
+      return StepResult(
+        step: step,
+        success: false,
+        artifactPath: artifactPath,
+        durationSeconds: 0,
+        errorMessage: 'Failed to write pre-flight artifact: $e',
+      );
+    }
+  }
+
   /// Executes the report generator step (special handling).
   ///
   /// This step reads all previous artifacts and the report template,

@@ -155,9 +155,10 @@ class RunCommand extends Command<int> {
 
     // 3. Run pre-flight checks
     final noPreflight = argResults!['no-preflight'] as bool;
+    var preflightResult = PreflightResult();
     if (!noPreflight) {
       final preflight = PreflightRunner(logger: _logger);
-      await preflight.run(techPrefix, cwd);
+      preflightResult = await preflight.run(techPrefix, cwd);
     }
 
     // 4. Resolve AI agent
@@ -222,16 +223,22 @@ class RunCommand extends Command<int> {
       return ExitCode.software.code;
     }
 
-    // 6. Verify skills are installed
-    final ruleNames = steps.map((s) => s.ruleName).toList();
-    final verifyError = agentResolver.verifyInstallation(
-      agent,
-      ruleBase,
-      ruleNames,
-    );
-    if (verifyError != null) {
-      _logger.err(verifyError);
-      return ExitCode.software.code;
+    // 6. Verify skills are installed (skip rules handled by preflight)
+    final preflightRuleNames = preflightResult.artifacts.keys.toSet();
+    final ruleNames = steps
+        .map((s) => s.ruleName)
+        .where((name) => !preflightRuleNames.contains(name))
+        .toList();
+    if (ruleNames.isNotEmpty) {
+      final verifyError = agentResolver.verifyInstallation(
+        agent,
+        ruleBase,
+        ruleNames,
+      );
+      if (verifyError != null) {
+        _logger.err(verifyError);
+        return ExitCode.software.code;
+      }
     }
     _logger.info('${lightGreen.wrap('OK')} Skills verified at: $ruleBase');
 
@@ -252,19 +259,29 @@ class RunCommand extends Command<int> {
       reportPath: reportPath,
     );
 
-    // 8. Create artifacts directory
+    // 8. Clean previous run artifacts and report
+    _cleanPreviousRun(artifactsDir, reportPath);
+
+    // 9. Create artifacts directory
     Directory(artifactsDir).createSync(recursive: true);
 
-    // 9. Print execution plan
+    // 10. Print execution plan
+    final preflightCount = steps
+        .where((s) => preflightResult.artifacts.containsKey(s.ruleName))
+        .length;
+    final aiCount = steps.length - preflightCount;
     _logger.info('');
     _logger.info(bundle.displayName);
     _logger.info('${'=' * bundle.displayName.length}');
-    _logger.info('Steps: ${steps.length} | Agent: $agentName');
+    _logger.info(
+      'Steps: ${steps.length} '
+      '($preflightCount pre-flight, $aiCount AI) | Agent: $agentName',
+    );
     _logger.info('Artifacts: $artifactsDir');
     _logger.info('Report: $reportPath');
     _logger.info('');
 
-    // 10. Execute steps
+    // 11. Execute steps
     final executor = StepExecutor(config: config, logger: _logger);
     final results = <StepResult>[];
     var aborted = false;
@@ -277,9 +294,17 @@ class RunCommand extends Command<int> {
       );
 
       StepResult result;
-      final isReportGenerator = step.ruleName.endsWith('_report_generator');
 
-      if (isReportGenerator) {
+      // Check if preflight already handled this step
+      final preflightArtifact =
+          preflightResult.artifacts[step.ruleName];
+
+      if (preflightArtifact != null) {
+        result = await executor.writePreflightArtifact(
+          step,
+          preflightArtifact,
+        );
+      } else if (step.ruleName.endsWith('_report_generator')) {
         result = await executor.executeReportGenerator(step);
       } else {
         result = await executor.execute(step);
@@ -288,9 +313,12 @@ class RunCommand extends Command<int> {
       results.add(result);
 
       if (result.success) {
+        final tag = preflightArtifact != null ? 'pre-flight' : '';
+        final duration = _formatDuration(result.durationSeconds);
+        final suffix =
+            preflightArtifact != null ? '($tag)' : '($duration)';
         progress.complete(
-          'Step ${step.index}/${steps.length}: ${step.ruleName} '
-          '(${_formatDuration(result.durationSeconds)})',
+          'Step ${step.index}/${steps.length}: ${step.ruleName} $suffix',
         );
       } else {
         if (step.isMandatory) {
@@ -356,5 +384,34 @@ class RunCommand extends Command<int> {
     final minutes = seconds ~/ 60;
     final remaining = seconds % 60;
     return '${minutes}m ${remaining}s';
+  }
+
+  /// Removes previous run artifacts and report to prevent stale data.
+  void _cleanPreviousRun(String artifactsDir, String reportPath) {
+    final artifactsDirObj = Directory(artifactsDir);
+    if (artifactsDirObj.existsSync()) {
+      final files = artifactsDirObj
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.md'))
+          .toList();
+      if (files.isNotEmpty) {
+        _logger.info(
+          '${lightGreen.wrap('OK')} Cleaned ${files.length} '
+          'previous artifact(s).',
+        );
+        for (final file in files) {
+          file.deleteSync();
+        }
+      }
+    }
+
+    final reportFile = File(reportPath);
+    if (reportFile.existsSync()) {
+      reportFile.deleteSync();
+      _logger.info(
+        '${lightGreen.wrap('OK')} Cleaned previous report.',
+      );
+    }
   }
 }
