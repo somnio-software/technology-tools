@@ -97,4 +97,23 @@ class SkillRegistry {
     }
     return null;
   }
+
+  /// Returns unique technology display names derived from registered bundles.
+  ///
+  /// Driven entirely by [SkillBundle.techDisplayName], so adding a new
+  /// tech via `somnio add` automatically surfaces it.
+  static List<String> get technologies {
+    final techs = <String>{};
+    for (final skill in skills) {
+      techs.add(skill.techDisplayName);
+    }
+    return techs.toList()..sort();
+  }
+
+  /// Returns bundles matching the given technology display names.
+  static List<SkillBundle> byTechnologies(List<String> techNames) {
+    return skills
+        .where((s) => techNames.contains(s.techDisplayName))
+        .toList();
+  }
 }

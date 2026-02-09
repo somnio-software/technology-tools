@@ -102,7 +102,7 @@ class AgentDetector {
 
   Future<AgentInfo> _detectAntigravity() async {
     // Check multiple possible binary names
-    for (final cmd in ['agy', 'antigravity']) {
+    for (final cmd in ['agy', 'antigravity', 'gemini']) {
       final binPath = await PlatformUtils.whichBinary(cmd);
       if (binPath != null) {
         return AgentInfo(installed: true, path: binPath);
