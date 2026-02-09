@@ -198,9 +198,10 @@ class StepExecutor {
   // --- Private helpers ---
 
   String _ruleFilePath(String ruleName) {
-    final ext = config.agent == RunAgent.claude ? '.md' : '.yaml';
+    final ext = config.agent == RunAgent.gemini ? '.yaml' : '.md';
     return p.join(config.ruleBasePath, '$ruleName$ext');
   }
+
 
   String _artifactPath(ExecutionStep step) {
     final paddedIndex = step.index.toString().padLeft(2, '0');
@@ -215,9 +216,9 @@ class StepExecutor {
     String ruleFile,
     String artifactPath,
   ) {
-    final readInstruction = config.agent == RunAgent.claude
-        ? 'Read and follow ALL instructions in $ruleFile'
-        : 'Read $ruleFile and follow ALL instructions in the prompt field';
+    final readInstruction = config.agent == RunAgent.gemini
+        ? 'Read $ruleFile and follow ALL instructions in the prompt field'
+        : 'Read and follow ALL instructions in $ruleFile';
 
     return 'You are executing step ${step.index} of ${config.steps.length} '
         'in the ${config.displayName}.\n\n'
@@ -235,10 +236,10 @@ class StepExecutor {
     String ruleFile,
     String reportPath,
   ) {
-    final readInstruction = config.agent == RunAgent.claude
-        ? 'Read $ruleFile for report generation instructions.'
-        : 'Read $ruleFile and follow the instructions in the prompt field '
-            'for report generation.';
+    final readInstruction = config.agent == RunAgent.gemini
+        ? 'Read $ruleFile and follow the instructions in the prompt field '
+            'for report generation.'
+        : 'Read $ruleFile for report generation instructions.';
 
     final reportDir = p.dirname(reportPath);
 
@@ -271,6 +272,19 @@ class StepExecutor {
           ],
           workingDirectory: Directory.current.path,
         );
+      case RunAgent.cursor:
+        return Process.run(
+          'agent',
+          [
+            '--print',
+            '--output-format',
+            'json',
+            '--force',
+            if (config.model != null) ...['--model', config.model!],
+            prompt,
+          ],
+          workingDirectory: Directory.current.path,
+        );
       case RunAgent.gemini:
         return Process.run(
           'gemini',
@@ -289,15 +303,20 @@ class StepExecutor {
 
   /// Parses token usage from the JSON stdout of an AI CLI invocation.
   ///
-  /// Returns `null` if parsing fails (graceful degradation).
+  /// Returns `null` if parsing fails or the agent doesn't expose token data
+  /// (e.g., Cursor CLI).
   TokenUsage? _parseTokenUsage(String stdout) {
     try {
       final json = jsonDecode(stdout) as Map<String, dynamic>;
 
-      if (config.agent == RunAgent.claude) {
-        return _parseClaudeUsage(json);
-      } else {
-        return _parseGeminiUsage(json);
+      switch (config.agent) {
+        case RunAgent.claude:
+          return _parseClaudeUsage(json);
+        case RunAgent.cursor:
+          // Cursor CLI does not expose token usage in its JSON output.
+          return null;
+        case RunAgent.gemini:
+          return _parseGeminiUsage(json);
       }
     } catch (_) {
       return null;

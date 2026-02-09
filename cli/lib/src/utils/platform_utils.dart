@@ -20,6 +20,10 @@ class PlatformUtils {
   static String get cursorGlobalCommandsDir =>
       p.join(homeDirectory, '.cursor', 'commands');
 
+  /// Returns the path to the Cursor CLI's rules directory.
+  static String get cursorGlobalRulesDir =>
+      p.join(homeDirectory, '.cursor', 'somnio_rules');
+
   /// Returns the path to Antigravity's global directory.
   static String get antigravityGlobalDir =>
       p.join(homeDirectory, '.gemini', 'antigravity');

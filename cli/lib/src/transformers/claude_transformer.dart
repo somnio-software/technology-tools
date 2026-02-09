@@ -73,7 +73,7 @@ class ClaudeTransformer {
 
     // Extract technology prefix for sibling skill resolution
     // e.g., 'flutter_health' -> 'flutter', 'nestjs_plan' -> 'nestjs'
-    final techPrefix = _technologyPrefix(bundle);
+    final techPrefix = bundle.techPrefix;
 
     // Transform @rule_name references to file references
     // Matches: `@rule_name` (with backticks)
@@ -152,12 +152,7 @@ class ClaudeTransformer {
     return frontmatter + content;
   }
 
-  /// Extracts the technology prefix from a bundle ID.
-  ///
-  /// Examples: 'flutter_health' -> 'flutter', 'nestjs_plan' -> 'nestjs'
-  String _technologyPrefix(SkillBundle bundle) {
-    return bundle.id.replaceAll(RegExp(r'_(?:health|plan)$'), '');
-  }
+  // techPrefix is now a getter on SkillBundle — no local helper needed.
 
   String _ruleToMarkdown(ParsedRule rule) {
     final buffer = StringBuffer();

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import '../content/content_loader.dart';
 import '../content/skill_bundle.dart';
 import '../transformers/cursor_transformer.dart';
 import '../utils/platform_utils.dart';
@@ -52,6 +53,9 @@ class CursorInstaller extends Installer {
       }
     }
 
+    final rulesBaseDir = PlatformUtils.cursorGlobalRulesDir;
+    var ruleCount = 0;
+
     for (final bundle in bundles) {
       final progress = logger.progress(
         'Installing /${bundle.name} command',
@@ -65,8 +69,32 @@ class CursorInstaller extends Installer {
           commandCount++;
         }
 
+        // Also install transformed .md rule files for Cursor CLI (`agent`)
+        final planSubDir = bundle.planSubDir;
+        final rulesDir = p.join(rulesBaseDir, planSubDir, 'cursor_rules');
+
+        // Transform YAML rules into .md files (same as Claude)
+        final rules = loader.loadRules(bundle);
+        for (final rule in rules) {
+          _writeFile(
+            p.join(rulesDir, '${rule.fileName}.md'),
+            _ruleToMarkdown(rule),
+          );
+          ruleCount++;
+        }
+
+        // Copy template files as-is
+        final allFiles = loader.listAllRuleFiles(bundle);
+        for (final relativePath in allFiles) {
+          if (relativePath.startsWith('templates/')) {
+            final absPath = loader.rulesFilePath(bundle, relativePath);
+            final content = File(absPath).readAsStringSync();
+            _writeFile(p.join(rulesDir, relativePath), content);
+          }
+        }
+
         progress.complete(
-          'Installed /${bundle.name} command',
+          'Installed /${bundle.name} command + $ruleCount rule files',
         );
       } catch (e) {
         progress.fail('Failed to install ${bundle.name}: $e');
@@ -75,7 +103,7 @@ class CursorInstaller extends Installer {
 
     return InstallResult(
       skillCount: commandCount,
-      ruleCount: 0,
+      ruleCount: ruleCount,
       targetDirectory: targetDir,
     );
   }
@@ -105,6 +133,24 @@ class CursorInstaller extends Installer {
             f.path.endsWith('.md') &&
             p.basename(f.path).startsWith('somnio-'))
         .length;
+  }
+
+  /// Converts a parsed YAML rule into a markdown file.
+  String _ruleToMarkdown(ParsedRule rule) {
+    final buffer = StringBuffer();
+    buffer.writeln('# ${rule.name}');
+    buffer.writeln();
+    buffer.writeln('> ${rule.description}');
+    buffer.writeln();
+    buffer.writeln('**File pattern**: `${rule.match}`');
+    buffer.writeln();
+    buffer.writeln('---');
+    buffer.writeln();
+    buffer.write(rule.prompt);
+    if (!rule.prompt.endsWith('\n')) {
+      buffer.writeln();
+    }
+    return buffer.toString();
   }
 
   void _writeFile(String path, String content) {

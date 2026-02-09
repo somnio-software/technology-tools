@@ -1,5 +1,5 @@
 /// Supported AI CLI agents for chunked execution.
-enum RunAgent { claude, gemini }
+enum RunAgent { claude, cursor, gemini }
 
 /// A single parsed execution step from the plan's "Rule Execution Order".
 class ExecutionStep {
@@ -60,6 +60,7 @@ class RunConfig {
   /// Base directory where rule files are installed.
   ///
   /// Claude: `~/.claude/skills/somnio-fh/rules/`
+  /// Cursor: `~/.cursor/somnio_rules/{planSubDir}/cursor_rules/`
   /// Gemini: `~/.gemini/antigravity/somnio_rules/{planSubDir}/cursor_rules/`
   final String ruleBasePath;
 

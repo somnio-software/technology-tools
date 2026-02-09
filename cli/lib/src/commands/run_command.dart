@@ -31,13 +31,14 @@ class RunCommand extends Command<int> {
       'agent',
       abbr: 'a',
       help: 'AI CLI to use (auto-detected if not specified).',
-      allowed: ['claude', 'gemini'],
+      allowed: ['claude', 'cursor', 'gemini'],
     );
     argParser.addOption(
       'model',
       abbr: 'm',
       help: 'Model to use (skips interactive selection).\n'
           'Claude: haiku (default), sonnet, opus\n'
+          'Cursor: auto (default), opus-4.6-thinking, gpt-5.2, composer-1, ...\n'
           'Gemini: gemini-3-flash (default), gemini-2.5-flash, gemini-2.5-pro, gemini-3-pro',
     );
     argParser.addFlag(
@@ -51,6 +52,32 @@ class RunCommand extends Command<int> {
   }
 
   static const _claudeModels = ['haiku', 'sonnet', 'opus'];
+  static const _cursorModels = [
+    'auto',
+    'opus-4.6-thinking',
+    'opus-4.6',
+    'opus-4.5',
+    'opus-4.5-thinking',
+    'sonnet-4.5',
+    'sonnet-4.5-thinking',
+    'composer-1',
+    'gpt-5.2',
+    'gpt-5.2-high',
+    'gpt-5.2-codex',
+    'gpt-5.2-codex-high',
+    'gpt-5.2-codex-low',
+    'gpt-5.2-codex-xhigh',
+    'gpt-5.2-codex-fast',
+    'gpt-5.2-codex-high-fast',
+    'gpt-5.2-codex-low-fast',
+    'gpt-5.2-codex-xhigh-fast',
+    'gpt-5.1-codex-max',
+    'gpt-5.1-codex-max-high',
+    'gpt-5.1-high',
+    'gemini-3-pro',
+    'gemini-3-flash',
+    'grok',
+  ];
   static const _geminiModels = ['gemini-3-flash', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro'];
 
   final Logger _logger;
@@ -83,20 +110,8 @@ class RunCommand extends Command<int> {
   String _codeFromBundle(SkillBundle bundle) =>
       bundle.name.replaceFirst('somnio-', '');
 
-  /// Derives the technology prefix from a bundle ID.
-  ///
-  /// `flutter_health` → `flutter`, `nestjs_health` → `nestjs`
-  String _techPrefixFromBundle(SkillBundle bundle) =>
-      bundle.id.replaceAll(RegExp(r'_health$'), '');
-
-  /// Derives the plan subdirectory name from the bundle's plan path.
-  ///
-  /// `flutter-plans/flutter_project_health_audit/plan/...`
-  /// → `flutter_project_health_audit`
-  String _planSubDirFromBundle(SkillBundle bundle) {
-    final parts = bundle.planRelativePath.split('/');
-    return parts.length >= 2 ? parts[1] : bundle.id;
-  }
+  // techPrefix, planSubDir, and templateFile are derived from
+  // SkillBundle getters — no local helpers needed.
 
   /// Derives the template file name from the bundle's template path.
   ///
@@ -151,7 +166,7 @@ class RunCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    final techPrefix = _techPrefixFromBundle(bundle);
+    final techPrefix = bundle.techPrefix;
     final cwd = Directory.current.path;
 
     // 2. Validate project type
@@ -181,25 +196,50 @@ class RunCommand extends Command<int> {
     final agentFlag = argResults!['agent'] as String?;
     RunAgent? preferredAgent;
     if (agentFlag != null) {
-      preferredAgent =
-          agentFlag == 'claude' ? RunAgent.claude : RunAgent.gemini;
+      switch (agentFlag) {
+        case 'claude':
+          preferredAgent = RunAgent.claude;
+        case 'cursor':
+          preferredAgent = RunAgent.cursor;
+        case 'gemini':
+          preferredAgent = RunAgent.gemini;
+      }
     }
 
     final agentResolver = AgentResolver();
     final agent = await agentResolver.resolve(preferred: preferredAgent);
     if (agent == null) {
-      final target = preferredAgent != null
-          ? (preferredAgent == RunAgent.claude ? 'claude' : 'gemini')
-          : 'claude or gemini';
+      final String target;
+      if (preferredAgent != null) {
+        switch (preferredAgent) {
+          case RunAgent.claude:
+            target = 'claude';
+          case RunAgent.cursor:
+            target = 'agent (Cursor CLI)';
+          case RunAgent.gemini:
+            target = 'gemini';
+        }
+      } else {
+        target = 'claude, agent (Cursor CLI), or gemini';
+      }
       _logger.err(
         'No AI CLI found. Please install $target.\n'
-        '  Claude Code: https://claude.ai/download\n'
-        '  Gemini CLI:  npm install -g @google/gemini-cli',
+        '  Claude Code:  https://claude.ai/download\n'
+        '  Cursor CLI:   https://docs.cursor.com/cli\n'
+        '  Gemini CLI:   npm install -g @google/gemini-cli',
       );
       return ExitCode.software.code;
     }
 
-    final agentName = agent == RunAgent.claude ? 'Claude' : 'Gemini';
+    final String agentName;
+    switch (agent) {
+      case RunAgent.claude:
+        agentName = 'Claude';
+      case RunAgent.cursor:
+        agentName = 'Cursor';
+      case RunAgent.gemini:
+        agentName = 'Gemini';
+    }
     _logger.info('${lightGreen.wrap('OK')} Using $agentName CLI.');
 
     // 4b. Resolve model
@@ -209,8 +249,15 @@ class RunCommand extends Command<int> {
     if (modelFlag != null) {
       model = modelFlag;
     } else {
-      final choices =
-          agent == RunAgent.claude ? _claudeModels : _geminiModels;
+      final List<String> choices;
+      switch (agent) {
+        case RunAgent.claude:
+          choices = _claudeModels;
+        case RunAgent.cursor:
+          choices = _cursorModels;
+        case RunAgent.gemini:
+          choices = _geminiModels;
+      }
       _logger.info('');
       _logger.info('Available $agentName models:');
       for (var i = 0; i < choices.length; i++) {
@@ -232,7 +279,7 @@ class RunCommand extends Command<int> {
     _logger.info('${lightGreen.wrap('OK')} Model: $model');
 
     // 5. Resolve rule paths and verify installation
-    final planSubDir = _planSubDirFromBundle(bundle);
+    final planSubDir = bundle.planSubDir;
     final templateFile = _templateFileFromBundle(bundle);
     final reportFile = _reportFileFromTechPrefix(techPrefix);
 
