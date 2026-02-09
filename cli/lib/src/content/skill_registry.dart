@@ -60,6 +60,8 @@ class SkillRegistry {
           'nestjs-plans/nestjs_project_health_audit/plan/nestjs-health.plan.md',
       rulesDirectory:
           'nestjs-plans/nestjs_project_health_audit/cursor_rules',
+      workflowPath:
+          'nestjs-plans/nestjs_project_health_audit/.agent/workflows/nestjs_health_audit.md',
       templatePath:
           'nestjs-plans/nestjs_project_health_audit/cursor_rules/templates/nestjs_report_template.txt',
     ),
@@ -77,6 +79,8 @@ class SkillRegistry {
           'nestjs-plans/nestjs_best_practices_check/plan/best_practices.plan.md',
       rulesDirectory:
           'nestjs-plans/nestjs_best_practices_check/cursor_rules',
+      workflowPath:
+          'nestjs-plans/nestjs_best_practices_check/.agent/workflows/nestjs_best_practices.md',
       templatePath:
           'nestjs-plans/nestjs_best_practices_check/cursor_rules/templates/best_practices_report_template.txt',
     ),
