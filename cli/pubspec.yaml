@@ -3,7 +3,7 @@ description: >-
   CLI tool for installing Somnio AI agent skills.
   Reads Flutter audit plans and rules from technology-tools and installs
   them as native slash commands into Claude Code, Cursor, and Antigravity.
-version: 1.0.4
+version: 1.0.5
 publish_to: none
 
 environment:
