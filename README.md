@@ -24,27 +24,29 @@ dart pub global activate --source git https://github.com/somnio-software/technol
 
 ### 🚀 Quick Start
 
-Once installed, auto-detect available agents (Claude Code, Cursor, Antigravity) and install all skills:
+For first-time users, run the guided setup wizard. It checks which AI CLIs you have installed (Claude Code, Cursor, Gemini), helps install missing ones, and lets you choose which technologies to set up:
+
+```bash
+somnio setup
+```
+
+Already have your CLIs installed? Use `init` to detect agents and install skills directly:
 
 ```bash
 somnio init
 ```
-
-This command will:
-- 🔍 Detect which AI agents are available on your system
-- 📥 Install all available skills to each detected agent
-- ✅ Set up everything you need to start using the tools
 
 ### 📚 CLI Documentation
 
 For detailed CLI usage, commands, and advanced options, see the [CLI README](cli/README.md).
 
 **Available CLI Commands:**
-- `somnio init` - Auto-detect and install skills to all agents
+- `somnio setup` - Full guided setup: install CLIs, select technologies, install skills
+- `somnio init` - Auto-detect agents, select technologies, and install skills
 - `somnio claude` - Install skills to Claude Code
-- `somnio cursor` - Install commands to Cursor
+- `somnio cursor` - Install commands and rule files to Cursor (IDE + Cursor CLI)
 - `somnio antigravity` - Install workflows to Antigravity
-- `somnio status` - Show installed skills status
+- `somnio status` - Show CLI availability and installed skills status
 - `somnio run <code>` - Run a health audit step-by-step from the project terminal (with per-step token usage tracking)
 - `somnio quote` (or `somnio q`) - Display a random Somnio team quote
 - `somnio update` - Update CLI and reinstall skills

@@ -25,6 +25,29 @@ class ClaudeInstaller extends Installer {
     var skillCount = 0;
     var ruleCount = 0;
 
+    // Check for existing skills upfront — ask once for all
+    if (!force && Directory(baseDir).existsSync()) {
+      final existing = Directory(baseDir)
+          .listSync()
+          .whereType<Directory>()
+          .where((d) => p.basename(d.path).startsWith('somnio-'))
+          .toList();
+
+      if (existing.isNotEmpty) {
+        final overwrite = logger.confirm(
+          'Found ${existing.length} existing Somnio skills. Overwrite?',
+        );
+        if (!overwrite) {
+          logger.info('Skipped Claude Code installation.');
+          return InstallResult(
+            skillCount: 0,
+            ruleCount: 0,
+            targetDirectory: baseDir,
+          );
+        }
+      }
+    }
+
     for (final bundle in bundles) {
       final progress = logger.progress(
         'Installing ${bundle.name}',
@@ -35,15 +58,6 @@ class ClaudeInstaller extends Installer {
 
         // Create skill directory
         final skillDir = p.join(baseDir, bundle.name);
-        if (!force && Directory(skillDir).existsSync()) {
-          final overwrite = logger.confirm(
-            'Skill ${bundle.name} already exists. Overwrite?',
-          );
-          if (!overwrite) {
-            progress.cancel();
-            continue;
-          }
-        }
 
         // Write SKILL.md
         _writeFile(p.join(skillDir, 'SKILL.md'), output.skillMd);

@@ -102,6 +102,27 @@ class InitCommand extends Command<int> {
       }
     }
 
+    // Select technologies
+    _logger.info('');
+    final allTechs = SkillRegistry.technologies;
+    List<String> selectedTechs;
+
+    if (allTechs.length <= 1 || force) {
+      selectedTechs = allTechs;
+    } else {
+      final techChoice = _logger.chooseOne(
+        'Which technologies do you want to install?',
+        choices: ['All', ...allTechs],
+        defaultValue: 'All',
+      );
+      selectedTechs = techChoice == 'All' ? allTechs : [techChoice];
+    }
+
+    if (selectedTechs.isEmpty) {
+      _logger.info('No technologies selected.');
+      return ExitCode.success.code;
+    }
+
     _logger.info('');
     _logger.info('Installing skills...');
     _logger.info('');
@@ -117,7 +138,7 @@ class InitCommand extends Command<int> {
     }
 
     final loader = ContentLoader(repoRoot);
-    final bundles = SkillRegistry.skills;
+    final bundles = SkillRegistry.byTechnologies(selectedTechs);
 
     // Install to each selected agent
     var totalSkills = 0;
