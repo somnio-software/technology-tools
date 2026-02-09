@@ -125,11 +125,12 @@ class SetupCommand extends Command<int> {
         _logger.info('  Auto-selected: ${allTechs.join(', ')}');
       }
     } else {
-      selectedTechs = _logger.chooseAny(
+      final techChoice = _logger.chooseOne(
         'Which technologies do you want to install?',
-        choices: allTechs,
-        defaultValues: allTechs,
+        choices: ['All', ...allTechs],
+        defaultValue: 'All',
       );
+      selectedTechs = techChoice == 'All' ? allTechs : [techChoice];
     }
 
     if (selectedTechs.isEmpty) {

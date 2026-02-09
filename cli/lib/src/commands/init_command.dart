@@ -107,16 +107,15 @@ class InitCommand extends Command<int> {
     final allTechs = SkillRegistry.technologies;
     List<String> selectedTechs;
 
-    if (allTechs.length <= 1) {
-      selectedTechs = allTechs;
-    } else if (force) {
+    if (allTechs.length <= 1 || force) {
       selectedTechs = allTechs;
     } else {
-      selectedTechs = _logger.chooseAny(
+      final techChoice = _logger.chooseOne(
         'Which technologies do you want to install?',
-        choices: allTechs,
-        defaultValues: allTechs,
+        choices: ['All', ...allTechs],
+        defaultValue: 'All',
       );
+      selectedTechs = techChoice == 'All' ? allTechs : [techChoice];
     }
 
     if (selectedTechs.isEmpty) {
