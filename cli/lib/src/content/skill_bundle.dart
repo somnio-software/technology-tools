@@ -35,4 +35,23 @@ class SkillBundle {
 
   /// Path to the report template file, relative to repo root.
   final String? templatePath;
+
+  /// Technology prefix derived from the bundle [id].
+  ///
+  /// `flutter_health` → `flutter`, `nestjs_plan` → `nestjs`.
+  String get techPrefix => id.replaceAll(RegExp(r'_(?:health|plan)$'), '');
+
+  /// Human-readable technology name derived from [displayName].
+  ///
+  /// `Flutter Project Health Audit` → `Flutter`.
+  String get techDisplayName => displayName.split(' ').first;
+
+  /// Plan subdirectory name derived from [planRelativePath].
+  ///
+  /// `flutter-plans/flutter_project_health_audit/plan/...`
+  /// → `flutter_project_health_audit`.
+  String get planSubDir {
+    final parts = planRelativePath.split('/');
+    return parts.length >= 2 ? parts[1] : id;
+  }
 }

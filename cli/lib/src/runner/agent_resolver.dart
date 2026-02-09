@@ -7,7 +7,7 @@ import 'run_config.dart';
 
 /// Resolves the AI CLI agent and verifies skill installation paths.
 class AgentResolver {
-  /// Auto-detects available AI CLI, preferring Claude over Gemini.
+  /// Auto-detects available AI CLI, preferring Claude > Cursor > Gemini.
   ///
   /// If [preferred] is provided, only checks for that specific agent.
   /// Returns the resolved [RunAgent], or `null` if none found.
@@ -19,9 +19,12 @@ class AgentResolver {
       return null;
     }
 
-    // Auto-detect: try claude first, then gemini
+    // Auto-detect: try claude first, then cursor, then gemini
     if (await PlatformUtils.whichBinary('claude') != null) {
       return RunAgent.claude;
+    }
+    if (await PlatformUtils.whichBinary('agent') != null) {
+      return RunAgent.cursor;
     }
     if (await PlatformUtils.whichBinary('gemini') != null) {
       return RunAgent.gemini;
@@ -32,6 +35,7 @@ class AgentResolver {
   /// Returns the base path where rule files are installed for the given agent.
   ///
   /// - Claude: `~/.claude/skills/{bundleName}/rules/`
+  /// - Cursor: `~/.cursor/somnio_rules/{planSubDir}/cursor_rules/`
   /// - Gemini: `~/.gemini/antigravity/somnio_rules/{planSubDir}/cursor_rules/`
   String ruleBasePath(RunAgent agent, String bundleName, String planSubDir) {
     switch (agent) {
@@ -40,6 +44,12 @@ class AgentResolver {
           PlatformUtils.claudeGlobalSkillsDir,
           bundleName,
           'rules',
+        );
+      case RunAgent.cursor:
+        return p.join(
+          PlatformUtils.cursorGlobalRulesDir,
+          planSubDir,
+          'cursor_rules',
         );
       case RunAgent.gemini:
         return p.join(
@@ -54,6 +64,7 @@ class AgentResolver {
   /// Returns the template file path for the given agent and bundle.
   ///
   /// - Claude: `~/.claude/skills/{bundleName}/templates/{templateFile}`
+  /// - Cursor: `~/.cursor/somnio_rules/{planSubDir}/cursor_rules/templates/{templateFile}`
   /// - Gemini: `~/.gemini/antigravity/somnio_rules/{planSubDir}/cursor_rules/templates/{templateFile}`
   String templatePath(
     RunAgent agent,
@@ -66,6 +77,14 @@ class AgentResolver {
         return p.join(
           PlatformUtils.claudeGlobalSkillsDir,
           bundleName,
+          'templates',
+          templateFile,
+        );
+      case RunAgent.cursor:
+        return p.join(
+          PlatformUtils.cursorGlobalRulesDir,
+          planSubDir,
+          'cursor_rules',
           'templates',
           templateFile,
         );
@@ -91,9 +110,19 @@ class AgentResolver {
   ) {
     final dir = Directory(ruleBasePath);
     if (!dir.existsSync()) {
-      final agentName = agent == RunAgent.claude ? 'Claude' : 'Antigravity';
-      final installCmd =
-          agent == RunAgent.claude ? 'somnio claude' : 'somnio antigravity';
+      final String agentName;
+      final String installCmd;
+      switch (agent) {
+        case RunAgent.claude:
+          agentName = 'Claude';
+          installCmd = 'somnio claude';
+        case RunAgent.cursor:
+          agentName = 'Cursor CLI';
+          installCmd = 'somnio cursor';
+        case RunAgent.gemini:
+          agentName = 'Antigravity';
+          installCmd = 'somnio antigravity';
+      }
       return 'Skills not found at: $ruleBasePath\n'
           'Run "$installCmd" first to install skills for $agentName.';
     }
@@ -111,13 +140,14 @@ class AgentResolver {
 
   /// Returns the file extension for rule files per agent.
   ///
-  /// Claude rules are `.md` (transformed from YAML by ClaudeTransformer).
-  /// Gemini rules are `.yaml` (copied as-is by AntigravityInstaller).
+  /// Claude and Cursor rules are `.md` (transformed from YAML).
+  /// Gemini rules are `.yaml` (copied as-is).
   String ruleExtension(RunAgent agent) => _ruleExtension(agent);
 
   String _ruleExtension(RunAgent agent) {
     switch (agent) {
       case RunAgent.claude:
+      case RunAgent.cursor:
         return '.md';
       case RunAgent.gemini:
         return '.yaml';
@@ -128,6 +158,8 @@ class AgentResolver {
     switch (agent) {
       case RunAgent.claude:
         return 'claude';
+      case RunAgent.cursor:
+        return 'agent';
       case RunAgent.gemini:
         return 'gemini';
     }

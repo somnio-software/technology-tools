@@ -56,7 +56,7 @@ class AntigravityTransformer {
     final ruleFiles = <String, String>{};
 
     // Determine the plan subdirectory name
-    final planSubDir = _planSubDirName(bundle);
+    final planSubDir = bundle.planSubDir;
 
     // Copy YAML rule files
     final allFiles = loader.listAllRuleFiles(bundle);
@@ -122,13 +122,5 @@ class AntigravityTransformer {
     return 'somnio_${bundle.id}.md';
   }
 
-  String _planSubDirName(SkillBundle bundle) {
-    // Extract directory name from plan path:
-    // flutter-plans/flutter_project_health_audit/plan/... -> flutter_project_health_audit
-    final parts = bundle.planRelativePath.split('/');
-    if (parts.length >= 2) {
-      return parts[1]; // e.g., 'flutter_project_health_audit'
-    }
-    return bundle.id;
-  }
+  // planSubDir is now a getter on SkillBundle — no local helper needed.
 }
