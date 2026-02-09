@@ -10,27 +10,86 @@ dart pub global activate --source git https://github.com/somnio-software/technol
 
 ## Quick Start
 
+First-time setup — the wizard detects your CLIs, helps install missing ones, and lets you choose technologies:
+
 ```bash
-# Auto-detect agents and install all skills
+somnio setup
+```
+
+Or if you already have your CLIs installed:
+
+```bash
 somnio init
 ```
 
-This detects which agents (Claude Code, Cursor, Antigravity) are available and installs skills to each.
-
 ## Commands
+
+### `somnio setup`
+
+Full guided setup wizard designed for first-time users. Walks through everything needed to get started with zero prior knowledge.
+
+```bash
+somnio setup          # Interactive wizard
+somnio setup --force  # Skip all prompts, install everything
+```
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--force` | `-f` | Skip all prompts, install all CLIs and technologies |
+
+**What it does:**
+
+1. **Detects installed CLIs** — checks for Claude Code (`claude`), Cursor CLI (`agent`), and Gemini CLI (`gemini`)
+2. **Installs missing CLIs** — for npm-based CLIs (Claude Code, Gemini), offers auto-install via `npm install -g`. For Cursor, shows download instructions
+3. **Technology selection** — choose which skill sets to install: `All`, `Flutter`, or `NestJS`
+4. **Installs skills** — detects agent targets and installs selected skills to all available agents automatically
+
+Example output:
+
+```
+Step 1/4  Checking installed CLIs...
+
+  ✓ Claude Code  (/usr/local/bin/claude)
+  ✗ Cursor CLI   (not found)
+  ✓ Gemini CLI   (/opt/homebrew/bin/gemini)
+
+Step 2/4  Install missing CLIs
+
+? Install Cursor CLI? (Y/n)
+  1. Download Cursor from https://cursor.com
+  2. Open Cursor and enable the CLI:
+     Settings > General > Enable "agent" CLI command
+
+Step 3/4  Select technologies
+
+? Which technologies do you want to install?
+  ❯ All
+    Flutter
+    NestJS
+
+Step 4/4  Installing skills...
+
+  Claude Code:
+    ✓ Installed /somnio-fh
+    ✓ Installed /somnio-nh
+
+Setup complete! Installed 2 commands.
+```
 
 ### `somnio init`
 
-Auto-detect agents, select targets, and install skills.
+Auto-detect agents, select targets, choose technologies, and install skills.
 
 ```bash
-somnio init          # Interactive agent selection
-somnio init --force  # Overwrite existing skills
+somnio init          # Interactive agent and technology selection
+somnio init --force  # Overwrite existing skills, install all technologies
 ```
 
 | Flag | Short | Description |
 |------|-------|-------------|
 | `--force` | `-f` | Overwrite existing skills without prompting |
+
+Unlike `setup`, `init` does not help install CLIs — it assumes they are already available. Use `setup` for first-time onboarding.
 
 ### `somnio claude`
 
@@ -49,7 +108,7 @@ somnio claude --force      # Overwrite existing
 
 ### `somnio cursor`
 
-Install commands into Cursor as `.md` files in `.cursor/commands/`.
+Install commands and rule files into Cursor. This sets up both Cursor IDE commands (`.md` files in `~/.cursor/commands/`) and transformed rule files for the Cursor CLI (`agent`) in `~/.cursor/somnio_rules/`.
 
 ```bash
 somnio cursor
@@ -58,8 +117,14 @@ somnio cursor --force
 
 | Flag | Short | Description |
 |------|-------|-------------|
-| `--project` | | Install to project-level directory (default: true) |
 | `--force` | `-f` | Overwrite existing commands without prompting |
+
+**What gets installed:**
+
+- **Commands** (`~/.cursor/commands/`) — one `.md` file per skill, usable as `/somnio-fh`, `/somnio-fp`, etc. in the Cursor IDE chat
+- **Rule files** (`~/.cursor/somnio_rules/`) — transformed `.md` rules organized by technology, used by the Cursor CLI (`agent`) when running audits via `somnio run --agent cursor`
+
+The Cursor CLI (`agent` binary) is bundled with the Cursor IDE. To enable it: **Cursor > Settings > General > Enable "agent" CLI command**.
 
 ### `somnio antigravity`
 
@@ -89,13 +154,15 @@ Runs `dart pub global activate` under the hood, then force-reinstalls skills to 
 
 ### `somnio status`
 
-Show what skills are installed and where.
+Show CLI availability and installed skills.
 
 ```bash
 somnio status
 ```
 
-Displays a table of all three agents with their installation status and installed skill names.
+Displays two tables:
+- **CLI Availability** — whether `claude`, `agent` (Cursor CLI), and `gemini` binaries are found on PATH
+- **Installed Skills** — per-agent breakdown of installed skills, rules, and their locations
 
 ### `somnio uninstall`
 
@@ -130,7 +197,7 @@ somnio run fh --no-preflight
 
 | Flag | Short | Description |
 |------|-------|-------------|
-| `--agent` | `-a` | AI CLI to use: `claude` or `gemini` (auto-detected if omitted, prefers Claude) |
+| `--agent` | `-a` | AI CLI to use: `claude`, `cursor`, or `gemini` (auto-detected if omitted) |
 | `--model` | `-m` | Model to use (skips interactive selection) |
 | `--skip-validation` | | Skip project type check (e.g., pubspec.yaml for Flutter) |
 | `--no-preflight` | | Skip CLI pre-flight and send all steps to AI |
@@ -142,6 +209,7 @@ When `--model` is not provided, the CLI presents an interactive menu with the av
 | Agent | Default | Available models |
 |-------|---------|------------------|
 | Claude | `haiku` | `haiku`, `sonnet`, `opus` |
+| Cursor | `auto` | `auto`, `opus-4.6-thinking`, `gpt-5.2`, `composer-1`, ... |
 | Gemini | `gemini-3-flash` | `gemini-3-flash`, `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro` |
 
 Press Enter at the prompt to accept the default, or pass `--model` to skip the prompt entirely:
