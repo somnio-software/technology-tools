@@ -13,6 +13,7 @@ import 'commands/setup_command.dart';
 import 'commands/status_command.dart';
 import 'commands/uninstall_command.dart';
 import 'commands/update_command.dart';
+import 'utils/banner.dart';
 import 'utils/quotes.dart';
 import 'version.dart';
 
@@ -83,16 +84,6 @@ class SomnioCliRunner extends CommandRunner<int> {
 
   void _printBanner() {
     final quote = getRandomQuote();
-    _logger.info('''
-
-  ____                        _
- / ___|  ___  _ __ ___  _ __ (_) ___
- \\___ \\ / _ \\| '_ ` _ \\| '_ \\| |/ _ \\
-  ___) | (_) | | | | | | | | | | (_) |
- |____/ \\___/|_| |_| |_|_| |_|_|\\___/  v$version
-
- "${quote.text}"
-    — ${quote.author}
-''');
+    printBanner(version: version, quote: quote);
   }
 }
