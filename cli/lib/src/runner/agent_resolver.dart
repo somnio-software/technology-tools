@@ -154,6 +154,33 @@ class AgentResolver {
     }
   }
 
+  /// Returns all AI CLIs found in PATH.
+  Future<List<RunAgent>> detectAll() async {
+    final available = <RunAgent>[];
+    if (await PlatformUtils.whichBinary('claude') != null) {
+      available.add(RunAgent.claude);
+    }
+    if (await PlatformUtils.whichBinary('agent') != null) {
+      available.add(RunAgent.cursor);
+    }
+    if (await PlatformUtils.whichBinary('gemini') != null) {
+      available.add(RunAgent.gemini);
+    }
+    return available;
+  }
+
+  /// Returns a human-readable display name for the given agent.
+  String agentDisplayName(RunAgent agent) {
+    switch (agent) {
+      case RunAgent.claude:
+        return 'Claude';
+      case RunAgent.cursor:
+        return 'Cursor';
+      case RunAgent.gemini:
+        return 'Gemini';
+    }
+  }
+
   String _binaryName(RunAgent agent) {
     switch (agent) {
       case RunAgent.claude:

@@ -194,8 +194,12 @@ class RunCommand extends Command<int> {
 
     // 4. Resolve AI agent
     final agentFlag = argResults!['agent'] as String?;
-    RunAgent? preferredAgent;
+    final agentResolver = AgentResolver();
+    RunAgent agent;
+
     if (agentFlag != null) {
+      // Explicit --agent flag: validate it exists
+      RunAgent? preferredAgent;
       switch (agentFlag) {
         case 'claude':
           preferredAgent = RunAgent.claude;
@@ -204,14 +208,10 @@ class RunCommand extends Command<int> {
         case 'gemini':
           preferredAgent = RunAgent.gemini;
       }
-    }
-
-    final agentResolver = AgentResolver();
-    final agent = await agentResolver.resolve(preferred: preferredAgent);
-    if (agent == null) {
-      final String target;
-      if (preferredAgent != null) {
-        switch (preferredAgent) {
+      final resolved = await agentResolver.resolve(preferred: preferredAgent);
+      if (resolved == null) {
+        final String target;
+        switch (preferredAgent!) {
           case RunAgent.claude:
             target = 'claude';
           case RunAgent.cursor:
@@ -219,27 +219,54 @@ class RunCommand extends Command<int> {
           case RunAgent.gemini:
             target = 'gemini';
         }
-      } else {
-        target = 'claude, agent (Cursor CLI), or gemini';
+        _logger.err(
+          'No AI CLI found. Please install $target.\n'
+          '  Claude Code:  https://claude.ai/download\n'
+          '  Cursor CLI:   https://docs.cursor.com/cli\n'
+          '  Gemini CLI:   npm install -g @google/gemini-cli',
+        );
+        return ExitCode.software.code;
       }
-      _logger.err(
-        'No AI CLI found. Please install $target.\n'
-        '  Claude Code:  https://claude.ai/download\n'
-        '  Cursor CLI:   https://docs.cursor.com/cli\n'
-        '  Gemini CLI:   npm install -g @google/gemini-cli',
-      );
-      return ExitCode.software.code;
+      agent = resolved;
+    } else {
+      // No flag: detect all available, prompt if more than one
+      final available = await agentResolver.detectAll();
+      if (available.isEmpty) {
+        _logger.err(
+          'No AI CLI found. Please install claude, agent (Cursor CLI), or gemini.\n'
+          '  Claude Code:  https://claude.ai/download\n'
+          '  Cursor CLI:   https://docs.cursor.com/cli\n'
+          '  Gemini CLI:   npm install -g @google/gemini-cli',
+        );
+        return ExitCode.software.code;
+      }
+      if (available.length == 1) {
+        agent = available.first;
+      } else {
+        // Interactive selection
+        _logger.info('');
+        _logger.info('Available AI CLIs:');
+        for (var i = 0; i < available.length; i++) {
+          final name = agentResolver.agentDisplayName(available[i]);
+          _logger.info('  ${i + 1}. $name');
+        }
+        final input = _logger.prompt(
+          'Select CLI (1-${available.length})',
+          defaultValue: '1',
+        );
+        final index = int.tryParse(input);
+        if (index != null && index >= 1 && index <= available.length) {
+          agent = available[index - 1];
+        } else {
+          agent = available.first;
+          _logger.warn(
+            'Invalid selection, using '
+            '${agentResolver.agentDisplayName(available.first)}.',
+          );
+        }
+      }
     }
-
-    final String agentName;
-    switch (agent) {
-      case RunAgent.claude:
-        agentName = 'Claude';
-      case RunAgent.cursor:
-        agentName = 'Cursor';
-      case RunAgent.gemini:
-        agentName = 'Gemini';
-    }
+    final agentName = agentResolver.agentDisplayName(agent);
     _logger.info('${lightGreen.wrap('OK')} Using $agentName CLI.');
 
     // 4b. Resolve model
@@ -247,17 +274,17 @@ class RunCommand extends Command<int> {
     String? model;
 
     if (modelFlag != null) {
+      final validModels = _modelsForAgent(agent);
+      if (!validModels.contains(modelFlag)) {
+        _logger.err(
+          'Model "$modelFlag" is not valid for $agentName CLI.\n'
+          'Valid models: ${validModels.join(", ")}',
+        );
+        return ExitCode.usage.code;
+      }
       model = modelFlag;
     } else {
-      final List<String> choices;
-      switch (agent) {
-        case RunAgent.claude:
-          choices = _claudeModels;
-        case RunAgent.cursor:
-          choices = _cursorModels;
-        case RunAgent.gemini:
-          choices = _geminiModels;
-      }
+      final choices = _modelsForAgent(agent);
       _logger.info('');
       _logger.info('Available $agentName models:');
       for (var i = 0; i < choices.length; i++) {
@@ -559,6 +586,18 @@ class RunCommand extends Command<int> {
       'Pre-flight: ~${_formatDuration(preflightTime)})',
     );
     _logger.info(divider);
+  }
+
+  /// Returns the valid model list for the given agent.
+  List<String> _modelsForAgent(RunAgent agent) {
+    switch (agent) {
+      case RunAgent.claude:
+        return _claudeModels;
+      case RunAgent.cursor:
+        return _cursorModels;
+      case RunAgent.gemini:
+        return _geminiModels;
+    }
   }
 
   /// Removes previous run artifacts and report to prevent stale data.
