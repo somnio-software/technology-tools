@@ -1,14 +1,12 @@
 Security Audit Report
 
-IMPORTANT EXCLUSIONS:
-- NEVER recommend CODEOWNERS or SECURITY.md files (governance decisions, not technical requirements)
-- NEVER recommend operational documentation (runbooks, deployment procedures, monitoring)
-
 1. Executive Summary
 
 Description: Comprehensive security analysis of [Project Name] [project type] project.
 
-Security Posture: [Posture Label] ([HIGH count] HIGH, [MEDIUM count] MEDIUM, [LOW count] LOW findings)
+Overall Score: [Score]/100 ([Label])
+
+Security Posture: [Secure / Needs Attention / At Risk / Critical]
 
 Top Findings:
 - [Finding 1 with severity]
@@ -22,7 +20,16 @@ Priority Recommendations:
 3. [Recommendation 3]
 4. [Continue as needed]
 
-2. Project Detection Results
+2. At-a-Glance Scorecard
+
+- Sensitive File Protection:     [Score]/100 ([Label])
+- Secret Detection:              [Score]/100 ([Label])
+- Dependency Security:           [Score]/100 ([Label])
+- Supply Chain Integrity:        [Score]/100 ([Label])
+- Security Automation & CI/CD:   [Score]/100 ([Label])
+- Overall Score:                 [Score]/100 ([Label])
+
+3. Project Detection Results
 
 - Detected project type: [Type]
 - Framework/runtime: [Framework version]
@@ -31,74 +38,117 @@ Priority Recommendations:
 - Source files scanned: [File extensions and directories]
 - Gemini AI analysis: [Available / Skipped]
 
-3. Sensitive File Analysis
+4. Sensitive File Protection
 
-Sensitive Files Detected:
-- [File path]: [Status - properly ignored / EXPOSED]
+Description: Analysis of sensitive file exposure, .gitignore coverage, and environment file handling across the repository.
+
+Score: [Score]/100 ([Label])
+
+Key Findings:
+- [Finding 1 with severity]
 - [Continue as needed]
 
-.gitignore Coverage:
-- [Pattern category]: [Covered / Missing]
-- [Continue as needed]
-
-Environment Files:
-- .env files in repository: [Count and paths]
-- .env.example present: [Yes/No]
-- .env files in .gitignore: [Yes/No]
-
-Platform-Specific Analysis:
-- [Platform]: [Findings]
+Evidence:
+- [File path or config reference with line numbers]
 - [Continue as needed]
 
 Risks:
 - [Risk 1]
 - [Continue as needed]
 
-4. Source Code Secret Patterns
+Recommendations:
+1. [Recommendation 1]
+2. [Continue as needed]
 
-Scan Results:
-- Total files scanned: [Count]
-- Patterns checked: [Count]
-- Findings: [Count by severity]
+5. Secret Detection
 
-[HIGH] Findings:
+Description: Source code scanning for hardcoded secrets, API keys, tokens, credentials, and dangerous patterns.
+
+Score: [Score]/100 ([Label])
+
+Key Findings:
+- [Finding 1 with severity]
+- [Continue as needed]
+
+Evidence:
 - [File path]:[Line number] - [Pattern matched] - [Description]
-- [Continue as needed, or "None found"]
+- [Continue as needed]
 
-[MEDIUM] Findings:
-- [File path]:[Line number] - [Pattern matched] - [Description]
-- [Continue as needed, or "None found"]
+Risks:
+- [Risk 1]
+- [Continue as needed]
 
-[LOW] Findings:
-- [File path]:[Line number] - [Pattern matched] - [Description]
-- [Continue as needed, or "None found"]
+Recommendations:
+1. [Recommendation 1]
+2. [Continue as needed]
 
-5. Dependency Vulnerability Audit
+6. Dependency Security
 
-Vulnerability Scan Results:
-- Critical: [Count]
-- High: [Count]
-- Medium: [Count]
-- Low: [Count]
-- Total: [Count]
+Description: Package-manager-native vulnerability scans and identification of outdated or vulnerable dependencies.
 
-Top Vulnerabilities:
+Score: [Score]/100 ([Label])
+
+Key Findings:
+- [Finding 1 with severity]
+- [Continue as needed]
+
+Evidence:
 - [Package]: [Version] - [CVE/Advisory] - [Severity]
 - [Continue as needed]
 
-Outdated Dependencies:
-- [Package]: [Current] -> [Latest] ([severity of update])
+Risks:
+- [Risk 1]
 - [Continue as needed]
 
-Lock File Integrity: [Status]
+Recommendations:
+1. [Recommendation 1]
+2. [Continue as needed]
 
-Automated Security Tooling:
-- Dependabot: [Configured / Not configured]
-- Snyk: [Configured / Not configured]
-- Renovate: [Configured / Not configured]
-- CI/CD security scanning: [Present / Not present]
+7. Supply Chain Integrity
 
-6. Gemini AI Analysis
+Description: Analysis of dependency sourcing, registry trust, lock file integrity, and dependency tree health.
+
+Score: [Score]/100 ([Label])
+
+Key Findings:
+- [Finding 1 with severity]
+- [Continue as needed]
+
+Evidence:
+- [Dependency or config reference with details]
+- [Continue as needed]
+
+Risks:
+- [Risk 1]
+- [Continue as needed]
+
+Recommendations:
+1. [Recommendation 1]
+2. [Continue as needed]
+
+8. Security Automation & CI/CD
+
+Description: Evaluation of automated security tooling, CI/CD security scanning, and pre-commit security hooks.
+
+Score: [Score]/100 ([Label])
+
+Key Findings:
+- [Finding 1 with severity]
+- [Continue as needed]
+
+Evidence:
+- [Tool or config reference with details]
+- [Continue as needed]
+
+Risks:
+- [Risk 1]
+- [Continue as needed]
+
+Recommendations:
+1. [Recommendation 1]
+2. [Continue as needed]
+
+9. Gemini AI Analysis
 
 Status: [Completed / Skipped]
 
@@ -110,7 +160,7 @@ AI-Detected Findings:
 [If skipped:]
 Reason: [Gemini CLI not installed / No API key or subscription / Extension not available]
 
-7. Consolidated Findings by Severity
+10. Consolidated Findings by Severity
 
 [HIGH] - Immediate Action Required:
 1. [Finding description] - [Source: file analysis/secrets/deps/gemini]
@@ -126,28 +176,7 @@ Reason: [Gemini CLI not installed / No API key or subscription / Extension not a
 
 Total: [HIGH count] HIGH, [MEDIUM count] MEDIUM, [LOW count] LOW
 
-8. Security Posture Assessment
-
-Overall Posture: [Secure / Needs Attention / At Risk / Critical]
-
-Strengths:
-- [Strength 1]
-- [Continue as needed]
-
-Gaps:
-- [Gap 1]
-- [Continue as needed]
-
-9. Recommendations
-
-1. [HIGH Priority]: [Recommendation with specific action]
-2. [HIGH Priority]: [Continue as needed]
-3. [MEDIUM Priority]: [Recommendation with specific action]
-4. [Continue as needed]
-5. [LOW Priority]: [Recommendation with specific action]
-6. [Continue as needed]
-
-10. Remediation Priority Matrix
+11. Remediation Priority Matrix
 
 Immediate (fix within 24 hours):
 - [Item requiring immediate fix]
@@ -161,7 +190,18 @@ Medium-term (fix within 1 month):
 - [Item for medium-term fix]
 - [Continue as needed]
 
-11. Evidence Index
+12. Security Score Index
+
+- Sensitive File Protection:     [Score]/100 ([Label]) - Weight: 25%
+- Secret Detection:              [Score]/100 ([Label]) - Weight: 30%
+- Dependency Security:           [Score]/100 ([Label]) - Weight: 20%
+- Supply Chain Integrity:        [Score]/100 ([Label]) - Weight: 10%
+- Security Automation & CI/CD:   [Score]/100 ([Label]) - Weight: 15%
+- Overall Score:                 [Score]/100 ([Label])
+
+Formula: Overall = round(File Protection * 0.25 + Secret Detection * 0.30 + Dependency Security * 0.20 + Supply Chain * 0.10 + Automation * 0.15)
+
+13. Appendix: Evidence Index
 
 File Paths and Configs by Area:
 
@@ -181,7 +221,7 @@ Configuration:
 - [File path or config reference]
 - [Continue as needed]
 
-12. Scan Metadata
+14. Scan Metadata
 
 - Scan date: [Date]
 - Project path: [Path]

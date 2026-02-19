@@ -22,8 +22,11 @@ You are a master at:
   vulnerability scans (npm audit, pub outdated, pip audit, etc.)
 - **AI-Powered Security Analysis**: Leveraging Gemini CLI for advanced
   vulnerability detection when available
+- **Quantitative Security Scoring**: Computing per-section scores using
+  weighted rubrics (5 sections, weighted formula) and mapping to security
+  posture labels (Strong/Fair/Weak/Critical)
 - **Evidence-Based Reporting**: Producing actionable security reports with
-  file paths, line numbers, and severity classifications
+  file paths, line numbers, severity classifications, and quantitative scores
 
 **Responsibilities**:
 - Detect project type automatically before running any analysis
@@ -119,16 +122,21 @@ with severity classifications and actionable recommendations.
 **Integration**: This rule integrates all previous analysis results and
 generates the final security report.
 
-**Report Sections**:
-- Executive Summary with overall security posture
+**Report Sections** (14 sections with quantitative scoring):
+- Executive Summary with Overall Score and Security Posture
+- At-a-Glance Scorecard (5 scored sections + Overall)
 - Project Detection Results
-- Sensitive File Analysis findings
-- Source Code Secret Patterns results
-- Dependency Vulnerability Audit results
+- Sensitive File Protection (scored, weight 25%)
+- Secret Detection (scored, weight 30%)
+- Dependency Security (scored, weight 20%)
+- Supply Chain Integrity (scored, weight 10%)
+- Security Automation & CI/CD (scored, weight 15%)
 - Gemini AI Analysis results (if available)
 - Consolidated Findings by Severity (HIGH, MEDIUM, LOW)
-- Recommendations prioritized by severity
-- Evidence Index
+- Remediation Priority Matrix
+- Security Score Index (mirrors Scorecard with weights and formula)
+- Appendix: Evidence Index
+- Scan Metadata
 
 ## Step 7. Export Security Report
 
@@ -157,7 +165,14 @@ mkdir -p reports
 3. `@security_secret_patterns`
 4. `@security_dependency_audit`
 5. `@security_gemini_analysis` (optional - skips if Gemini unavailable)
-6. `@security_report_generator`
+6. `@security_report_generator` (generates 14-section report with quantitative scoring)
+
+**Scoring System**:
+- 5 scored sections with weighted rubrics (0-100 each)
+- Overall Score computed via weighted formula
+- Security Posture mapped from Overall Score: Strong (85-100), Fair (70-84),
+  Weak (50-69), Critical (0-49)
+- At-a-Glance Scorecard and Security Score Index provide quick reference
 
 **Benefits of Modular Approach**:
 - Each rule can be executed independently
@@ -165,4 +180,5 @@ mkdir -p reports
 - Outputs can be saved and reused
 - Gemini analysis is optional and gracefully degraded
 - Clear separation of concerns
+- Quantitative scoring enables objective comparison across audits
 - Works as standalone or after health audit
