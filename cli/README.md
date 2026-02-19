@@ -210,7 +210,7 @@ When `--model` is not provided, the CLI presents an interactive menu with the av
 |-------|---------|------------------|
 | Claude | `haiku` | `haiku`, `sonnet`, `opus` |
 | Cursor | `auto` | `auto`, `opus-4.6-thinking`, `gpt-5.2`, `composer-1`, ... |
-| Gemini | `gemini-3-flash` | `gemini-3-flash`, `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro` |
+| Gemini | `gemini-3-flash-preview` | `gemini-3-flash-preview`, `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-3-pro-preview` |
 
 Press Enter at the prompt to accept the default, or pass `--model` to skip the prompt entirely:
 

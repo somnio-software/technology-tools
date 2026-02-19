@@ -73,7 +73,7 @@ somnio run sa
 | `nh` | NestJS Project Health Audit |
 | `sa` | Security Audit (framework-agnostic) |
 
-You can specify a model with `--model` (`-m`) or select one interactively. Each CLI has a sensible default: **haiku** for Claude and **gemini-3-flash** for Gemini.
+You can specify a model with `--model` (`-m`) or select one interactively. Each CLI has a sensible default: **haiku** for Claude and **gemini-3-flash-preview** for Gemini.
 
 ```bash
 somnio run fh --model opus          # Use a specific Claude model

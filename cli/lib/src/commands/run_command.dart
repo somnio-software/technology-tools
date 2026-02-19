@@ -74,11 +74,11 @@ class RunCommand extends Command<int> {
     'gpt-5.1-codex-max',
     'gpt-5.1-codex-max-high',
     'gpt-5.1-high',
-    'gemini-3-pro',
-    'gemini-3-flash',
+    'gemini-3-pro-preview',
+    'gemini-3-flash-preview',
     'grok',
   ];
-  static const _geminiModels = ['gemini-3-flash', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro'];
+  static const _geminiModels = ['gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro-preview'];
 
   final Logger _logger;
 
