@@ -96,7 +96,7 @@ class StepExecutor {
         durationSeconds: stopwatch.elapsed.inSeconds,
         tokenUsage: usage,
         errorMessage: result.exitCode != 0
-            ? 'Process exited with code ${result.exitCode}'
+            ? _describeProcessError(result)
             : (!artifactExists
                 ? 'Artifact not created: $artifactPath'
                 : null),
@@ -178,7 +178,7 @@ class StepExecutor {
         durationSeconds: stopwatch.elapsed.inSeconds,
         tokenUsage: usage,
         errorMessage: result.exitCode != 0
-            ? 'Process exited with code ${result.exitCode}'
+            ? _describeProcessError(result)
             : (!reportExists
                 ? 'Report not created: $reportPath'
                 : null),
@@ -196,6 +196,43 @@ class StepExecutor {
   }
 
   // --- Private helpers ---
+
+  /// Produces a human-readable error message from a failed AI CLI process.
+  ///
+  /// Inspects stderr for known patterns (model not found, capacity exhausted,
+  /// auth failures) and returns a targeted message instead of a generic
+  /// "Process exited with code N".
+  String _describeProcessError(ProcessResult result) {
+    final stderr = (result.stderr as String? ?? '').toLowerCase();
+    final stdout = (result.stdout as String? ?? '').toLowerCase();
+    final combined = '$stderr $stdout';
+
+    if (combined.contains('not_found') ||
+        combined.contains('model not found') ||
+        combined.contains('requested entity was not found')) {
+      return 'Model "${config.model}" not found. '
+          'Verify the model name is correct or try a different model.';
+    }
+
+    if (combined.contains('capacity') ||
+        combined.contains('resource_exhausted') ||
+        combined.contains('rate_limit') ||
+        combined.contains('429')) {
+      return 'No capacity available for model "${config.model}". '
+          'You may not have an active subscription or sufficient quota '
+          'for this model. Try a different model.';
+    }
+
+    if (combined.contains('unauthenticated') ||
+        combined.contains('permission_denied') ||
+        combined.contains('401') ||
+        combined.contains('403')) {
+      return 'Authentication failed. '
+          'Verify you are logged in to the ${config.agent.name} CLI.';
+    }
+
+    return 'Process exited with code ${result.exitCode}';
+  }
 
   String _ruleFilePath(String ruleName) {
     final ext = config.agent == RunAgent.gemini ? '.yaml' : '.md';

@@ -626,14 +626,11 @@ class PreflightRunner {
         logger.info('  ${lightGreen.wrap('OK')} Gemini API key found');
         geminiAvailable = true;
       } else {
-        // Check for subscription
-        final authStatus = await Process.run('gemini', ['auth', 'status']);
-        final authOutput = (authStatus.stdout as String).trim() +
-            (authStatus.stderr as String).trim();
-        if (authOutput.toLowerCase().contains('authenticated') ||
-            authOutput.toLowerCase().contains('logged in') ||
-            authOutput.toLowerCase().contains('active')) {
-          toolPhase.ok('Gemini authentication: Subscription detected');
+        // Check for OAuth credentials file (Google subscription login)
+        final home = Platform.environment['HOME'] ?? '';
+        final oauthFile = File(p.join(home, '.gemini', 'oauth_creds.json'));
+        if (oauthFile.existsSync()) {
+          toolPhase.ok('Gemini authentication: OAuth credentials found');
           logger.info(
             '  ${lightGreen.wrap('OK')} Gemini subscription detected',
           );
