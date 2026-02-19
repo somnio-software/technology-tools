@@ -405,7 +405,8 @@ class RunCommand extends Command<int> {
     _logger.info('');
 
     // 11. Execute steps
-    final executor = StepExecutor(config: config, logger: _logger);
+    final executor = StepExecutor(config: config, logger: _logger)
+      ..fallbackModel = _fallbackModelForAgent(agent);
     final results = <StepResult>[];
     var aborted = false;
 
@@ -621,6 +622,19 @@ class RunCommand extends Command<int> {
         return _cursorModels;
       case RunAgent.gemini:
         return _geminiModels;
+    }
+  }
+
+  /// Returns the cheapest model for the given agent, used as fallback
+  /// when the selected model hits quota or capacity limits.
+  String? _fallbackModelForAgent(RunAgent agent) {
+    switch (agent) {
+      case RunAgent.claude:
+        return 'haiku';
+      case RunAgent.cursor:
+        return 'auto';
+      case RunAgent.gemini:
+        return 'gemini-2.5-flash';
     }
   }
 

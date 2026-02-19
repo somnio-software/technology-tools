@@ -60,6 +60,11 @@ class StepExecutor {
   final RunConfig config;
   final Logger logger;
 
+  /// Fallback model to use when the primary model hits quota limits.
+  ///
+  /// Set by the caller (RunCommand) based on the agent's cheapest model.
+  String? fallbackModel;
+
   /// Executes a single standard step.
   ///
   /// The AI CLI reads the rule file and saves findings as an artifact.
@@ -83,7 +88,20 @@ class StepExecutor {
     final prompt = _buildStepPrompt(step, ruleFile, artifactPath);
 
     try {
-      final result = await _runProcess(prompt);
+      var result = await _runProcess(prompt);
+
+      // Fallback: retry with cheapest model on quota/capacity errors
+      if (result.exitCode != 0 &&
+          fallbackModel != null &&
+          fallbackModel != config.model &&
+          _isQuotaError(result)) {
+        logger.info(
+          '  Quota exceeded for "${config.model}", '
+          'retrying with "$fallbackModel"...',
+        );
+        result = await _runProcess(prompt, modelOverride: fallbackModel);
+      }
+
       stopwatch.stop();
 
       final artifactExists = File(artifactPath).existsSync();
@@ -165,7 +183,20 @@ class StepExecutor {
     final prompt = _buildReportPrompt(step, ruleFile, reportPath);
 
     try {
-      final result = await _runProcess(prompt);
+      var result = await _runProcess(prompt);
+
+      // Fallback: retry with cheapest model on quota/capacity errors
+      if (result.exitCode != 0 &&
+          fallbackModel != null &&
+          fallbackModel != config.model &&
+          _isQuotaError(result)) {
+        logger.info(
+          '  Quota exceeded for "${config.model}", '
+          'retrying with "$fallbackModel"...',
+        );
+        result = await _runProcess(prompt, modelOverride: fallbackModel);
+      }
+
       stopwatch.stop();
 
       final reportExists = File(reportPath).existsSync();
@@ -234,6 +265,19 @@ class StepExecutor {
     return 'Process exited with code ${result.exitCode}';
   }
 
+  /// Returns `true` if the process failed due to quota or capacity limits.
+  bool _isQuotaError(ProcessResult result) {
+    final combined =
+        '${(result.stderr as String? ?? '')} ${(result.stdout as String? ?? '')}'
+            .toLowerCase();
+    return combined.contains('capacity') ||
+        combined.contains('resource_exhausted') ||
+        combined.contains('rate_limit') ||
+        combined.contains('not_found') ||
+        combined.contains('requested entity was not found') ||
+        combined.contains('429');
+  }
+
   String _ruleFilePath(String ruleName) {
     final ext = config.agent == RunAgent.gemini ? '.yaml' : '.md';
     return p.join(config.ruleBasePath, '$ruleName$ext');
@@ -293,7 +337,8 @@ class StepExecutor {
         'IMPORTANT: You MUST write the complete report to the file above.';
   }
 
-  Future<ProcessResult> _runProcess(String prompt) {
+  Future<ProcessResult> _runProcess(String prompt, {String? modelOverride}) {
+    final model = modelOverride ?? config.model;
     switch (config.agent) {
       case RunAgent.claude:
         return Process.run(
@@ -305,7 +350,7 @@ class StepExecutor {
             'Read,Bash,Glob,Grep,Write',
             '--output-format',
             'json',
-            if (config.model != null) ...['--model', config.model!],
+            if (model != null) ...['--model', model],
           ],
           workingDirectory: Directory.current.path,
         );
@@ -317,7 +362,7 @@ class StepExecutor {
             '--output-format',
             'json',
             '--force',
-            if (config.model != null) ...['--model', config.model!],
+            if (model != null) ...['--model', model],
             prompt,
           ],
           workingDirectory: Directory.current.path,
@@ -331,7 +376,7 @@ class StepExecutor {
             '--yolo',
             '-o',
             'json',
-            if (config.model != null) ...['--model', config.model!],
+            if (model != null) ...['--model', model],
           ],
           workingDirectory: Directory.current.path,
         );
