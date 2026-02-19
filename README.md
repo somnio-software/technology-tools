@@ -129,6 +129,8 @@ Standalone, framework-agnostic security audit that detects the project type at r
 
 **Location**: `security-plans/security_audit/`
 
+**Documentation**: See `security-plans/README.md` for detailed information about available security tools and usage instructions.
+
 **CLI command**: `somnio run sa`
 
 **IDE skill**: `/somnio-sa`
@@ -146,12 +148,13 @@ technology-tools/
 │   ├── nestjs_best_practices_check/     # Code quality checker
 │   └── README.md
 ├── security-plans/                      # Security tools
-│   └── security_audit/                  # Framework-agnostic security audit
-│       ├── plan/                        # Execution plan
-│       ├── cursor_rules/                # Analysis rules (YAML)
-│       │   └── templates/               # Report template
-│       ├── .agent/workflows/            # Antigravity workflow
-│       └── env/                         # Environment variable template
+│   ├── security_audit/                  # Framework-agnostic security audit
+│   │   ├── plan/                        # Execution plan
+│   │   ├── cursor_rules/                # Analysis rules (YAML)
+│   │   │   └── templates/               # Report template
+│   │   ├── .agent/workflows/            # Antigravity workflow
+│   │   └── env/                         # Environment variable template
+│   └── README.md
 ├── cli/                                 # Somnio CLI tool
 └── README.md                            # This file
 ```

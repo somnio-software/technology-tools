@@ -229,6 +229,7 @@ somnio run nh --agent gemini -m gemini-3-pro
 |------|-------|------------|
 | `fh` | Flutter Project Health Audit | Flutter |
 | `nh` | NestJS Project Health Audit | NestJS |
+| `sa` | Security Audit | Any |
 
 **How it works:**
 
@@ -303,10 +304,11 @@ The technology name must be lowercase alphanumeric, start with a letter, and be 
 | `somnio-fp` | `flutter_plan` | Flutter Best Practices Check | Flutter |
 | `somnio-nh` | `nestjs_health` | NestJS Project Health Audit | NestJS |
 | `somnio-np` | `nestjs_plan` | NestJS Best Practices Check | NestJS |
+| `somnio-sa` | `security_audit` | Framework-Agnostic Security Audit | Any |
 
 After installation, invoke skills as slash commands:
 
-- **Claude Code**: `/somnio-fh`, `/somnio-fp`, `/somnio-nh`, `/somnio-np`
+- **Claude Code**: `/somnio-fh`, `/somnio-fp`, `/somnio-nh`, `/somnio-np`, `/somnio-sa`
 - **Cursor**: Available as commands in the command palette
 - **Antigravity**: Available as workflows
 
