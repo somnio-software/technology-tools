@@ -33,28 +33,25 @@ description: Automated NestJS Project Health Audit
 9. **Code Quality**
    Read `nestjs_project_health_audit/cursor_rules/nestjs_code_quality.yaml` and execute the instructions to analyze code quality.
 
-10. **Security Analysis**
-    Read `nestjs_project_health_audit/cursor_rules/nestjs_security_analysis.yaml` and execute the instructions to analyze security.
-
-11. **API Design Analysis**
+10. **API Design Analysis**
     Read `nestjs_project_health_audit/cursor_rules/nestjs_api_design_analysis.yaml` and execute the instructions to analyze API design.
 
-12. **Data Layer Analysis**
+11. **Data Layer Analysis**
     Read `nestjs_project_health_audit/cursor_rules/nestjs_data_layer_analysis.yaml` and execute the instructions to analyze the data layer.
 
-13. **Documentation Analysis**
+12. **Documentation Analysis**
     Read `nestjs_project_health_audit/cursor_rules/nestjs_documentation_analysis.yaml` and execute the instructions to analyze documentation.
 
-14. **Generate Report**
+13. **Generate Report**
     Read `nestjs_project_health_audit/cursor_rules/nestjs_report_generator.yaml` and execute the instructions to generate the final report.
 
-15. **Export Report**
+14. **Export Report**
     Ensure the final report generated in the previous step is saved to `reports/nestjs_audit.txt`.
     ```bash
     mkdir -p reports
     ```
 
-16. **Optional Best Practices Check**
+15. **Optional Best Practices Check**
     Ask the user if they want to execute the Best Practices Check.
 
     Workflow: `nestjs_best_practices_check/.agent/workflows/nestjs_best_practices.md`

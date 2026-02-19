@@ -1,0 +1,192 @@
+Security Audit Report
+
+IMPORTANT EXCLUSIONS:
+- NEVER recommend CODEOWNERS or SECURITY.md files (governance decisions, not technical requirements)
+- NEVER recommend operational documentation (runbooks, deployment procedures, monitoring)
+
+1. Executive Summary
+
+Description: Comprehensive security analysis of [Project Name] [project type] project.
+
+Security Posture: [Posture Label] ([HIGH count] HIGH, [MEDIUM count] MEDIUM, [LOW count] LOW findings)
+
+Top Findings:
+- [Finding 1 with severity]
+- [Finding 2 with severity]
+- [Finding 3 with severity]
+- [Continue as needed]
+
+Priority Recommendations:
+1. [Recommendation 1]
+2. [Recommendation 2]
+3. [Recommendation 3]
+4. [Continue as needed]
+
+2. Project Detection Results
+
+- Detected project type: [Type]
+- Framework/runtime: [Framework version]
+- Package manager: [Manager]
+- Repository structure: [single app / monorepo]
+- Source files scanned: [File extensions and directories]
+- Gemini AI analysis: [Available / Skipped]
+
+3. Sensitive File Analysis
+
+Sensitive Files Detected:
+- [File path]: [Status - properly ignored / EXPOSED]
+- [Continue as needed]
+
+.gitignore Coverage:
+- [Pattern category]: [Covered / Missing]
+- [Continue as needed]
+
+Environment Files:
+- .env files in repository: [Count and paths]
+- .env.example present: [Yes/No]
+- .env files in .gitignore: [Yes/No]
+
+Platform-Specific Analysis:
+- [Platform]: [Findings]
+- [Continue as needed]
+
+Risks:
+- [Risk 1]
+- [Continue as needed]
+
+4. Source Code Secret Patterns
+
+Scan Results:
+- Total files scanned: [Count]
+- Patterns checked: [Count]
+- Findings: [Count by severity]
+
+[HIGH] Findings:
+- [File path]:[Line number] - [Pattern matched] - [Description]
+- [Continue as needed, or "None found"]
+
+[MEDIUM] Findings:
+- [File path]:[Line number] - [Pattern matched] - [Description]
+- [Continue as needed, or "None found"]
+
+[LOW] Findings:
+- [File path]:[Line number] - [Pattern matched] - [Description]
+- [Continue as needed, or "None found"]
+
+5. Dependency Vulnerability Audit
+
+Vulnerability Scan Results:
+- Critical: [Count]
+- High: [Count]
+- Medium: [Count]
+- Low: [Count]
+- Total: [Count]
+
+Top Vulnerabilities:
+- [Package]: [Version] - [CVE/Advisory] - [Severity]
+- [Continue as needed]
+
+Outdated Dependencies:
+- [Package]: [Current] -> [Latest] ([severity of update])
+- [Continue as needed]
+
+Lock File Integrity: [Status]
+
+Automated Security Tooling:
+- Dependabot: [Configured / Not configured]
+- Snyk: [Configured / Not configured]
+- Renovate: [Configured / Not configured]
+- CI/CD security scanning: [Present / Not present]
+
+6. Gemini AI Analysis
+
+Status: [Completed / Skipped]
+
+[If completed:]
+AI-Detected Findings:
+- [Finding 1 with severity]
+- [Continue as needed]
+
+[If skipped:]
+Reason: [Gemini CLI not installed / No API key or subscription / Extension not available]
+
+7. Consolidated Findings by Severity
+
+[HIGH] - Immediate Action Required:
+1. [Finding description] - [Source: file analysis/secrets/deps/gemini]
+2. [Continue as needed, or "No HIGH severity findings"]
+
+[MEDIUM] - Action Recommended:
+1. [Finding description] - [Source]
+2. [Continue as needed, or "No MEDIUM severity findings"]
+
+[LOW] - Informational:
+1. [Finding description] - [Source]
+2. [Continue as needed, or "No LOW severity findings"]
+
+Total: [HIGH count] HIGH, [MEDIUM count] MEDIUM, [LOW count] LOW
+
+8. Security Posture Assessment
+
+Overall Posture: [Secure / Needs Attention / At Risk / Critical]
+
+Strengths:
+- [Strength 1]
+- [Continue as needed]
+
+Gaps:
+- [Gap 1]
+- [Continue as needed]
+
+9. Recommendations
+
+1. [HIGH Priority]: [Recommendation with specific action]
+2. [HIGH Priority]: [Continue as needed]
+3. [MEDIUM Priority]: [Recommendation with specific action]
+4. [Continue as needed]
+5. [LOW Priority]: [Recommendation with specific action]
+6. [Continue as needed]
+
+10. Remediation Priority Matrix
+
+Immediate (fix within 24 hours):
+- [Item requiring immediate fix]
+- [Continue as needed]
+
+Short-term (fix within 1 week):
+- [Item for short-term fix]
+- [Continue as needed]
+
+Medium-term (fix within 1 month):
+- [Item for medium-term fix]
+- [Continue as needed]
+
+11. Evidence Index
+
+File Paths and Configs by Area:
+
+Sensitive Files:
+- [File path or config reference]
+- [Continue as needed]
+
+Secret Patterns:
+- [File path or config reference]
+- [Continue as needed]
+
+Dependencies:
+- [File path or config reference]
+- [Continue as needed]
+
+Configuration:
+- [File path or config reference]
+- [Continue as needed]
+
+12. Scan Metadata
+
+- Scan date: [Date]
+- Project path: [Path]
+- Project type: [Detected type]
+- Tools used: [List of tools]
+- Gemini AI: [Used / Skipped]
+- Total findings: [Count]
+- Scan duration: [Duration or N/A]

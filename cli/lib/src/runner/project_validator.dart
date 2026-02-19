@@ -41,6 +41,8 @@ class ProjectValidator {
         return _validateFlutter(cwd);
       case 'nestjs':
         return _validateNestjs(cwd);
+      case 'security':
+        return null; // Framework-agnostic, works on any project
       default:
         return _validateGeneric(techPrefix, cwd);
     }

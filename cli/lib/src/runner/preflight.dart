@@ -60,6 +60,8 @@ class PreflightRunner {
         return _runFlutterPreflight(techPrefix, cwd);
       case 'nestjs':
         return _runNestjsPreflight(techPrefix, cwd);
+      case 'security':
+        return _runSecurityPreflight(techPrefix, cwd);
       default:
         return PreflightResult();
     }
@@ -550,6 +552,133 @@ class PreflightRunner {
 
     result.artifacts['${techPrefix}_test_coverage'] =
         _buildArtifact('Test Coverage', coveragePhase);
+
+    logger.info('');
+    return result;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Security Pre-flight
+  // ---------------------------------------------------------------------------
+
+  Future<PreflightResult> _runSecurityPreflight(
+    String techPrefix,
+    String cwd,
+  ) async {
+    final result = PreflightResult();
+
+    logger.info('');
+    logger.info('Pre-flight');
+    logger.info('${'—' * 10}');
+
+    // Phase 1: Project Detection
+    final toolPhase = _PhaseResult('Tool Detection');
+
+    String projectType = 'generic';
+    if (File(p.join(cwd, 'pubspec.yaml')).existsSync()) {
+      projectType = 'flutter';
+      toolPhase.ok('Detected Flutter/Dart project');
+      logger.info('  ${lightGreen.wrap('OK')} Flutter/Dart project detected');
+    } else if (File(p.join(cwd, 'package.json')).existsSync()) {
+      final content = File(p.join(cwd, 'package.json')).readAsStringSync();
+      if (content.contains('@nestjs/core')) {
+        projectType = 'nestjs';
+        toolPhase.ok('Detected NestJS project');
+        logger.info('  ${lightGreen.wrap('OK')} NestJS project detected');
+      } else {
+        projectType = 'nodejs';
+        toolPhase.ok('Detected Node.js project');
+        logger.info('  ${lightGreen.wrap('OK')} Node.js project detected');
+      }
+    } else if (File(p.join(cwd, 'go.mod')).existsSync()) {
+      projectType = 'go';
+      toolPhase.ok('Detected Go project');
+      logger.info('  ${lightGreen.wrap('OK')} Go project detected');
+    } else if (File(p.join(cwd, 'Cargo.toml')).existsSync()) {
+      projectType = 'rust';
+      toolPhase.ok('Detected Rust project');
+      logger.info('  ${lightGreen.wrap('OK')} Rust project detected');
+    } else if (File(p.join(cwd, 'pyproject.toml')).existsSync() ||
+        File(p.join(cwd, 'requirements.txt')).existsSync()) {
+      projectType = 'python';
+      toolPhase.ok('Detected Python project');
+      logger.info('  ${lightGreen.wrap('OK')} Python project detected');
+    } else {
+      toolPhase.info('No specific framework marker found');
+      logger.info('  Generic project (no specific framework detected)');
+    }
+    toolPhase.info('Project type: $projectType');
+
+    // Phase 2: Gemini Tool Detection
+    var geminiAvailable = false;
+
+    final geminiWhich = await Process.run('which', ['gemini']);
+    if (geminiWhich.exitCode == 0) {
+      toolPhase.ok('Gemini CLI installed');
+      logger.info('  ${lightGreen.wrap('OK')} Gemini CLI installed');
+
+      // Check for API key
+      final hasApiKey = Platform.environment.containsKey('GEMINI_API_KEY') ||
+          Platform.environment.containsKey('GOOGLE_API_KEY');
+
+      if (hasApiKey) {
+        toolPhase.ok('Gemini authentication: API key found');
+        logger.info('  ${lightGreen.wrap('OK')} Gemini API key found');
+        geminiAvailable = true;
+      } else {
+        // Check for subscription
+        final authStatus = await Process.run('gemini', ['auth', 'status']);
+        final authOutput = (authStatus.stdout as String).trim() +
+            (authStatus.stderr as String).trim();
+        if (authOutput.toLowerCase().contains('authenticated') ||
+            authOutput.toLowerCase().contains('logged in') ||
+            authOutput.toLowerCase().contains('active')) {
+          toolPhase.ok('Gemini authentication: Subscription detected');
+          logger.info(
+            '  ${lightGreen.wrap('OK')} Gemini subscription detected',
+          );
+          geminiAvailable = true;
+        } else {
+          toolPhase.info('Gemini: No API key or subscription found');
+          logger.warn('  Gemini AI analysis will be skipped');
+        }
+      }
+
+      // Check/install security extension if Gemini is available
+      if (geminiAvailable) {
+        final extList = await Process.run('gemini', ['extensions', 'list']);
+        final extOutput = (extList.stdout as String).trim();
+        if (extOutput.contains('security')) {
+          toolPhase.ok('Gemini Security Extension installed');
+          logger.info(
+            '  ${lightGreen.wrap('OK')} Security Extension installed',
+          );
+        } else {
+          logger.info('  Installing Gemini Security Extension...');
+          final install = await Process.run('gemini', [
+            'extensions',
+            'install',
+            'https://github.com/gemini-cli-extensions/security',
+          ]);
+          if (install.exitCode == 0) {
+            toolPhase.ok('Gemini Security Extension installed');
+            logger.info(
+              '  ${lightGreen.wrap('OK')} Security Extension installed',
+            );
+          } else {
+            toolPhase.info('Gemini Security Extension install failed');
+            logger.warn('  Security Extension install failed');
+          }
+        }
+      }
+    } else {
+      toolPhase.info('Gemini CLI not installed');
+      logger.info('  Gemini CLI not found — AI analysis will be skipped');
+    }
+    toolPhase.info('Gemini available: $geminiAvailable');
+
+    result.artifacts['${techPrefix}_tool_installer'] =
+        _buildArtifact('Tool Detection', toolPhase);
 
     logger.info('');
     return result;
