@@ -78,7 +78,7 @@ class RunCommand extends Command<int> {
     'gemini-3-flash-preview',
     'grok',
   ];
-  static const _geminiModels = ['gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro-preview'];
+  static const _geminiModels = ['gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro-preview', 'gemini-3.1-pro-preview'];
 
   final Logger _logger;
 
