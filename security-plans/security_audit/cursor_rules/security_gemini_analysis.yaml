@@ -93,6 +93,9 @@ rules:
            head -20 reports/.artifacts/step_05_security_gemini_analysis.md 2>/dev/null || \
              echo "Report file exists"
          fi
+
+         # Clean up side-effect files created by Gemini CLI security extension
+         rm -f security_analysis_prompt.txt gemini_security_findings.txt gemini_security_report.txt
          ```
 
       Output format:

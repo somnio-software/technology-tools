@@ -59,12 +59,23 @@ rules:
       13. Appendix: Evidence Index
       14. Scan Metadata
 
-      Integrate results from all previous analysis steps:
-      - Tool Detection and project type identification
-      - Sensitive File Analysis findings
-      - Source Code Secret Patterns results
-      - Dependency Vulnerability Audit results
-      - Gemini AI Analysis results (if available, otherwise note "Skipped")
+      STEP ARTIFACT INTEGRATION:
+      Read and cross-reference the following step artifact files to extract
+      findings, evidence, and compute section scores:
+      - reports/.artifacts/step_01_security_tool_installer.md (tool detection)
+      - reports/.artifacts/step_02_security_file_analysis.md (file protection
+        findings, .gitignore coverage, environment file status)
+      - reports/.artifacts/step_03_security_secret_patterns.md (secret scan
+        results, severity counts, pattern matches)
+      - reports/.artifacts/step_04_security_dependency_audit.md (CVE counts,
+        outdated deps, lock file status, automated tooling, CI/CD status)
+      - reports/.artifacts/step_05_security_gemini_analysis.md (AI findings,
+        if available; otherwise note "Skipped")
+
+      For each scored section (4-8), extract the relevant findings from the
+      artifacts above, apply the scoring rubric, and show the computed score
+      with the deductions/additions that led to it. The score computation
+      must be traceable from evidence in the artifacts.
 
       SCORING SYSTEM:
 
@@ -158,8 +169,16 @@ rules:
       Scored sections (4-8) MUST each follow this exact format:
       - Description: Brief explanation of what this section evaluates
       - Score: [Score]/100 ([Label])
+      - Score Breakdown: Show starting score, each deduction/bonus applied
+        with its value, and the final clamped score. Example:
+          Base: 100
+          - Missing .gitignore for env files: -15
+          - Missing platform patterns (Flutter): -10
+          + Multi-directory .gitignore: +5
+          Final: 80/100 (Fair)
       - Key Findings: Bullet list of findings with severity tags
       - Evidence: File paths, line numbers, and concrete references
+        (sourced from step artifact .md files)
       - Risks: What could go wrong if findings are not addressed
       - Recommendations: Numbered, prioritized actions to improve
 
