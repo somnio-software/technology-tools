@@ -37,6 +37,10 @@ class UninstallCommand extends Command<int> {
     final antigravityRemoved = _removeAntigravity();
     removedAnything |= antigravityRemoved;
 
+    // Gemini CLI: ~/.gemini/skills/somnio-*
+    final geminiCliRemoved = _removeGeminiCli();
+    removedAnything |= geminiCliRemoved;
+
     _logger.info('');
     if (removedAnything) {
       _logger.success('Uninstall complete.');
@@ -118,5 +122,25 @@ class UninstallCommand extends Command<int> {
     }
 
     return removed;
+  }
+
+  bool _removeGeminiCli() {
+    final globalDir = Directory(PlatformUtils.geminiGlobalSkillsDir);
+    if (!globalDir.existsSync()) return false;
+
+    final dirs = globalDir
+        .listSync()
+        .whereType<Directory>()
+        .where((d) => p.basename(d.path).startsWith('somnio-'))
+        .toList();
+
+    if (dirs.isEmpty) return false;
+
+    for (final dir in dirs) {
+      final name = p.basename(dir.path);
+      dir.deleteSync(recursive: true);
+      _logger.info('  Removed Gemini CLI skill: $name');
+    }
+    return true;
   }
 }

@@ -4,6 +4,7 @@ import 'package:mason_logger/mason_logger.dart';
 import '../content/content_loader.dart';
 import '../content/skill_registry.dart';
 import '../installers/antigravity_installer.dart';
+import '../installers/gemini_installer.dart';
 import '../utils/package_resolver.dart';
 
 /// Installs workflows into Antigravity.
@@ -22,7 +23,8 @@ class AntigravityCommand extends Command<int> {
   String get name => 'antigravity';
 
   @override
-  String get description => 'Install workflows into Antigravity.';
+  String get description =>
+      'Install workflows into Antigravity and skills into Gemini CLI.';
 
   @override
   Future<int> run() async {
@@ -62,6 +64,24 @@ class AntigravityCommand extends Command<int> {
         '${result.skippedCount == 1 ? 'skill' : 'skills'} '
         '(workflow not yet available).',
       );
+    }
+
+    // Also install to Gemini CLI
+    _logger.info('');
+    final geminiInstaller = GeminiInstaller(
+      logger: _logger,
+      loader: loader,
+    );
+    final geminiResult = await geminiInstaller.install(
+      bundles: SkillRegistry.skills,
+      force: force,
+    );
+
+    if (geminiResult.skillCount > 0) {
+      _logger.success(
+        'Installed ${geminiResult.skillCount} skills to Gemini CLI.',
+      );
+      _logger.info('Location: ${geminiResult.targetDirectory}');
     }
 
     return ExitCode.success.code;

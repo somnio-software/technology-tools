@@ -150,6 +150,7 @@ class StatusCommand extends Command<int> {
       _collectClaudeData(),
       _collectCursorData(),
       _collectAntigravityData(),
+      _collectGeminiCliData(),
     ];
 
     final headers = ['Agent', 'Status', 'Tech', 'Items', 'Rules', 'Location'];
@@ -320,6 +321,38 @@ class StatusCommand extends Command<int> {
       location: '~/.gemini/antigravity/',
       installCmd: 'somnio antigravity',
       techs: _buildTechList(techMap, 'workflow', 'workflows', '.yaml'),
+    );
+  }
+
+  _AgentData _collectGeminiCliData() {
+    final dir = Directory(PlatformUtils.geminiGlobalSkillsDir);
+    final techMap = <String, List<int>>{};
+
+    if (dir.existsSync()) {
+      for (final entity in dir.listSync()) {
+        if (entity is Directory &&
+            p.basename(entity.path).startsWith('somnio-')) {
+          final skillName = p.basename(entity.path);
+          final tech = _resolveTech(skillName);
+          techMap.putIfAbsent(tech, () => [0, 0]);
+          techMap[tech]![0]++;
+          final rulesDir = Directory(p.join(entity.path, 'rules'));
+          if (rulesDir.existsSync()) {
+            techMap[tech]![1] += rulesDir
+                .listSync()
+                .whereType<File>()
+                .where((f) => f.path.endsWith('.md'))
+                .length;
+          }
+        }
+      }
+    }
+
+    return _AgentData(
+      name: 'Gemini CLI',
+      location: '~/.gemini/skills/',
+      installCmd: 'somnio antigravity',
+      techs: _buildTechList(techMap, 'skill', 'skills', '.md'),
     );
   }
 

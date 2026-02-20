@@ -6,6 +6,7 @@ import '../content/skill_registry.dart';
 import '../installers/antigravity_installer.dart';
 import '../installers/claude_installer.dart';
 import '../installers/cursor_installer.dart';
+import '../installers/gemini_installer.dart';
 import '../utils/agent_detector.dart';
 import '../utils/package_resolver.dart';
 
@@ -181,6 +182,17 @@ class InitCommand extends Command<int> {
           );
           totalSkills += result.skillCount;
           totalRules += result.ruleCount;
+
+        case AgentType.geminiCli:
+          final installer = GeminiInstaller(
+            logger: _logger,
+            loader: loader,
+          );
+          final result = await installer.install(
+            bundles: bundles,
+            force: force,
+          );
+          totalSkills += result.skillCount;
       }
 
       _logger.info('');

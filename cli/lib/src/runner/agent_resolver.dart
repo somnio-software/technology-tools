@@ -36,7 +36,7 @@ class AgentResolver {
   ///
   /// - Claude: `~/.claude/skills/{bundleName}/rules/`
   /// - Cursor: `~/.cursor/somnio_rules/{planSubDir}/cursor_rules/`
-  /// - Gemini: `~/.gemini/antigravity/somnio_rules/{planSubDir}/cursor_rules/`
+  /// - Gemini: `~/.gemini/skills/{bundleName}/rules/`
   String ruleBasePath(RunAgent agent, String bundleName, String planSubDir) {
     switch (agent) {
       case RunAgent.claude:
@@ -53,10 +53,9 @@ class AgentResolver {
         );
       case RunAgent.gemini:
         return p.join(
-          PlatformUtils.antigravityGlobalDir,
-          'somnio_rules',
-          planSubDir,
-          'cursor_rules',
+          PlatformUtils.geminiGlobalSkillsDir,
+          bundleName,
+          'rules',
         );
     }
   }
@@ -65,7 +64,7 @@ class AgentResolver {
   ///
   /// - Claude: `~/.claude/skills/{bundleName}/templates/{templateFile}`
   /// - Cursor: `~/.cursor/somnio_rules/{planSubDir}/cursor_rules/templates/{templateFile}`
-  /// - Gemini: `~/.gemini/antigravity/somnio_rules/{planSubDir}/cursor_rules/templates/{templateFile}`
+  /// - Gemini: `~/.gemini/skills/{bundleName}/templates/{templateFile}`
   String templatePath(
     RunAgent agent,
     String bundleName,
@@ -90,10 +89,8 @@ class AgentResolver {
         );
       case RunAgent.gemini:
         return p.join(
-          PlatformUtils.antigravityGlobalDir,
-          'somnio_rules',
-          planSubDir,
-          'cursor_rules',
+          PlatformUtils.geminiGlobalSkillsDir,
+          bundleName,
           'templates',
           templateFile,
         );
@@ -120,7 +117,7 @@ class AgentResolver {
           agentName = 'Cursor CLI';
           installCmd = 'somnio cursor';
         case RunAgent.gemini:
-          agentName = 'Antigravity';
+          agentName = 'Gemini CLI';
           installCmd = 'somnio antigravity';
       }
       return 'Skills not found at: $ruleBasePath\n'
@@ -128,8 +125,8 @@ class AgentResolver {
     }
 
     // Check that the first rule file exists
-    final extension = _ruleExtension(agent);
-    final firstRule = File(p.join(ruleBasePath, '${ruleNames.first}$extension'));
+    final ext = ruleExtension(agent);
+    final firstRule = File(p.join(ruleBasePath, '${ruleNames.first}$ext'));
     if (!firstRule.existsSync()) {
       return 'Rule file not found: ${firstRule.path}\n'
           'Skills may be outdated. Run "somnio update" to reinstall.';
@@ -140,19 +137,8 @@ class AgentResolver {
 
   /// Returns the file extension for rule files per agent.
   ///
-  /// Claude and Cursor rules are `.md` (transformed from YAML).
-  /// Gemini rules are `.yaml` (copied as-is).
-  String ruleExtension(RunAgent agent) => _ruleExtension(agent);
-
-  String _ruleExtension(RunAgent agent) {
-    switch (agent) {
-      case RunAgent.claude:
-      case RunAgent.cursor:
-        return '.md';
-      case RunAgent.gemini:
-        return '.yaml';
-    }
-  }
+  /// All agents use `.md` rule files (transformed from YAML).
+  String ruleExtension(RunAgent agent) => '.md';
 
   /// Returns all AI CLIs found in PATH.
   Future<List<RunAgent>> detectAll() async {

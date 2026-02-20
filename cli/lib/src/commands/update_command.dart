@@ -8,6 +8,7 @@ import '../content/skill_registry.dart';
 import '../installers/antigravity_installer.dart';
 import '../installers/claude_installer.dart';
 import '../installers/cursor_installer.dart';
+import '../installers/gemini_installer.dart';
 import '../utils/package_resolver.dart';
 
 /// Updates the CLI and reinstalls all skills.
@@ -120,6 +121,22 @@ class UpdateCommand extends Command<int> {
       _logger.info(
         '  Antigravity: ${result.skillCount} workflows, '
         '${result.ruleCount} rules updated',
+      );
+      updated++;
+    }
+
+    // Check Gemini CLI
+    final geminiInstaller = GeminiInstaller(
+      logger: _logger,
+      loader: loader,
+    );
+    if (geminiInstaller.isInstalled()) {
+      final result = await geminiInstaller.install(
+        bundles: bundles,
+        force: true,
+      );
+      _logger.info(
+        '  Gemini CLI: ${result.skillCount} skills updated',
       );
       updated++;
     }

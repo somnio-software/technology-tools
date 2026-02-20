@@ -28,6 +28,14 @@ class PlatformUtils {
   static String get antigravityGlobalDir =>
       p.join(homeDirectory, '.gemini', 'antigravity');
 
+  /// Returns the path to Gemini CLI's global skills directory.
+  static String get geminiGlobalSkillsDir =>
+      p.join(homeDirectory, '.gemini', 'skills');
+
+  /// Returns the path to Gemini CLI's global commands directory.
+  static String get geminiGlobalCommandsDir =>
+      p.join(homeDirectory, '.gemini', 'commands');
+
   /// Runs `which` (Unix) or `where` (Windows) to find a binary.
   static Future<String?> whichBinary(String binary) async {
     try {

@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 import 'platform_utils.dart';
 
 /// Supported AI coding agents.
-enum AgentType { claude, cursor, antigravity }
+enum AgentType { claude, cursor, antigravity, geminiCli }
 
 /// Information about a detected agent.
 class AgentInfo {
@@ -29,11 +29,13 @@ class AgentDetector {
       _detectClaude(),
       _detectCursor(),
       _detectAntigravity(),
+      _detectGeminiCli(),
     ]);
     return {
       AgentType.claude: results[0],
       AgentType.cursor: results[1],
       AgentType.antigravity: results[2],
+      AgentType.geminiCli: results[3],
     };
   }
 
@@ -71,6 +73,12 @@ class AgentDetector {
       return AgentInfo(installed: true, path: binPath);
     }
 
+    // Check PATH for 'agent' binary (Cursor CLI)
+    final agentBinPath = await PlatformUtils.whichBinary('agent');
+    if (agentBinPath != null) {
+      return AgentInfo(installed: true, path: agentBinPath);
+    }
+
     // Check application directories
     if (Platform.isMacOS) {
       if (Directory('/Applications/Cursor.app').existsSync()) {
@@ -101,8 +109,8 @@ class AgentDetector {
   }
 
   Future<AgentInfo> _detectAntigravity() async {
-    // Check multiple possible binary names
-    for (final cmd in ['agy', 'antigravity', 'gemini']) {
+    // Check Antigravity-specific binaries (not gemini — that's a separate CLI)
+    for (final cmd in ['agy', 'antigravity']) {
       final binPath = await PlatformUtils.whichBinary(cmd);
       if (binPath != null) {
         return AgentInfo(installed: true, path: binPath);
@@ -121,6 +129,26 @@ class AgentDetector {
     return const AgentInfo(installed: false);
   }
 
+  Future<AgentInfo> _detectGeminiCli() async {
+    // Check PATH for 'gemini' binary
+    final binPath = await PlatformUtils.whichBinary('gemini');
+    if (binPath != null) {
+      return AgentInfo(installed: true, path: binPath);
+    }
+
+    // Check if ~/.gemini/settings.json exists (Gemini CLI configured)
+    final home = PlatformUtils.homeDirectory;
+    final settingsFile = File(p.join(home, '.gemini', 'settings.json'));
+    if (settingsFile.existsSync()) {
+      return AgentInfo(
+        installed: true,
+        path: p.join(home, '.gemini'),
+      );
+    }
+
+    return const AgentInfo(installed: false);
+  }
+
   /// Returns a display name for an agent type.
   static String displayName(AgentType type) {
     switch (type) {
@@ -130,6 +158,8 @@ class AgentDetector {
         return 'Cursor';
       case AgentType.antigravity:
         return 'Antigravity';
+      case AgentType.geminiCli:
+        return 'Gemini CLI';
     }
   }
 }

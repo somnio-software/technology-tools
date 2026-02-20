@@ -360,8 +360,7 @@ class StepExecutor {
   }
 
   String _ruleFilePath(String ruleName) {
-    final ext = config.agent == RunAgent.gemini ? '.yaml' : '.md';
-    return p.join(config.ruleBasePath, '$ruleName$ext');
+    return p.join(config.ruleBasePath, '$ruleName.md');
   }
 
 
@@ -378,9 +377,7 @@ class StepExecutor {
     String ruleFile,
     String artifactPath,
   ) {
-    final readInstruction = config.agent == RunAgent.gemini
-        ? 'Read $ruleFile and follow ALL instructions in the prompt field'
-        : 'Read and follow ALL instructions in $ruleFile';
+    final readInstruction = 'Read and follow ALL instructions in $ruleFile';
 
     return 'You are executing step ${step.index} of ${config.steps.length} '
         'in the ${config.displayName}.\n\n'
@@ -398,9 +395,8 @@ class StepExecutor {
     String ruleFile,
     String reportPath,
   ) {
-    final readInstruction = config.agent == RunAgent.gemini
-        ? 'Read $ruleFile and follow ALL instructions in the prompt field.'
-        : 'Read and follow ALL instructions in $ruleFile';
+    final readInstruction =
+        'Read and follow ALL instructions in $ruleFile';
 
     final reportDir = p.dirname(reportPath);
 
@@ -436,9 +432,8 @@ class StepExecutor {
   }
 
   String _buildFormatEnforcerPrompt(String ruleFile, String reportPath) {
-    final readInstruction = config.agent == RunAgent.gemini
-        ? 'Read $ruleFile and follow ALL instructions in the prompt field.'
-        : 'Read and follow ALL instructions in $ruleFile';
+    final readInstruction =
+        'Read and follow ALL instructions in $ruleFile';
 
     return 'You are validating and enforcing formatting on the '
         '${config.displayName} report.\n\n'

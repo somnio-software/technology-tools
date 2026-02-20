@@ -61,7 +61,7 @@ class RunConfig {
   ///
   /// Claude: `~/.claude/skills/somnio-fh/rules/`
   /// Cursor: `~/.cursor/somnio_rules/{planSubDir}/cursor_rules/`
-  /// Gemini: `~/.gemini/antigravity/somnio_rules/{planSubDir}/cursor_rules/`
+  /// Gemini: `~/.gemini/skills/somnio-fh/rules/`
   final String ruleBasePath;
 
   /// Path to the report template file.
