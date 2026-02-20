@@ -1,12 +1,24 @@
 Security Audit Report
 
-1. Executive Summary
+1. Security Scoring Breakdown
+
+Sensitive File Protection:     [Score]/100 ([Label]) - Weight: 25%
+Secret Detection:              [Score]/100 ([Label]) - Weight: 30%
+Dependency Security:           [Score]/100 ([Label]) - Weight: 20%
+Supply Chain Integrity:        [Score]/100 ([Label]) - Weight: 10%
+Security Automation & CI/CD:   [Score]/100 ([Label]) - Weight: 15%
+
+Overall Score: [Score]/100 ([Label])
+
+Formula: Overall = round(File Protection * 0.25 + Secret Detection * 0.30 + Dependency Security * 0.20 + Supply Chain * 0.10 + Automation * 0.15)
+
+Security Posture: [Secure / Needs Attention / At Risk / Critical]
+
+2. Executive Summary
 
 Description: Comprehensive security analysis of [Project Name] [project type] project.
 
 Overall Score: [Score]/100 ([Label])
-
-Security Posture: [Secure / Needs Attention / At Risk / Critical]
 
 Top Findings:
 - [Finding 1 with severity]
@@ -20,32 +32,18 @@ Priority Recommendations:
 3. [Recommendation 3]
 4. [Continue as needed]
 
-2. At-a-Glance Scorecard
+[Sections 3-7: Scored Detail Sections]
+[Order dynamically by score ascending — lowest score = Section 3, highest = Section 7]
+[Each of the 5 scored sections uses the format below:]
 
-- Sensitive File Protection:     [Score]/100 ([Label])
-- Secret Detection:              [Score]/100 ([Label])
-- Dependency Security:           [Score]/100 ([Label])
-- Supply Chain Integrity:        [Score]/100 ([Label])
-- Security Automation & CI/CD:   [Score]/100 ([Label])
-- Overall Score:                 [Score]/100 ([Label])
+[N]. [Section Name]
 
-3. Project Detection Results
-
-- Detected project type: [Type]
-- Framework/runtime: [Framework version]
-- Package manager: [Manager]
-- Repository structure: [single app / monorepo]
-- Source files scanned: [File extensions and directories]
-- Gemini AI analysis: [Available / Skipped]
-
-4. Sensitive File Protection
-
-Description: Analysis of sensitive file exposure, .gitignore coverage, and environment file handling across the repository.
+Description: [Brief explanation of what this section evaluates]
 
 Score: [Score]/100 ([Label])
 
 Score Breakdown:
-  Base: 100
+  Base: [100 or 0]
   - [Deduction reason]: -[value]
   + [Bonus reason]: +[value]
   Final: [Score]/100 ([Label])
@@ -66,130 +64,14 @@ Recommendations:
 1. [Recommendation 1]
 2. [Continue as needed]
 
-5. Secret Detection
+[The 5 scored sections are:]
+[- Sensitive File Protection]
+[- Secret Detection]
+[- Dependency Security]
+[- Supply Chain Integrity]
+[- Security Automation & CI/CD]
 
-Description: Source code scanning for hardcoded secrets, API keys, tokens, credentials, and dangerous patterns.
-
-Score: [Score]/100 ([Label])
-
-Score Breakdown:
-  Base: 100
-  - [Deduction reason]: -[value]
-  + [Bonus reason]: +[value]
-  Final: [Score]/100 ([Label])
-
-Key Findings:
-- [Finding 1 with severity]
-- [Continue as needed]
-
-Evidence:
-- [File path]:[Line number] - [Pattern matched] - [Description]
-- [Continue as needed]
-
-Risks:
-- [Risk 1]
-- [Continue as needed]
-
-Recommendations:
-1. [Recommendation 1]
-2. [Continue as needed]
-
-6. Dependency Security
-
-Description: Package-manager-native vulnerability scans and identification of outdated or vulnerable dependencies.
-
-Score: [Score]/100 ([Label])
-
-Score Breakdown:
-  Base: 100
-  - [Deduction reason]: -[value]
-  + [Bonus reason]: +[value]
-  Final: [Score]/100 ([Label])
-
-Key Findings:
-- [Finding 1 with severity]
-- [Continue as needed]
-
-Evidence:
-- [Package]: [Version] - [CVE/Advisory] - [Severity]
-- [Continue as needed]
-
-Risks:
-- [Risk 1]
-- [Continue as needed]
-
-Recommendations:
-1. [Recommendation 1]
-2. [Continue as needed]
-
-7. Supply Chain Integrity
-
-Description: Analysis of dependency sourcing, registry trust, lock file integrity, and dependency tree health.
-
-Score: [Score]/100 ([Label])
-
-Score Breakdown:
-  Base: 100
-  - [Deduction reason]: -[value]
-  + [Bonus reason]: +[value]
-  Final: [Score]/100 ([Label])
-
-Key Findings:
-- [Finding 1 with severity]
-- [Continue as needed]
-
-Evidence:
-- [Dependency or config reference with details]
-- [Continue as needed]
-
-Risks:
-- [Risk 1]
-- [Continue as needed]
-
-Recommendations:
-1. [Recommendation 1]
-2. [Continue as needed]
-
-8. Security Automation & CI/CD
-
-Description: Evaluation of automated security tooling, CI/CD security scanning, and pre-commit security hooks.
-
-Score: [Score]/100 ([Label])
-
-Score Breakdown:
-  Base: 0
-  + [Addition reason]: +[value]
-  Final: [Score]/100 ([Label])
-
-Key Findings:
-- [Finding 1 with severity]
-- [Continue as needed]
-
-Evidence:
-- [Tool or config reference with details]
-- [Continue as needed]
-
-Risks:
-- [Risk 1]
-- [Continue as needed]
-
-Recommendations:
-1. [Recommendation 1]
-2. [Continue as needed]
-
-9. Gemini AI Analysis
-
-Status: [Completed / Skipped]
-
-[If completed:]
-AI-Detected Findings:
-- [Finding 1 with severity]
-- [Continue as needed]
-
-[If skipped:]
-Reason: [Gemini CLI not installed / No API key or subscription / Extension not available]
-
-10. Consolidated Findings by Severity
+8. Consolidated Findings by Severity
 
 [HIGH] - Immediate Action Required:
 1. [Finding description] - [Source: file analysis/secrets/deps/gemini]
@@ -205,7 +87,7 @@ Reason: [Gemini CLI not installed / No API key or subscription / Extension not a
 
 Total: [HIGH count] HIGH, [MEDIUM count] MEDIUM, [LOW count] LOW
 
-11. Remediation Priority Matrix
+9. Remediation Priority Matrix
 
 Immediate (fix within 24 hours):
 - [Item requiring immediate fix]
@@ -219,18 +101,28 @@ Medium-term (fix within 1 month):
 - [Item for medium-term fix]
 - [Continue as needed]
 
-12. Security Score Index
+10. Gemini AI Analysis
 
-- Sensitive File Protection:     [Score]/100 ([Label]) - Weight: 25%
-- Secret Detection:              [Score]/100 ([Label]) - Weight: 30%
-- Dependency Security:           [Score]/100 ([Label]) - Weight: 20%
-- Supply Chain Integrity:        [Score]/100 ([Label]) - Weight: 10%
-- Security Automation & CI/CD:   [Score]/100 ([Label]) - Weight: 15%
-- Overall Score:                 [Score]/100 ([Label])
+Status: [Completed / Skipped]
 
-Formula: Overall = round(File Protection * 0.25 + Secret Detection * 0.30 + Dependency Security * 0.20 + Supply Chain * 0.10 + Automation * 0.15)
+[If completed:]
+AI-Detected Findings:
+- [Finding 1 with severity]
+- [Continue as needed]
 
-13. Appendix: Evidence Index
+[If skipped:]
+Reason: [Gemini CLI not installed / No API key or subscription / Extension not available]
+
+11. Project Detection Results
+
+- Detected project type: [Type]
+- Framework/runtime: [Framework version]
+- Package manager: [Manager]
+- Repository structure: [single app / monorepo]
+- Source files scanned: [File extensions and directories]
+- Gemini AI analysis: [Available / Skipped]
+
+12. Appendix: Evidence Index
 
 File Paths and Configs by Area:
 
@@ -250,7 +142,7 @@ Configuration:
 - [File path or config reference]
 - [Continue as needed]
 
-14. Scan Metadata
+13. Scan Metadata
 
 - Scan date: [Date]
 - Project path: [Path]

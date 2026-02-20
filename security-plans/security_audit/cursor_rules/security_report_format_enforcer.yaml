@@ -35,16 +35,17 @@ rules:
       of the formatted report. Do NOT attempt to format an incomplete report.
 
       Required structure checks:
-      1. Report must contain exactly 14 numbered sections
-      2. Section 2 must be "At-a-Glance Scorecard" with 5 scored lines
-         plus an Overall Score line
-      3. Sections 4-8 must each contain "Score:" followed by
+      1. Report must contain exactly 13 numbered sections
+      2. Section 1 must be "Security Scoring Breakdown" with 5 scored lines
+         (each with weight) + Overall Score + Formula + Security Posture
+      3. Section 2 must be "Executive Summary" with Overall Score
+      4. Sections 3-7 must each contain "Score:" followed by
          [Score]/100 ([Label])
-      4. Sections 4-8 must each contain "Score Breakdown:" with
+      5. Sections 3-7 must each contain "Score Breakdown:" with
          Base and Final lines
-      5. Section 12 must be "Security Score Index" with 5 scored lines
-         plus Overall plus Formula
-      6. Section 1 must contain "Overall Score:" with [Score]/100 ([Label])
+      6. Sections 3-7 must be ordered by score ascending (lowest first)
+      7. Scores in Section 1 must match the scores in their respective
+         detail sections (3-7)
 
       If ANY check fails, output:
         VALIDATION FAILED: [which check failed]
@@ -67,16 +68,15 @@ rules:
       - BLANK LINES: One blank line between sections, no triple+ blank lines
 
       SCORE VALIDATION:
-      - Sections 4-8 must each contain a "Score:" line with format
+      - Section 1 (Security Scoring Breakdown) must have 5 scored lines
+        with weights + Overall Score + Formula + Security Posture
+      - Sections 3-7 must each contain a "Score:" line with format
         [Score]/100 ([Label])
       - Valid labels by score range: 85-100 = Strong, 70-84 = Fair,
         50-69 = Weak, 0-49 = Critical
       - Verify the label matches the score range
-      - Section 2 (At-a-Glance Scorecard) must have 5 scored section lines
-        plus an Overall Score line
-      - Section 12 (Security Score Index) must mirror the exact same scores
-        as Section 2
-      - Executive Summary must include "Overall Score: [Score]/100 ([Label])"
+      - Scores in Section 1 must match their respective detail sections (3-7)
+      - Executive Summary (Section 2) must include "Overall Score: [Score]/100 ([Label])"
 
       EXCLUSION LEAK DETECTION:
       - If the text "IMPORTANT EXCLUSIONS" appears in the report, remove it
@@ -87,24 +87,26 @@ rules:
       - These are generator instructions that must not appear in the output
 
       VALIDATION CHECKLIST:
-      - All 14 report sections present in correct order
-      - Section order: 1. Executive Summary, 2. At-a-Glance Scorecard,
-        3. Project Detection Results, 4. Sensitive File Protection,
-        5. Secret Detection, 6. Dependency Security,
-        7. Supply Chain Integrity, 8. Security Automation & CI/CD,
-        9. Gemini AI Analysis, 10. Consolidated Findings by Severity,
-        11. Remediation Priority Matrix, 12. Security Score Index,
-        13. Appendix: Evidence Index, 14. Scan Metadata
+      - All 13 report sections present
+      - Section order: 1. Security Scoring Breakdown,
+        2. Executive Summary,
+        3-7. Scored Detail Sections (dynamic order by score ascending),
+        8. Consolidated Findings by Severity,
+        9. Remediation Priority Matrix, 10. Gemini AI Analysis,
+        11. Project Detection Results, 12. Appendix: Evidence Index,
+        13. Scan Metadata
       - No markdown artifacts in final output
       - Severity classifications use correct format
-      - Score lines use correct format in sections 4-8
-      - Scorecard (Section 2) has 5 scored lines + Overall
-      - Score Index (Section 12) mirrors Scorecard scores
+      - Section 1 has 5 scored lines with weights + Overall + Formula + Posture
+      - Score lines use correct format in sections 3-7
+      - Sections 3-7 ordered by score ascending (lowest first)
+      - Scores in Section 1 match their respective detail sections (3-7)
       - Evidence references include file paths
       - Recommendations are numbered and prioritized
       - Report starts with "Security Audit Report" title
-      - Report ends with "14. Scan Metadata" section
+      - Report ends with "13. Scan Metadata" section
       - No EXCLUSIONS block or generator instructions in output
+      - No duplicate score displays
 
       If formatting issues are found, fix them in-place and note what
       was corrected.
