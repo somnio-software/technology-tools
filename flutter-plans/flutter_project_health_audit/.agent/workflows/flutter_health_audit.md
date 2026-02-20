@@ -33,25 +33,19 @@ description: Automated Flutter Project Health Audit
 9. **Code Quality**
    Read `flutter_project_health_audit/cursor_rules/flutter_code_quality.yaml` and execute the instructions to analyze code quality.
 
-10. **Security Analysis**
-    Read `flutter_project_health_audit/cursor_rules/flutter_security_analysis.yaml` and execute the instructions to analyze security.
-
-11. **Gemini Security Audit**
-    Read `flutter_project_health_audit/cursor_rules/flutter_gemini_security_audit.yaml` and execute the instructions to perform the Gemini security audit.
-
-12. **Documentation Analysis**
+10. **Documentation Analysis**
     Read `flutter_project_health_audit/cursor_rules/flutter_documentation_analysis.yaml` and execute the instructions to analyze documentation.
 
-13. **Generate Report**
+11. **Generate Report**
     Read `flutter_project_health_audit/cursor_rules/flutter_report_generator.yaml` and execute the instructions to generate the final report.
 
-14. **Export Report**
+12. **Export Report**
     Ensure the final report generated in the previous step is saved to `reports/flutter_audit.txt`.
     ```bash
     mkdir -p reports
     ```
 
-15. **Optional Best Practices Check**
+13. **Optional Best Practices Check**
     Ask the user if they want to execute the Best Practices Check.
 
     Workflow: `flutter_best_practices_check/.agent/workflows/flutter_best_practices.md`

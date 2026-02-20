@@ -104,7 +104,7 @@ class AntigravityTransformer {
     // Absolute path because Antigravity resolves paths relative to the
     // workspace, not relative to the workflow file.
     final pathPattern = RegExp(
-      r'`(\w+_(?:project_health_audit|best_practices_check)/[^`]+)`',
+      r'`(\w+_(?:project_health_audit|best_practices_check|audit)/[^`]+)`',
     );
     content = content.replaceAllMapped(pathPattern, (match) {
       return '`~/.gemini/antigravity/somnio_rules/${match.group(1)}`';

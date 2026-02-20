@@ -15,14 +15,14 @@ import '../runner/run_config.dart';
 import '../runner/step_executor.dart';
 import '../utils/package_resolver.dart';
 
-/// Executes a health audit step-by-step using an AI CLI.
+/// Executes a health audit or security audit step-by-step using an AI CLI.
 ///
 /// Each rule runs in a fresh AI context, saving findings as artifacts.
 /// Must be run from the target project's directory.
 ///
 /// Available codes are derived dynamically from [SkillRegistry] — any
-/// health audit bundle registered via `somnio add` is automatically
-/// available without code changes.
+/// health or security audit bundle registered via `somnio add` is
+/// automatically available without code changes.
 ///
 /// Usage: `somnio run <code>`
 class RunCommand extends Command<int> {
@@ -74,11 +74,11 @@ class RunCommand extends Command<int> {
     'gpt-5.1-codex-max',
     'gpt-5.1-codex-max-high',
     'gpt-5.1-high',
-    'gemini-3-pro',
-    'gemini-3-flash',
+    'gemini-3-pro-preview',
+    'gemini-3-flash-preview',
     'grok',
   ];
-  static const _geminiModels = ['gemini-3-flash', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro'];
+  static const _geminiModels = ['gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro-preview', 'gemini-3.1-pro-preview'];
 
   final Logger _logger;
 
@@ -86,7 +86,7 @@ class RunCommand extends Command<int> {
   String get name => 'run';
 
   @override
-  String get description => 'Execute a health audit from the project terminal.\n'
+  String get description => 'Execute a health or security audit from the project terminal.\n'
       '\n'
       'Run from the target project root (e.g., inside a Flutter or NestJS repo).\n'
       'The CLI handles setup steps (tool install, version alignment, tests)\n'
@@ -98,11 +98,13 @@ class RunCommand extends Command<int> {
   @override
   String get invocation => 'somnio run <code>';
 
-  /// Returns all health audit bundles from the registry.
+  /// Returns all runnable audit bundles from the registry.
   ///
-  /// Health audits are identified by `id` ending with `_health`.
-  List<SkillBundle> get _healthBundles =>
-      SkillRegistry.skills.where((b) => b.id.endsWith('_health')).toList();
+  /// Runnable audits are identified by `id` ending with `_health` or `_audit`.
+  List<SkillBundle> get _runnableBundles =>
+      SkillRegistry.skills
+          .where((b) => b.id.endsWith('_health') || b.id.endsWith('_audit'))
+          .toList();
 
   /// Derives the short code from a bundle name.
   ///
@@ -127,9 +129,9 @@ class RunCommand extends Command<int> {
   String _reportFileFromTechPrefix(String techPrefix) =>
       '${techPrefix}_audit.txt';
 
-  /// Finds a health audit bundle by its short code.
+  /// Finds an audit bundle by its short code.
   SkillBundle? _findBundleByCode(String code) {
-    for (final bundle in _healthBundles) {
+    for (final bundle in _runnableBundles) {
       if (_codeFromBundle(bundle) == code) return bundle;
     }
     return null;
@@ -137,7 +139,7 @@ class RunCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final bundles = _healthBundles;
+    final bundles = _runnableBundles;
 
     // 1. Parse and validate the short code
     final code = argResults!.rest.firstOrNull;
@@ -403,7 +405,8 @@ class RunCommand extends Command<int> {
     _logger.info('');
 
     // 11. Execute steps
-    final executor = StepExecutor(config: config, logger: _logger);
+    final executor = StepExecutor(config: config, logger: _logger)
+      ..fallbackModel = _fallbackModelForAgent(agent);
     final results = <StepResult>[];
     var aborted = false;
 
@@ -444,6 +447,37 @@ class RunCommand extends Command<int> {
             'Step ${step.index}/${steps.length}: ${step.ruleName}  '
             '${_formatStepStats(result)}',
           );
+        }
+
+        // Run format enforcer as post-processing after report generation
+        if (step.ruleName.endsWith('_report_generator')) {
+          final enforcerRuleName = step.ruleName.replaceFirst(
+            '_report_generator',
+            '_report_format_enforcer',
+          );
+          final enforcerProgress = _logger.progress(
+            'Step ${step.index}/${steps.length}: format enforcement',
+          );
+          final enforcerResult = await executor.executeFormatEnforcer(
+            step,
+            enforcerRuleName,
+          );
+          results.add(enforcerResult);
+          if (enforcerResult.success) {
+            final hasWarning = enforcerResult.errorMessage != null;
+            enforcerProgress.complete(
+              'Step ${step.index}/${steps.length}: format enforcement  '
+              '${hasWarning ? enforcerResult.errorMessage! : _formatStepStats(enforcerResult)}',
+            );
+          } else {
+            enforcerProgress.fail(
+              'Step ${step.index}/${steps.length}: '
+              'format enforcement FAILED (continuing)',
+            );
+            if (enforcerResult.errorMessage != null) {
+              _logger.warn(enforcerResult.errorMessage!);
+            }
+          }
         }
       } else {
         final stats = result.tokenUsage != null
@@ -509,6 +543,28 @@ class RunCommand extends Command<int> {
     if (!aborted && File(reportPath).existsSync()) {
       _logger.info('');
       _logger.info('Report saved to: $reportPath');
+    }
+
+    // After a successful health audit, prompt for optional security audit
+    if (!aborted && bundle.id.endsWith('_health')) {
+      final securityBundle = SkillRegistry.findById('security_audit');
+      if (securityBundle != null) {
+        _logger.info('');
+        _logger.info(
+          'Would you like to run a Security Audit? '
+          '(somnio run ${_codeFromBundle(securityBundle)})',
+        );
+        final answer = _logger.prompt(
+          'Run security audit? (y/n)',
+          defaultValue: 'n',
+        );
+        if (answer.toLowerCase() == 'y' || answer.toLowerCase() == 'yes') {
+          _logger.info('');
+          _logger.info(
+            'Run: somnio run ${_codeFromBundle(securityBundle)}',
+          );
+        }
+      }
     }
 
     return aborted ? ExitCode.software.code : ExitCode.success.code;
@@ -597,6 +653,19 @@ class RunCommand extends Command<int> {
         return _cursorModels;
       case RunAgent.gemini:
         return _geminiModels;
+    }
+  }
+
+  /// Returns the cheapest model for the given agent, used as fallback
+  /// when the selected model hits quota or capacity limits.
+  String? _fallbackModelForAgent(RunAgent agent) {
+    switch (agent) {
+      case RunAgent.claude:
+        return 'haiku';
+      case RunAgent.cursor:
+        return 'auto';
+      case RunAgent.gemini:
+        return 'gemini-2.5-flash';
     }
   }
 

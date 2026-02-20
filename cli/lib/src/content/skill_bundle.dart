@@ -38,8 +38,9 @@ class SkillBundle {
 
   /// Technology prefix derived from the bundle [id].
   ///
-  /// `flutter_health` → `flutter`, `nestjs_plan` → `nestjs`.
-  String get techPrefix => id.replaceAll(RegExp(r'_(?:health|plan)$'), '');
+  /// `flutter_health` → `flutter`, `nestjs_plan` → `nestjs`,
+  /// `security_audit` → `security`.
+  String get techPrefix => id.replaceAll(RegExp(r'_(?:health|plan|audit)$'), '');
 
   /// Human-readable technology name derived from [displayName].
   ///

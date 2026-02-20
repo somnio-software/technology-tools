@@ -4,7 +4,7 @@ description: >-
   Reads Flutter audit plans and rules from technology-tools and installs
   them as native slash commands into Claude Code, Cursor, and Antigravity.
 
-version: 1.0.6
+version: 1.0.7
 publish_to: none
 
 environment:
@@ -18,7 +18,7 @@ dependencies:
   yaml: ^3.1.0
   mason_logger: ^0.3.0
   path: ^1.9.0
-  pub_updater: ^0.4.0
+  pub_updater: ^0.5.0
 
 dev_dependencies:
   test: ^1.25.0

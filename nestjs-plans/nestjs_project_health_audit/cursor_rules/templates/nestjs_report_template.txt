@@ -42,7 +42,6 @@ Priority Recommendations:
 - Data Layer: [Score]/100 ([Label])
 - Testing: [Score]/100 ([Label])
 - Code Quality (Linter & Warnings): [Score]/100 ([Label])
-- Security: [Score]/100 ([Label])
 - Documentation & Operations: [Score]/100 ([Label])
 - CI/CD (Configs Found in Repo): [Score]/100 ([Label])
 - Overall: [Score]/100 ([Label])
@@ -239,39 +238,7 @@ Counts & Metrics:
 - [Metric name]: [Value]
 - [Continue as needed]
 
-9. Security
-
-Description: [One-sentence description of the security analysis].
-
-Score: [Score]/100 ([Label])
-
-Key Findings:
-- [Finding 1]
-- [Finding 2]
-- [Finding 3]
-- [Continue as needed]
-
-Evidence:
-- [File path or configuration reference]
-- [Specific evidence item]
-- [Continue as needed]
-
-Risks:
-- [Risk item 1]
-- [Risk item 2]
-- [Continue as needed]
-
-Recommendations:
-- [Recommendation 1]
-- [Recommendation 2]
-- [Continue as needed]
-
-Counts & Metrics:
-- [Metric name]: [Value]
-- [Metric name]: [Value]
-- [Continue as needed]
-
-10. Documentation & Operations
+9. Documentation & Operations
 
 Description: [One-sentence description of the documentation and
 operations analysis].
@@ -304,7 +271,7 @@ Counts & Metrics:
 - [Metric name]: [Value]
 - [Continue as needed]
 
-11. CI/CD (Configs Found in Repo)
+10. CI/CD (Configs Found in Repo)
 
 Description: [One-sentence description of the CI/CD analysis].
 
@@ -336,7 +303,7 @@ Counts & Metrics:
 - [Metric name]: [Value]
 - [Continue as needed]
 
-12. Additional Metrics
+11. Additional Metrics
 
 - Node.js version: [Version]
 - NestJS version: [Version]
@@ -355,7 +322,7 @@ Counts & Metrics:
 - Database ORM: [TypeORM/Prisma/Sequelize/MikroORM/none]
 - Authentication method: [JWT/Passport/Session/none]
 
-13. Quality Index
+12. Quality Index
 
 Section Summary with Scores:
 - Tech Stack: [Score]/100 ([Label])
@@ -364,7 +331,6 @@ Section Summary with Scores:
 - Data Layer: [Score]/100 ([Label])
 - Testing: [Score]/100 ([Label])
 - Code Quality: [Score]/100 ([Label])
-- Security: [Score]/100 ([Label])
 - Documentation & Operations: [Score]/100 ([Label])
 - CI/CD: [Score]/100 ([Label])
 
@@ -372,7 +338,7 @@ Overall Score: [Score]/100 ([Label])
 
 [One-sentence interpretation of the overall score]
 
-14. Risks & Opportunities
+13. Risks & Opportunities
 
 - [Risk/Opportunity 1]
 - [Risk/Opportunity 2]
@@ -383,7 +349,7 @@ Overall Score: [Score]/100 ([Label])
 - [Risk/Opportunity 7]
 - [Risk/Opportunity 8]
 
-15. Recommendations
+14. Recommendations
 
 1. [Priority Level]: [Recommendation 1]
 2. [Priority Level]: [Recommendation 2]
@@ -396,7 +362,7 @@ Overall Score: [Score]/100 ([Label])
 9. [Priority Level]: [Recommendation 9]
 10. [Priority Level]: [Recommendation 10]
 
-16. Appendix: Evidence Index
+15. Appendix: Evidence Index
 
 File Paths and Configs by Area:
 
@@ -421,10 +387,6 @@ Testing:
 - [Continue as needed]
 
 Code Quality:
-- [File path or config reference]
-- [Continue as needed]
-
-Security:
 - [File path or config reference]
 - [Continue as needed]
 

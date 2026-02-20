@@ -13,11 +13,11 @@ independently and produces output that feeds into the final report.
 
 You are a master at:
 - **Comprehensive Project Auditing**: Evaluating all aspects of NestJS
-  project health (tech stack, architecture, API design, testing, security,
+  project health (tech stack, architecture, API design, testing,
   CI/CD, documentation)
 - **Evidence-Based Analysis**: Analyzing repository evidence objectively
   without inventing data or making assumptions
-- **Modular Rule Execution**: Coordinating sequential execution of 14
+- **Modular Rule Execution**: Coordinating sequential execution of 13
   specialized analysis rules
 - **Score Calculation**: Calculating section scores (0-100) and weighted
   overall scores accurately
@@ -165,17 +165,7 @@ mode, and code quality enforcement.
 **Integration**: Save code quality findings for Code Quality section
 scoring.
 
-## Step 6. Security Analysis
-
-Goal: Identify sensitive files, check .gitignore coverage, find dependency
-scanning configuration, analyze authentication/authorization patterns,
-and evaluate OWASP Top 10 compliance.
-
-**Rule to Execute**: `@nestjs_security_analysis`
-
-**Integration**: Save security findings for Security section scoring.
-
-## Step 7. API Design Analysis
+## Step 6. API Design Analysis
 
 Goal: Analyze REST/GraphQL API design, DTOs, validation patterns,
 OpenAPI/Swagger documentation, and API versioning.
@@ -184,7 +174,7 @@ OpenAPI/Swagger documentation, and API versioning.
 
 **Integration**: Save API design findings for API Design section scoring.
 
-## Step 8. Data Layer Analysis
+## Step 7. Data Layer Analysis
 
 Goal: Analyze ORM/database integration, repository patterns, migrations,
 and data access layer organization.
@@ -193,7 +183,7 @@ and data access layer organization.
 
 **Integration**: Save data layer findings for Data Layer section scoring.
 
-## Step 9. Documentation and Operations
+## Step 8. Documentation and Operations
 
 Goal: Review technical documentation, API documentation, build
 instructions, and environment setup.
@@ -203,7 +193,7 @@ instructions, and environment setup.
 **Integration**: Save documentation findings for Documentation &
 Operations section scoring.
 
-## Step 10. Generate Final Report
+## Step 9. Generate Final Report
 
 Goal: Generate the final NestJS Project Health Audit report by
 integrating all analysis results.
@@ -215,9 +205,9 @@ generates the final report.
 
 **Report Sections**:
 - Executive Summary with overall score
-- At-a-Glance Scorecard with all 9 section scores
-- All 9 detailed sections (Tech Stack, Architecture, API Design,
-  Data Layer, Testing, Code Quality, Security, Documentation &
+- At-a-Glance Scorecard with all 8 section scores
+- All 8 detailed sections (Tech Stack, Architecture, API Design,
+  Data Layer, Testing, Code Quality, Documentation &
   Operations, CI/CD)
 - Additional Metrics (including coverage percentages)
 - Quality Index
@@ -225,7 +215,7 @@ generates the final report.
 - Recommendations (6-10 prioritized actions)
 - Appendix: Evidence Index
 
-## Step 11. Export Final Report
+## Step 10. Export Final Report
 
 Goal: Save the final Google Docs-ready plain-text report to the reports
 directory.
@@ -243,9 +233,11 @@ mkdir -p reports
 # Save report content to ./reports/nestjs_audit.txt
 ```
 
+**Note**: For security analysis, run the standalone Security Audit (`/somnio-sa`).
+
 ## Execution Summary
 
-**Total Rules**: 14 rules
+**Total Rules**: 13 rules
 
 **Rule Execution Order**:
 1. `@nestjs_tool_installer`
@@ -257,11 +249,10 @@ mkdir -p reports
 7. `@nestjs_cicd_analysis`
 8. `@nestjs_testing_analysis`
 9. `@nestjs_code_quality`
-10. `@nestjs_security_analysis`
-11. `@nestjs_api_design_analysis`
-12. `@nestjs_data_layer_analysis`
-13. `@nestjs_documentation_analysis`
-14. `@nestjs_report_generator`
+10. `@nestjs_api_design_analysis`
+11. `@nestjs_data_layer_analysis`
+12. `@nestjs_documentation_analysis`
+13. `@nestjs_report_generator`
 
 **Benefits of Modular Approach**:
 - Each rule can be executed independently

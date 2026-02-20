@@ -47,14 +47,14 @@ For detailed CLI usage, commands, and advanced options, see the [CLI README](cli
 - `somnio cursor` - Install commands and rule files to Cursor (IDE + Cursor CLI)
 - `somnio antigravity` - Install workflows to Antigravity
 - `somnio status` - Show CLI availability and installed skills status
-- `somnio run <code>` - Run a health audit step-by-step from the project terminal (with per-step token usage tracking)
+- `somnio run <code>` - Run a health or security audit step-by-step from the project terminal (with per-step token usage tracking)
 - `somnio quote` (or `somnio q`) - Display a random Somnio team quote
 - `somnio update` - Update CLI and reinstall skills
 - `somnio add` - Add new technology skill bundles
 
 ### 🏃 Running Audits from the Terminal
 
-Use `somnio run` from the target project's root to execute a full health audit. The CLI handles setup steps (tool installation, version alignment, test coverage) directly via pre-flight, then delegates analysis steps to an AI CLI (Claude or Gemini) in fresh contexts.
+Use `somnio run` from the target project's root to execute a health or security audit. The CLI handles setup steps (tool installation, version alignment, test coverage) directly via pre-flight, then delegates analysis steps to an AI CLI (Claude or Gemini) in fresh contexts.
 
 ```bash
 # From a Flutter project root
@@ -62,19 +62,26 @@ somnio run fh
 
 # From a NestJS project root
 somnio run nh
+
+# From any project root (framework-agnostic security audit)
+somnio run sa
 ```
 
 | Code | Audit |
 |------|-------|
 | `fh` | Flutter Project Health Audit |
 | `nh` | NestJS Project Health Audit |
+| `sa` | Security Audit (framework-agnostic) |
 
-You can specify a model with `--model` (`-m`) or select one interactively. Each CLI has a sensible default: **haiku** for Claude and **gemini-3-flash** for Gemini.
+You can specify a model with `--model` (`-m`) or select one interactively. Each CLI has a sensible default: **haiku** for Claude and **gemini-3-flash-preview** for Gemini.
 
 ```bash
 somnio run fh --model opus          # Use a specific Claude model
 somnio run nh --agent gemini -m gemini-3-pro  # Gemini with a specific model
+somnio run sa                       # Security audit (auto-detects project type)
 ```
+
+After a health audit completes, the CLI will ask if you want to run a security audit as well.
 
 Artifacts are saved to `./reports/.artifacts/` and the final report to `./reports/`. See the [CLI README](cli/README.md) for all flags (`--agent`, `--model`, `--skip-validation`, `--no-preflight`).
 
@@ -99,17 +106,34 @@ Auditing system for NestJS backend and cloud functions projects.
 ### NestJS Project Health Audit
 Complete auditing system for NestJS/Node.js backend projects that includes:
 
-- **Automated analysis**: 9 analysis categories with scoring (Tech Stack, Architecture, API Design, Data Layer, Testing, Code Quality, Security, Documentation, CI/CD)
+- **Automated analysis**: 8 analysis categories with scoring (Tech Stack, Architecture, API Design, Data Layer, Testing, Code Quality, Documentation, CI/CD)
 - **Monorepo support**: Handles single-app and monorepo structures (nx, turborepo, lerna, custom)
-- **Standardized reports**: 16-section format ready for Google Docs
+- **Standardized reports**: 15-section format ready for Google Docs
 - **API design analysis**: REST/GraphQL validation, DTOs, OpenAPI/Swagger documentation
-- **Security analysis**: Authentication/authorization patterns, OWASP Top 10 compliance
 - **Test coverage**: Execution, aggregation, and 70% minimum threshold validation
 - **ChatGPT integration**: Specialized prompt for generating executive summaries
 
 **Location**: `nestjs-plans/nestjs_project_health_audit/`
 
 **Documentation**: See `nestjs-plans/nestjs_project_health_audit/README.md` for detailed instructions.
+
+### Security Audit
+Standalone, framework-agnostic security audit that detects the project type at runtime and adapts checks accordingly. Can be run independently or after a health audit.
+
+- **Framework-agnostic**: Auto-detects Flutter, NestJS, Node.js, Go, Rust, Python, or generic projects
+- **Sensitive file analysis**: Scans for exposed credentials, API keys, keystores, and checks .gitignore coverage
+- **Source code secret scanning**: Detects hardcoded secrets, tokens, passwords, and cloud credentials in source code
+- **Dependency vulnerability audit**: Runs native package manager scans (`npm audit`, `pub outdated`, `pip audit`, `cargo audit`, etc.)
+- **Gemini AI analysis (optional)**: Leverages Gemini CLI with the security extension for advanced vulnerability detection - works with API key or Google subscription
+- **Severity-classified reports**: Findings categorized as HIGH, MEDIUM, LOW with a remediation priority matrix
+
+**Location**: `security-plans/security_audit/`
+
+**Documentation**: See `security-plans/README.md` for detailed information about available security tools and usage instructions.
+
+**CLI command**: `somnio run sa`
+
+**IDE skill**: `/somnio-sa`
 
 ## 📁 Repository Structure
 
@@ -123,14 +147,23 @@ technology-tools/
 │   ├── nestjs_project_health_audit/    # Health audit system
 │   ├── nestjs_best_practices_check/     # Code quality checker
 │   └── README.md
+├── security-plans/                      # Security tools
+│   ├── security_audit/                  # Framework-agnostic security audit
+│   │   ├── plan/                        # Execution plan
+│   │   ├── cursor_rules/                # Analysis rules (YAML)
+│   │   │   └── templates/               # Report template
+│   │   ├── .agent/workflows/            # Antigravity workflow
+│   │   └── env/                         # Environment variable template
+│   └── README.md
+├── cli/                                 # Somnio CLI tool
 └── README.md                            # This file
 ```
 
 Each tool directory contains:
 - `cursor_rules/` - Analysis rules (YAML files)
 - `plan/` - Execution plans
-- `prompts/` - AI prompts for enhanced analysis
-- `README.md` - Tool-specific documentation
+- `cursor_rules/templates/` - Report templates
+- `.agent/workflows/` - Antigravity workflow definitions
 
 ## 🚀 Quick Start
 
@@ -160,6 +193,22 @@ cd nestjs-plans/nestjs_project_health_audit/
 # Follow instructions in the specific README
 # See nestjs-plans/nestjs_project_health_audit/README.md
 ```
+
+### For Security Audits
+
+Run the standalone security audit from any project root. It auto-detects the project type:
+
+```bash
+# Via CLI (from the target project root)
+somnio run sa
+
+# Via IDE skill
+/somnio-sa
+```
+
+The security audit can also be triggered after completing a health audit - the CLI will prompt you automatically.
+
+To use the optional Gemini AI analysis, either set `GEMINI_API_KEY` in your environment or sign in with `gemini auth login` (Google One AI Premium subscription).
 
 ### For new tools
 
@@ -196,10 +245,10 @@ All YAML rule files follow strict formatting standards:
 
 - [x] Flutter Project Health Audit
 - [x] Flutter Best Practices Check
-- [ ] NestJS Project Health Audit (Backend)
+- [x] NestJS Project Health Audit (Backend)
+- [x] Framework-Agnostic Security Audit
 - [ ] NestJS Project Health Audit (Cloud Functions)
 - [ ] Tools for React/Next.js project analysis
-- [ ] Security analysis tools
 - [ ] Deployment automation
 - [ ] Performance and quality metrics
 

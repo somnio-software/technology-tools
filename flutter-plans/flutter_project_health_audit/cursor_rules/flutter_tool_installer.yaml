@@ -1,8 +1,8 @@
 rules:
   - name: Flutter Tool Installer
     description: >
-      Centralized installer for all required tools (Node.js, FVM, Gemini
-      CLI, Security Extension) for the Flutter Project Health Audit.
+      Centralized installer for required tools (Node.js, FVM) for the
+      Flutter Project Health Audit.
     match: "*"
     prompt: |
       You are an elite tool installation specialist with deep expertise in
@@ -23,8 +23,6 @@ rules:
         managers
       - **FVM Configuration**: Setting up Flutter Version Management for
         consistent Flutter versions
-      - **CLI Tool Setup**: Installing and configuring command-line tools
-        (Gemini CLI, Security Extension)
       - **Environment Validation**: Verifying tool installations and
         configuration correctness
 
@@ -34,8 +32,6 @@ rules:
       TOOLS TO INSTALL:
       1. Node.js & npm (via Homebrew if missing)
       2. FVM (Flutter Version Management)
-      3. Gemini CLI (@google/gemini-cli)
-      4. Gemini Security Extension
 
       EXECUTION STEPS:
 
@@ -82,41 +78,6 @@ rules:
          else
            echo "FVM is installed."
            fvm --version > /dev/null 2>&1
-         fi
-         ```
-
-      3. Check/Install Gemini CLI:
-         ```bash
-         echo "Checking Gemini CLI..."
-         if ! command -v gemini &> /dev/null; then
-           echo "Gemini CLI not found. Installing @google/gemini-cli
-             globally via npm..."
-           npm install -g @google/gemini-cli > /dev/null 2>&1
-           if [ $? -ne 0 ]; then
-             echo "ERROR: Failed to install Gemini CLI."
-             exit 1
-           fi
-           echo "Gemini CLI installed successfully."
-         else
-           echo "Gemini CLI is installed."
-           gemini --version > /dev/null 2>&1
-         fi
-         ```
-
-      4. Check/Install Gemini Security Extension:
-         ```bash
-         echo "Checking Gemini Security Extension..."
-         if ! gemini extensions list 2>/dev/null | grep -q "security"; then
-           echo "Gemini Security extension not found. Installing..."
-           gemini extensions install \
-             https://github.com/gemini-cli-extensions/security > /dev/null 2>&1
-           if [ $? -ne 0 ]; then
-             echo "ERROR: Failed to install Gemini Security extension."
-             exit 1
-           fi
-           echo "Gemini Security extension installed successfully."
-         else
-           echo "Gemini Security extension is installed."
          fi
          ```
 

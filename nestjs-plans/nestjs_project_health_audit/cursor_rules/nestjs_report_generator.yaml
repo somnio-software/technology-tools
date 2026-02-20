@@ -39,12 +39,12 @@ rules:
 
       Apply the "NestJS Project Health Audit" rule to generate the full
       report with:
-      - 9 section scores (0-100 integer): Tech Stack, Architecture, API
-        Design, Data Layer, Testing, Code Quality, Security, Documentation
+      - 8 section scores (0-100 integer): Tech Stack, Architecture, API
+        Design, Data Layer, Testing, Code Quality, Documentation
         & Operations, CI/CD
-      - Weighted overall score using: Tech Stack 0.18, Architecture 0.18,
-        API Design 0.18, Data Layer 0.10, Testing 0.10, Code Quality 0.10,
-        Security 0.10, Documentation & Operations 0.03, CI/CD 0.03
+      - Weighted overall score using: Tech Stack 0.20, Architecture 0.20,
+        API Design 0.20, Data Layer 0.11, Testing 0.11, Code Quality 0.11,
+        Documentation & Operations 0.035, CI/CD 0.035
       - ROUNDING RULE: Use standard mathematical rounding (0.5 rounds up).
         Do NOT apply subjective adjustments.
       - Important exclusions:
@@ -57,7 +57,9 @@ rules:
       - All sections with: Description, Score, Key Findings, Evidence,
         Risks, Recommendations, Counts & Metrics
 
-      MANDATORY REPORT STRUCTURE (16 sections in exact order):
+      NOTE: For security analysis, run the standalone Security Audit (/somnio-sa).
+
+      MANDATORY REPORT STRUCTURE (15 sections in exact order):
       1. Executive Summary
       2. At-a-Glance Scorecard
       3. Tech Stack
@@ -66,14 +68,13 @@ rules:
       6. Data Layer
       7. Testing
       8. Code Quality (Linter & Warnings)
-      9. Security
-      10. Documentation & Operations
-      11. CI/CD (Configs Found in Repo)
-      12. Additional Metrics
-      13. Quality Index
-      14. Risks & Opportunities
-      15. Recommendations
-      16. Appendix: Evidence Index
+      9. Documentation & Operations
+      10. CI/CD (Configs Found in Repo)
+      11. Additional Metrics
+      12. Quality Index
+      13. Risks & Opportunities
+      14. Recommendations
+      15. Appendix: Evidence Index
 
       Integrate results from all previous analysis steps:
       - Node.js Version Alignment results
@@ -82,7 +83,6 @@ rules:
       - CI/CD Analysis findings
       - Testing Analysis results
       - Code Quality Analysis results
-      - Security Analysis results
       - API Design Analysis results
       - Data Layer Analysis results
       - Documentation Analysis results
@@ -154,12 +154,11 @@ rules:
       - Data Layer: [Score]/100 ([Label])
       - Testing: [Score]/100 ([Label])
       - Code Quality (Linter & Warnings): [Score]/100 ([Label])
-      - Security: [Score]/100 ([Label])
       - Documentation & Operations: [Score]/100 ([Label])
       - CI/CD (Configs Found in Repo): [Score]/100 ([Label])
       - Overall: [Score]/100 ([Label])
 
-      12. Additional Metrics:
+      11. Additional Metrics:
       - Node.js version: [Version]
       - NestJS version: [Version]
       - TypeScript version: [Version]
@@ -176,7 +175,7 @@ rules:
       - Database ORM: [TypeORM/Prisma/Sequelize/MikroORM/none]
       - Authentication method: [JWT/Passport/Session/none]
 
-      13. Quality Index:
+      12. Quality Index:
       Section Summary with Scores:
       - Tech Stack: [Score]/100 ([Label])
       - Architecture: [Score]/100 ([Label])
@@ -184,23 +183,22 @@ rules:
       - Data Layer: [Score]/100 ([Label])
       - Testing: [Score]/100 ([Label])
       - Code Quality: [Score]/100 ([Label])
-      - Security: [Score]/100 ([Label])
       - Documentation & Operations: [Score]/100 ([Label])
       - CI/CD: [Score]/100 ([Label])
       Overall Score: [Score]/100 ([Label])
       [One-sentence interpretation]
 
-      14. Risks & Opportunities:
+      13. Risks & Opportunities:
       - [Risk/Opportunity 1]
       - [Risk/Opportunity 2]
       - [Continue as needed]
 
-      15. Recommendations:
+      14. Recommendations:
       1. [Priority Level]: [Recommendation 1]
       2. [Priority Level]: [Recommendation 2]
       3. [Continue as needed]
 
-      16. Appendix: Evidence Index:
+      15. Appendix: Evidence Index:
       File Paths and Configs by Area:
       [Area Name]:
       - [File path or config reference]
@@ -228,7 +226,7 @@ rules:
 
       VALIDATION CHECKLIST:
       Before finalizing the report, verify:
-      ✓ All 16 sections are present
+      ✓ All 15 sections are present
       ✓ All sections follow the required format
       ✓ All scores are integers with proper labels
       ✓ All evidence references actual files

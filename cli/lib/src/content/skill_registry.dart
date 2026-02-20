@@ -2,8 +2,9 @@ import 'skill_bundle.dart';
 
 /// Static registry of all available skill bundles.
 ///
-/// Each bundle maps to a set of source files in `flutter-plans/` or
-/// `nestjs-plans/` and defines how they are installed into each agent.
+/// Each bundle maps to a set of source files in `flutter-plans/`,
+/// `nestjs-plans/`, or `security-plans/` and defines how they are
+/// installed into each agent.
 class SkillRegistry {
   SkillRegistry._();
 
@@ -16,7 +17,7 @@ class SkillRegistry {
       description:
           'Execute a comprehensive Flutter Project Health Audit. '
           'Analyzes tech stack, architecture, state management, testing, '
-          'code quality, security, CI/CD, and documentation. Produces a '
+          'code quality, CI/CD, and documentation. Produces a '
           'Google Docs-ready report with section scores and weighted '
           'overall score.',
       planRelativePath:
@@ -53,7 +54,7 @@ class SkillRegistry {
       description:
           'Execute a comprehensive NestJS Project Health Audit. '
           'Analyzes tech stack, architecture, API design, data layer, '
-          'testing, code quality, security, CI/CD, and documentation. '
+          'testing, code quality, CI/CD, and documentation. '
           'Produces a Google Docs-ready report with section scores and '
           'weighted overall score.',
       planRelativePath:
@@ -83,6 +84,25 @@ class SkillRegistry {
           'nestjs-plans/nestjs_best_practices_check/.agent/workflows/nestjs_best_practices.md',
       templatePath:
           'nestjs-plans/nestjs_best_practices_check/cursor_rules/templates/best_practices_report_template.txt',
+    ),
+    SkillBundle(
+      id: 'security_audit',
+      name: 'somnio-sa',
+      displayName: 'Security Audit',
+      description:
+          'Execute a comprehensive, framework-agnostic Security Audit. '
+          'Detects project type at runtime and adapts security checks '
+          'accordingly. Analyzes sensitive files, source code secrets, '
+          'dependency vulnerabilities, and optionally uses Gemini AI '
+          'for advanced analysis. Produces a severity-classified report.',
+      planRelativePath:
+          'security-plans/security_audit/plan/security.plan.md',
+      rulesDirectory:
+          'security-plans/security_audit/cursor_rules',
+      workflowPath:
+          'security-plans/security_audit/.agent/workflows/security_audit.md',
+      templatePath:
+          'security-plans/security_audit/cursor_rules/templates/security_report_template.txt',
     ),
   ];
 
