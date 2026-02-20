@@ -3,8 +3,9 @@ rules:
     description: >
       Synthesize all security findings into a comprehensive security audit
       report with quantitative scoring, severity classifications, and actionable
-      recommendations. Uses templates/security_report_template.txt for format
-      structure.
+      recommendations. MUST follow the exact 14-section structure from
+      templates/security_report_template.txt. Every section in the template
+      is MANDATORY. Do not merge, skip, rename, or reorder sections.
     match: "*"
     prompt: |
       You are an elite security report generation specialist with deep
@@ -151,6 +152,48 @@ rules:
       All section scores must be clamped to 0-100 range before applying
       the formula. The Overall Score in the Executive Summary, Scorecard,
       and Score Index must all match.
+
+      MANDATORY SCORING COMPUTATION (execute before writing report):
+
+      You MUST compute all scores BEFORE generating any report content.
+      A report without scores is INVALID and must not be produced.
+
+      Step A - Extract scoring data from each artifact:
+        - From step_02: .env tracked count, key/cert count, .gitignore
+          coverage, platform patterns, .env.example status, multi-dir
+          .gitignore count
+        - From step_03: HIGH/MEDIUM/LOW finding counts, git history
+          secrets, pre-commit hooks, .gitleaks.toml presence
+        - From step_04: Critical/High/Medium/Low CVE counts, outdated dep
+          count, lock file status, SHA256 hashes, automated tooling
+          (Dependabot/Snyk/Renovate), CI/CD scanning, git-sourced deps,
+          path-based deps, registry sources
+
+      Step B - Compute each section score using the rubrics above:
+        1. Sensitive File Protection: Base 100, apply deductions/bonuses,
+           clamp 0-100
+        2. Secret Detection: Base 100, apply deductions/bonuses, clamp 0-100
+        3. Dependency Security: Base 100, apply deductions/bonuses,
+           clamp 0-100
+        4. Supply Chain Integrity: Base 100, apply deductions/bonuses,
+           clamp 0-100
+        5. Security Automation & CI/CD: Base 0, apply additions,
+           clamp 0-100
+
+      Step C - Compute Overall Score:
+        overall = round(file_protection*0.25 + secret_detection*0.30
+                  + dependency*0.20 + supply_chain*0.10 + automation*0.15)
+
+      Step D - Determine labels for each score and Overall using the
+      mapping: 85-100 = Strong, 70-84 = Fair, 50-69 = Weak, 0-49 = Critical
+
+      Step E - Verify all 6 scores (5 sections + overall) are computed
+      before proceeding to write any report content.
+
+      REJECTION CRITERIA:
+      If you cannot compute a score for any section due to missing artifact
+      data, assign score 0 and note "Score: 0/100 (Critical) - Insufficient
+      data from [missing artifact]". Never omit a scored section.
 
       SEVERITY CLASSIFICATION:
       - HIGH: Hardcoded secrets, exposed credentials, critical vulnerabilities

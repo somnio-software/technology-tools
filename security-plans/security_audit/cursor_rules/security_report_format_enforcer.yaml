@@ -28,6 +28,31 @@ rules:
       Goal: Validate and enforce plain-text formatting on the Security Audit
       report before export.
 
+      STRUCTURAL VALIDATION (reject before formatting):
+
+      Before applying any formatting fixes, validate the report structure.
+      If any of these checks FAIL, STOP and output an error message instead
+      of the formatted report. Do NOT attempt to format an incomplete report.
+
+      Required structure checks:
+      1. Report must contain exactly 14 numbered sections
+      2. Section 2 must be "At-a-Glance Scorecard" with 5 scored lines
+         plus an Overall Score line
+      3. Sections 4-8 must each contain "Score:" followed by
+         [Score]/100 ([Label])
+      4. Sections 4-8 must each contain "Score Breakdown:" with
+         Base and Final lines
+      5. Section 12 must be "Security Score Index" with 5 scored lines
+         plus Overall plus Formula
+      6. Section 1 must contain "Overall Score:" with [Score]/100 ([Label])
+
+      If ANY check fails, output:
+        VALIDATION FAILED: [which check failed]
+        The report generator must be re-run to include all mandatory scored
+        sections before formatting can proceed.
+
+      Only proceed with formatting if ALL structural checks pass.
+
       FORMATTING RULES TO ENFORCE:
       - NO MARKDOWN SYNTAX: Remove any # headings, **bold**, *italic*,
         `code`, ```code blocks```, [links](url)

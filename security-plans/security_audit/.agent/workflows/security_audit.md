@@ -22,10 +22,10 @@ description: Framework-Agnostic Security Audit
    Read `security_audit/cursor_rules/security_gemini_analysis.yaml` and execute the instructions to perform AI-powered security analysis. Skip if Gemini CLI is unavailable.
 
 6. **Generate Security Report**
-   Read `security_audit/cursor_rules/security_report_generator.yaml` and execute the instructions to generate the final security report.
+   Read `security_audit/cursor_rules/security_report_generator.yaml` and execute the instructions to generate the final security report. The report MUST include all 14 sections with quantitative scores computed from step artifacts. Verify the report contains Section 2 (At-a-Glance Scorecard), scored Sections 4-8 with Score Breakdowns, and Section 12 (Security Score Index) before proceeding.
 
-7. **Export Report**
-   Read `security_audit/cursor_rules/security_report_format_enforcer.yaml` and ensure formatting compliance. Save the final report to `reports/security_audit.txt`.
+7. **Validate and Export Report**
+   Read `security_audit/cursor_rules/security_report_format_enforcer.yaml` and validate structural completeness first, then enforce formatting compliance. If the enforcer rejects the report due to missing scores or sections, re-run step 6 before attempting export again. Save the final report to `reports/security_audit.txt`.
    ```bash
    mkdir -p reports
    ```
