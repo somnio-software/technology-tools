@@ -115,36 +115,51 @@ Skip gracefully if Gemini CLI is unavailable.
 ## Step 6. Generate Security Report
 
 Goal: Synthesize all findings into a comprehensive security audit report
-with severity classifications and actionable recommendations.
+with quantitative scoring, severity classifications, and actionable
+recommendations.
 
 **Rule to Execute**: `@security_report_generator`
 
 **Integration**: This rule integrates all previous analysis results and
-generates the final security report.
+generates the final security report. You MUST compute all 5 section scores
+using the scoring rubrics BEFORE writing any report content. A report
+without computed scores is INVALID.
 
-**Report Sections** (14 sections with quantitative scoring):
-- Executive Summary with Overall Score and Security Posture
-- At-a-Glance Scorecard (5 scored sections + Overall)
-- Project Detection Results
-- Sensitive File Protection (scored, weight 25%)
-- Secret Detection (scored, weight 30%)
-- Dependency Security (scored, weight 20%)
-- Supply Chain Integrity (scored, weight 10%)
-- Security Automation & CI/CD (scored, weight 15%)
-- Gemini AI Analysis results (if available)
+**Report Sections** (13 sections with quantitative scoring):
+- Security Scoring Breakdown (5 scored lines with weights + Overall + Formula + Posture)
+- Executive Summary with Overall Score
+- Scored Detail Sections (5 sections, dynamically ordered by score ascending — lowest first):
+  - Sensitive File Protection (scored, weight 25%)
+  - Secret Detection (scored, weight 30%)
+  - Dependency Security (scored, weight 20%)
+  - Supply Chain Integrity (scored, weight 10%)
+  - Security Automation & CI/CD (scored, weight 15%)
 - Consolidated Findings by Severity (HIGH, MEDIUM, LOW)
 - Remediation Priority Matrix
-- Security Score Index (mirrors Scorecard with weights and formula)
+- Gemini AI Analysis results (if available)
+- Project Detection Results
 - Appendix: Evidence Index
 - Scan Metadata
 
-## Step 7. Export Security Report
+**Scoring Requirement**: Every scored section MUST include: Score line
+with [Score]/100 ([Label]) format, Score Breakdown (Base, deductions/additions,
+Final), Key Findings, Evidence, Risks, and Recommendations.
 
-Goal: Save the final plain-text security report to the reports directory.
+## Step 7. Validate and Export Security Report
 
-**Action**: Create the reports directory if it doesn't exist and save the
-final Security Audit report to:
-`./reports/security_audit.txt`
+Goal: Validate the generated report against structural and formatting
+rules, then save the final plain-text report.
+
+**Rule to Execute**: `@security_report_format_enforcer`
+
+**Validation**: Read the generated report and validate ALL structural checks
+from the format enforcer rule: exactly 13 sections, Section 1 has 5 scored
+lines with weights + Overall + Formula + Posture, Sections 3-7 have Score
+lines, sections are ordered by score ascending, score labels match ranges,
+no markdown syntax. Fix any issues in-place. If scores are missing entirely,
+re-run step 6 before exporting.
+
+**Export**: Save the validated report to `./reports/security_audit.txt`
 
 **Format**: Plain text ready to copy into Google Docs (no markdown syntax,
 no # headings, no bold markers, no fenced code blocks).
@@ -152,12 +167,12 @@ no # headings, no bold markers, no fenced code blocks).
 **Command**:
 ```bash
 mkdir -p reports
-# Save report content to ./reports/security_audit.txt
+# Save validated report to ./reports/security_audit.txt
 ```
 
 ## Execution Summary
 
-**Total Rules**: 6 rules
+**Total Rules**: 6 analysis rules + 1 format enforcement rule
 
 **Rule Execution Order**:
 1. `@security_tool_installer` (MANDATORY - tool detection)
@@ -165,14 +180,18 @@ mkdir -p reports
 3. `@security_secret_patterns`
 4. `@security_dependency_audit`
 5. `@security_gemini_analysis` (optional - skips if Gemini unavailable)
-6. `@security_report_generator` (generates 14-section report with quantitative scoring)
+6. `@security_report_generator` (generates 13-section report with quantitative scoring)
+
+**Post-Generation**: `@security_report_format_enforcer` validates and fixes
+the report (runs automatically after step 6)
 
 **Scoring System**:
 - 5 scored sections with weighted rubrics (0-100 each)
 - Overall Score computed via weighted formula
 - Security Posture mapped from Overall Score: Strong (85-100), Fair (70-84),
   Weak (50-69), Critical (0-49)
-- At-a-Glance Scorecard and Security Score Index provide quick reference
+- Security Scoring Breakdown provides immediate CTO-level visibility
+- Scored sections ordered by score ascending (weakest areas first)
 
 **Benefits of Modular Approach**:
 - Each rule can be executed independently

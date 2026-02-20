@@ -448,6 +448,37 @@ class RunCommand extends Command<int> {
             '${_formatStepStats(result)}',
           );
         }
+
+        // Run format enforcer as post-processing after report generation
+        if (step.ruleName.endsWith('_report_generator')) {
+          final enforcerRuleName = step.ruleName.replaceFirst(
+            '_report_generator',
+            '_report_format_enforcer',
+          );
+          final enforcerProgress = _logger.progress(
+            'Step ${step.index}/${steps.length}: format enforcement',
+          );
+          final enforcerResult = await executor.executeFormatEnforcer(
+            step,
+            enforcerRuleName,
+          );
+          results.add(enforcerResult);
+          if (enforcerResult.success) {
+            final hasWarning = enforcerResult.errorMessage != null;
+            enforcerProgress.complete(
+              'Step ${step.index}/${steps.length}: format enforcement  '
+              '${hasWarning ? enforcerResult.errorMessage! : _formatStepStats(enforcerResult)}',
+            );
+          } else {
+            enforcerProgress.fail(
+              'Step ${step.index}/${steps.length}: '
+              'format enforcement FAILED (continuing)',
+            );
+            if (enforcerResult.errorMessage != null) {
+              _logger.warn(enforcerResult.errorMessage!);
+            }
+          }
+        }
       } else {
         final stats = result.tokenUsage != null
             ? '  ${_formatStepStats(result)}  '
