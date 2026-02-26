@@ -122,15 +122,14 @@ the template.
 **Output**: Final report following the template at
 `nestjs_best_practices_check/cursor_rules/templates/best_practices_report_template.txt`
 
-## Execution Summary
-
-1.  `@testing_quality.yaml`
-2.  `@architecture_compliance.yaml`
-3.  `@code_standards.yaml`
-4.  `@dto_validation.yaml`
-5.  `@error_handling.yaml`
-6.  `@best_practices_format_enforcer.yaml`
-7.  `@best_practices_generator.yaml`
+**Rule Execution Order**:
+1.  `@testing_quality`
+2.  `@architecture_compliance`
+3.  `@code_standards`
+4.  `@dto_validation`
+5.  `@error_handling`
+6.  `@best_practices_format_enforcer`
+7.  `@best_practices_generator`
 
 ## Standards References
 

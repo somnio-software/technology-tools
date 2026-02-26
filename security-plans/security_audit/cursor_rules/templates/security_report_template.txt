@@ -67,7 +67,8 @@ Recommendations:
 [The 5 scored sections are:]
 [- Sensitive File Protection]
 [- Secret Detection]
-[- Dependency Security]
+[- Dependency Security - MUST include Dependency Age Analysis: Outdated count,
+  Deprecated count, Outdated dependencies (top 10), Deprecated packages list]
 [- Supply Chain Integrity]
 [- Security Automation & CI/CD]
 
@@ -115,10 +116,11 @@ Reason: [Gemini CLI not installed / No API key or subscription / Extension not a
 
 11. Project Detection Results
 
-- Detected project type: [Type]
+- Detected project type(s): [Type or "N types: X, Y, Z" when multi-tech monorepo]
+- Project paths: [path per type, e.g. flutter@., nodejs@apps/web]
 - Framework/runtime: [Framework version]
 - Package manager: [Manager]
-- Repository structure: [single app / monorepo]
+- Repository structure: [single app / monorepo / multi-tech monorepo]
 - Source files scanned: [File extensions and directories]
 - Gemini AI analysis: [Available / Skipped]
 
@@ -136,6 +138,10 @@ Secret Patterns:
 
 Dependencies:
 - [File path or config reference]
+- [Continue as needed]
+
+Dependency Age:
+- [step_05 artifact reference, outdated/deprecated evidence]
 - [Continue as needed]
 
 Configuration:
