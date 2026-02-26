@@ -131,11 +131,12 @@ To always run `@nestjs-health.plan.md` (stored in `plan/nestjs-health.plan.md`):
 7. `@nestjs_cicd_analysis`
 8. `@nestjs_testing_analysis`
 9. `@nestjs_code_quality`
-10. `@nestjs_security_analysis`
-11. `@nestjs_api_design_analysis`
-12. `@nestjs_data_layer_analysis`
-13. `@nestjs_documentation_analysis`
-14. `@nestjs_report_generator` (Uses `@nestjs_report_format_enforcer` internally)
+10. `@nestjs_api_design_analysis`
+11. `@nestjs_data_layer_analysis`
+12. `@nestjs_documentation_analysis`
+13. `@nestjs_report_generator` (Uses `@nestjs_report_format_enforcer` internally)
+
+**Note:** For security analysis, run the standalone Security Audit (`somnio run sa`).
 
 ## 🤖 ChatGPT Integration
 

@@ -86,28 +86,21 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 - **Usage**: `@nestjs_code_quality`
 - **Dependencies**: None
 
-### 10. Security Analysis
-- **File**: `nestjs_security_analysis.yaml`
-- **Purpose**: Identify sensitive files, analyze authentication/
-  authorization, security best practices, OWASP Top 10
-- **Usage**: `@nestjs_security_analysis`
-- **Dependencies**: None
-
-### 11. API Design Analysis
+### 10. API Design Analysis
 - **File**: `nestjs_api_design_analysis.yaml`
 - **Purpose**: Analyze REST/GraphQL API design, DTOs, validation,
   OpenAPI/Swagger documentation, API versioning
 - **Usage**: `@nestjs_api_design_analysis`
 - **Dependencies**: None
 
-### 12. Data Layer Analysis
+### 11. Data Layer Analysis
 - **File**: `nestjs_data_layer_analysis.yaml`
 - **Purpose**: Analyze ORM/database integration, repository patterns,
   migrations, and data access layer organization
 - **Usage**: `@nestjs_data_layer_analysis`
 - **Dependencies**: None
 
-### 13. Documentation Analysis
+### 12. Documentation Analysis
 - **File**: `nestjs_documentation_analysis.yaml`
 - **Purpose**: Review technical documentation, API docs, and
   environment setup
@@ -116,7 +109,7 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ## Report Generation
 
-### 14. Report Generator
+### 13. Report Generator
 - **File**: `nestjs_report_generator.yaml`
 - **Purpose**: Generate final audit report integrating all analysis
   results using standardized format
@@ -124,7 +117,7 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 - **Dependencies**: All previous rules
 - **Template**: Uses `templates/nestjs_report_template.txt`
 
-### 15. Report Format Enforcer
+### 14. Report Format Enforcer
 - **File**: `nestjs_report_format_enforcer.yaml`
 - **Purpose**: Enforce consistent report format structure
 - **Usage**: `@nestjs_report_format_enforcer`
@@ -142,11 +135,10 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 7. `@nestjs_cicd_analysis`
 8. `@nestjs_testing_analysis`
 9. `@nestjs_code_quality`
-10. `@nestjs_security_analysis`
-11. `@nestjs_api_design_analysis`
-12. `@nestjs_data_layer_analysis`
-13. `@nestjs_documentation_analysis`
-14. `@nestjs_report_generator`
+10. `@nestjs_api_design_analysis`
+11. `@nestjs_data_layer_analysis`
+12. `@nestjs_documentation_analysis`
+13. `@nestjs_report_generator` (Uses `@nestjs_report_format_enforcer` internally)
 
 ## Standardized Report Format
 

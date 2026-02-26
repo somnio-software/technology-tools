@@ -75,19 +75,7 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 - **Usage**: `@flutter_code_quality`
 - **Dependencies**: None
 
-### 10. Security Analysis
-- **File**: `flutter_security_analysis.yaml`
-- **Purpose**: Identify sensitive files and security configurations
-- **Usage**: `@flutter_security_analysis`
-- **Dependencies**: None
-
-### 11. Gemini Security Audit
-- **File**: `flutter_gemini_security_audit.yaml`
-- **Purpose**: Execute advanced security analysis using Gemini CLI Security extension
-- **Usage**: `@flutter_gemini_security_audit`
-- **Dependencies**: `@flutter_tool_installer` (for tool availability)
-
-### 12. Documentation Analysis
+### 10. Documentation Analysis
 - **File**: `flutter_documentation_analysis.yaml`
 - **Purpose**: Review documentation and operational files
 - **Usage**: `@flutter_documentation_analysis`
@@ -95,21 +83,21 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 ## Report Generation
 
-### 13. Report Generator
+### 11. Report Generator
 - **File**: `flutter_report_generator.yaml`
 - **Purpose**: Generate final audit report integrating all analysis results using standardized format
 - **Usage**: `@flutter_report_generator`
 - **Dependencies**: All previous rules
 - **Template**: Uses `templates/flutter_report_template.txt`
 
-### 14. Report Format Enforcer
+### 12. Report Format Enforcer
 - **File**: `flutter_report_format_enforcer.yaml`
 - **Purpose**: Enforce consistent report format structure
 - **Usage**: `@flutter_report_format_enforcer`
 - **Dependencies**: Used by report generation rules
 - **Template**: References `templates/flutter_report_template.txt`
 
-### 15. Flutter Project Health Audit
+### 13. Flutter Project Health Audit
 - **File**: `flutter_project_health_audit.yaml` (existing)
 - **Purpose**: Main audit rule with scoring logic and standardized format
 - **Usage**: `@flutter_project_health_audit`
@@ -120,17 +108,17 @@ The `prompts/` directory contains AI prompts for enhanced analysis:
 
 1. `@flutter_tool_installer` (MANDATORY)
 2. `@flutter_version_alignment` (MANDATORY)
-3. `@flutter_version_validator` (existing)
-4. `@flutter_test_coverage` (existing)
+3. `@flutter_version_validator`
+4. `@flutter_test_coverage`
 5. `@flutter_repository_inventory`
 6. `@flutter_config_analysis`
 7. `@flutter_cicd_analysis`
 8. `@flutter_testing_analysis`
 9. `@flutter_code_quality`
-10. `@flutter_security_analysis`
-11. `@flutter_gemini_security_audit`
-12. `@flutter_documentation_analysis`
-13. `@flutter_report_generator`
+10. `@flutter_documentation_analysis`
+11. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
+
+**Note:** For security analysis, run the standalone Security Audit (`somnio run sa`).
 
 ## Standardized Report Format
 

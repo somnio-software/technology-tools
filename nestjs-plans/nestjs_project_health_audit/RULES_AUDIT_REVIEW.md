@@ -13,11 +13,12 @@
 | 7 | `nestjs_cicd_analysis` | 9.7K | GitHub Actions, Docker, CI/CD | None |
 | 8 | `nestjs_testing_analysis` | 7.6K | Test classification, Jest config | Test coverage |
 | 9 | `nestjs_code_quality` | 11K | ESLint, Prettier, TypeScript strict | None |
-| 10 | `nestjs_security_analysis` | 11K | Auth/authz, OWASP, secrets | None |
-| 11 | `nestjs_api_design_analysis` | 11K | REST/GraphQL, DTOs, Swagger | None |
+| 10 | `nestjs_api_design_analysis` | 11K | REST/GraphQL, DTOs, Swagger | None |
+| 11 | `nestjs_data_layer_analysis` | - | ORM, migrations, repository patterns | None |
 | 12 | `nestjs_documentation_analysis` | 10K | README, API docs, inline docs | None |
 
-**Total:** 12 rules, ~103K of validation logic
+**Total:** 12 analysis rules (+ 4 setup rules). Security analysis: use standalone
+`somnio run sa`.
 
 ---
 
@@ -135,7 +136,7 @@ This is **acceptable duplication** because:
 |------|---------------|
 | `config_analysis` | package.json, tsconfig.json, nest-cli.json |
 | `code_quality` | ESLint config, Prettier config |
-| `security_analysis` | .env files, ConfigService usage |
+| Security | Handled by standalone `somnio run sa` |
 | `cicd_analysis` | Docker config |
 
 **Analysis:** ✅ **Correct separation**
@@ -204,36 +205,11 @@ This is **acceptable duplication** because:
 
 ---
 
-### **Issue #5: Security Analysis May Be Too Broad**
+### **Issue #5: Security Analysis (Resolved)**
 
-**File:** `nestjs_security_analysis.yaml` (11K, largest single-domain rule)
-
-**Current Scope:**
-- Sensitive files detection
-- .gitignore analysis
-- Auth/authz patterns
-- OWASP Top 10
-- Secrets management
-- Dependency security
-- Input validation
-- File upload security
-
-**Issue:** Combines multiple security domains
-
-**Recommendation:** ⚠️ **Consider splitting**
-
-**Option 1: Keep consolidated** (current)
-- ✅ Single security score
-- ✅ Holistic security view
-- ❌ Very large rule file
-
-**Option 2: Split into two rules**
-- `nestjs_security_infrastructure.yaml` → .gitignore, secrets, dependencies
-- `nestjs_security_implementation.yaml` → Auth, OWASP, validation
-- ✅ More maintainable
-- ❌ Two separate scores
-
-**Decision:** ✅ **Keep consolidated** (matches Flutter audit pattern)
+Security analysis is handled by the standalone Security Audit (`somnio run sa`),
+which is framework-agnostic and covers sensitive files, secret scanning,
+dependency vulnerabilities, and optional Gemini AI analysis.
 
 ---
 
@@ -254,12 +230,14 @@ PHASE 2: ANALYSIS (Parallel-capable)
 ├─ 7. cicd_analysis          ← CI/CD workflows
 ├─ 8. testing_analysis       ← Test structure (uses coverage data)
 ├─ 9. code_quality           ← Linting, formatting
-├─ 10. security_analysis     ← Security patterns
-├─ 11. api_design_analysis   ← API patterns
+├─ 10. api_design_analysis   ← API patterns
+├─ 11. data_layer_analysis   ← ORM, migrations, repositories
 └─ 12. documentation         ← Docs analysis
 
-PHASE 3: REPORTING (Not yet created)
+PHASE 3: REPORTING
 └─ 13. report_generator      ← Integrates all outputs
+
+Security: use standalone `somnio run sa`
 ```
 
 **Verdict:** ✅ **Logical and well-organized**
@@ -282,8 +260,8 @@ Independent rules (run after setup):
   ├─ config_analysis
   ├─ cicd_analysis
   ├─ code_quality
-  ├─ security_analysis
   ├─ api_design_analysis
+  ├─ data_layer_analysis
   └─ documentation_analysis
 ```
 

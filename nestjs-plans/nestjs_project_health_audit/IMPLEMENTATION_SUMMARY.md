@@ -18,11 +18,13 @@ A complete **technical debt scoring system for NestJS/Node.js projects** modeled
 - `nestjs_repository_inventory.yaml` - Module structure, monorepo detection
 - `nestjs_config_analysis.yaml` - package.json, tsconfig.json, TypeScript strict mode
 - `nestjs_api_design_analysis.yaml` - REST/GraphQL, DTOs, validation, OpenAPI/Swagger
+- `nestjs_data_layer_analysis.yaml` - ORM, migrations, repository patterns
 - `nestjs_testing_analysis.yaml` - Unit/integration/E2E test classification
 - `nestjs_code_quality.yaml` - ESLint, Prettier, TypeScript strict mode
-- `nestjs_security_analysis.yaml` - Auth/authz, OWASP Top 10, secrets management
 - `nestjs_cicd_analysis.yaml` - GitHub Actions, Docker, coverage thresholds
 - `nestjs_documentation_analysis.yaml` - README, API docs, environment setup
+
+**Note:** Security analysis is handled by the standalone Security Audit (`somnio run sa`).
 
 #### 2. **Execution Plan**
 - `plan/nestjs-health.plan.md` - Step-by-step execution guide with rule order
@@ -164,10 +166,10 @@ Open Cursor IDE in target project and run:
 7. `@nestjs_cicd_analysis`
 8. `@nestjs_testing_analysis`
 9. `@nestjs_code_quality`
-10. `@nestjs_security_analysis`
-11. `@nestjs_api_design_analysis`
+10. `@nestjs_api_design_analysis`
+11. `@nestjs_data_layer_analysis`
 12. `@nestjs_documentation_analysis`
-13. `@nestjs_report_generator` (when created)
+13. `@nestjs_report_generator` (Uses `@nestjs_report_format_enforcer` internally)
 
 ### **Step 4: Generate Report**
 - Collect all analysis outputs

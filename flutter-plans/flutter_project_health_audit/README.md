@@ -27,7 +27,7 @@ flutter_project_health_audit/
 ### Flutter/Dart Auditing System
 
 - **Multi-App Monorepo Support**: Handles simple and multi-app repository structures
-- **Automated Analysis**: 10 different analysis categories with scoring
+- **Automated Analysis**: 8 different analysis categories with scoring
 - **Tool Auto-Installation**: Automatic setup of Node.js, FVM, and Gemini CLI
 - **Coverage Analysis**: Test coverage execution and aggregation
 - **Standardized Reporting**: Structured 16-section reports
@@ -41,10 +41,10 @@ flutter_project_health_audit/
 4. **Repositories & Data Layer** (10%) - Data abstraction and error handling
 5. **Testing** (10%) - Test coverage, quality, and infrastructure
 6. **Code Quality** (10%) - Linting, formatting, analysis rules
-7. **Security** (10%) - Sensitive files, .gitignore coverage
-8. **Gemini Security Audit** (Integrated) - Advanced AI-powered security analysis
-9. **Documentation & Operations** (3%) - README, CHANGELOG, onboarding
-10. **CI/CD** (3%) - GitHub Actions, automation, workflows
+7. **Documentation & Operations** (3%) - README, CHANGELOG, onboarding
+8. **CI/CD** (3%) - GitHub Actions, automation, workflows
+
+**Note:** Security analysis is handled by the standalone Security Audit (`somnio run sa`).
 
 ### Supported Repository Structures
 
@@ -79,7 +79,6 @@ flutter_project_health_audit/
 - Dart SDK
 - FVM (recommended)
 - Git repository with Flutter project
-- **Gemini API Key**: `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable (Get one at [Google AI Studio](https://aistudio.google.com/))
 
 ### Quick Start
 
@@ -159,10 +158,10 @@ To always run `@flutter-health.plan.md` (stored in `plan/flutter-health.plan.md`
 7. `@flutter_cicd_analysis`
 8. `@flutter_testing_analysis`
 9. `@flutter_code_quality`
-10. `@flutter_security_analysis`
-11. `@flutter_gemini_security_audit`
-12. `@flutter_documentation_analysis`
-13. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
+10. `@flutter_documentation_analysis`
+11. `@flutter_report_generator` (Uses `@flutter_report_format_enforcer` internally)
+
+**Note:** For security analysis, run the standalone Security Audit (`somnio run sa`).
 
 ## 🤖 ChatGPT Integration
 
@@ -225,19 +224,10 @@ The audit system will NEVER recommend:
 - **Aggregation**: Overall project coverage calculation
 - **Thresholds**: Configurable coverage targets per component type
 
-### Gemini Security Audit
-- **Requirement**: `GEMINI_API_KEY` or `GOOGLE_API_KEY` environment variable
-- **Setup**:
-  ```bash
-  # macOS/Linux (Add to ~/.zshrc or ~/.bashrc)
-  export GEMINI_API_KEY=your_api_key_here
-
-  # Windows (PowerShell)
-  $env:GEMINI_API_KEY="your_api_key_here"
-  ```
-- **Get Key**: [Google AI Studio](https://aistudio.google.com/)
-- **Repository**: [gemini-cli-extensions/security](https://github.com/gemini-cli-extensions/security)
-  > This extension uses Gemini to analyze code for security vulnerabilities, providing detailed reports and recommendations.
+### Security Audit
+For sensitive files, secret scanning, and dependency vulnerabilities, run the
+standalone Security Audit: `somnio run sa`. It supports Gemini AI analysis when
+`GEMINI_API_KEY` or `GOOGLE_API_KEY` is configured.
 
 ## 📈 Scoring System
 
