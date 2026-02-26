@@ -113,3 +113,39 @@ rules:
 
       Output: The formatted report content ready for export to
       ./reports/security_audit.txt
+
+      JSON EXPORT (mandatory):
+      After validating and exporting the text report to reports/security_audit.txt,
+      extract the scores and findings from the validated report and write a valid
+      JSON file to reports/security_audit.json with this schema:
+
+      {
+        "overallScore": [integer 0-100],
+        "posture": "[Secure|Needs Attention|At Risk|Critical]",
+        "scores": {
+          "sensitiveFile": [0-100],
+          "secretDetection": [0-100],
+          "dependencySecurity": [0-100],
+          "supplyChainIntegrity": [0-100],
+          "securityAutomation": [0-100]
+        },
+        "findings": {
+          "high": [integer],
+          "medium": [integer],
+          "low": [integer]
+        },
+        "timestamp": "[ISO8601 datetime, e.g. 2025-02-26T12:00:00Z]",
+        "projectType": "[string from Section 11 Project Detection Results]"
+      }
+
+      If the report generator already produced reports/security_audit.json, validate
+      that the JSON is well-formed (valid syntax, required keys present). If invalid,
+      regenerate from the text report. Ensure reports/ directory exists.
+
+      SCORE HISTORY (mandatory after export):
+      After validating and exporting both reports/security_audit.txt and
+      reports/security_audit.json, write reports/.history/last_scores.json with
+      the same score and findings data for future score comparison. Format:
+      { "overall": N, "timestamp": "ISO8601", "scores": {...}, "findings": {...},
+        "projectType": "..." }
+      Run: mkdir -p reports/.history

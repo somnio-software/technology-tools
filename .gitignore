@@ -59,6 +59,7 @@ yarn-error.log*
 
 # Reports (if generated locally)
 reports/
+reports/.history/
 *.txt.bak
 reports_history/
 gemini_security_report.txt

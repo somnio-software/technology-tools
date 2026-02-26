@@ -13,7 +13,8 @@ This directory contains security-focused tools designed to:
 - **Audit dependencies**: Run native package manager vulnerability scans
   across any technology stack
 - **Adapt to any project**: Auto-detect Flutter, NestJS, Node.js, Go, Rust,
-  Python, or generic projects at runtime
+  Python, Java/Kotlin (Gradle/Maven), Swift (SPM/CocoaPods), .NET, or
+  generic projects at runtime
 - **Generate reports**: Create severity-classified, actionable security
   reports for project stakeholders
 
@@ -26,18 +27,24 @@ at runtime and adapts checks accordingly. Can be run independently or after
 a health audit.
 
 - **Framework-agnostic**: Auto-detects Flutter, NestJS, Node.js, Go, Rust,
-  Python, or generic projects
+  Python, Java/Kotlin (Gradle/Maven), Swift (SPM/CocoaPods), .NET, or
+  generic projects
 - **Sensitive file analysis**: Scans for exposed credentials, API keys,
   keystores, and checks .gitignore coverage
 - **Source code secret scanning**: Detects hardcoded secrets, tokens,
   passwords, and cloud credentials in source code
+- **Gitleaks scan (optional)**: Scans git history for leaked secrets; adds
+  install recommendation if not installed
 - **Dependency vulnerability audit**: Runs native package manager scans
   (`npm audit`, `pub outdated`, `pip audit`, `cargo audit`, etc.)
+- **Dependency age analysis**: Detects outdated and deprecated packages
+  per ecosystem
 - **Gemini AI analysis (optional)**: Leverages Gemini CLI with the security
   extension for advanced vulnerability detection
 - **Severity-classified reports**: Findings categorized as HIGH, MEDIUM,
   LOW with a remediation priority matrix
-- **Modular execution**: 6 sequential rules, each independently executable
+- **Modular execution**: 9 sequential steps (8 analysis rules), each
+  independently executable
 
 **Location**: `security_audit/`
 
@@ -55,7 +62,9 @@ security-plans/
 │   │   ├── security_tool_installer.yaml
 │   │   ├── security_file_analysis.yaml
 │   │   ├── security_secret_patterns.yaml
+│   │   ├── security_gitleaks.yaml
 │   │   ├── security_dependency_audit.yaml
+│   │   ├── security_dependency_age.yaml
 │   │   ├── security_gemini_analysis.yaml
 │   │   ├── security_report_generator.yaml
 │   │   ├── security_report_format_enforcer.yaml
@@ -118,18 +127,26 @@ continues with the remaining checks.
 
 ## 🔍 Audit Steps
 
-The security audit executes 6 modular rules in sequence:
+The security audit executes 9 steps (8 modular rules) in sequence:
 
 | Step | Rule | Description |
 |------|------|-------------|
 | 1 | `security_tool_installer` | Detect project type and available tools |
 | 2 | `security_file_analysis` | Scan for sensitive files and .gitignore gaps |
 | 3 | `security_secret_patterns` | Search source code for hardcoded secrets |
-| 4 | `security_dependency_audit` | Run native package manager vulnerability scans |
-| 5 | `security_gemini_analysis` | AI-powered vulnerability detection (optional) |
-| 6 | `security_report_generator` | Synthesize findings into final report |
+| 4 | `security_gitleaks` | Scan for secrets in git history (optional) |
+| 5 | `security_dependency_audit` | Run native package manager vulnerability scans |
+| 6 | `security_dependency_age` | Check outdated and deprecated dependencies |
+| 7 | `security_gemini_analysis` | AI-powered vulnerability detection (optional) |
+| 8 | `security_report_generator` | Synthesize findings into final report |
 
 **Report output**: `./reports/security_audit.txt`
+
+**Project Detection Priority** (when multiple project types exist): pubspec.yaml
+> package.json > go.mod > Cargo.toml > pyproject.toml > build.gradle >
+pom.xml > Package.swift > Podfile > .sln/.csproj. Only the first match is
+audited. For monorepos with multiple stacks, run the audit from each
+subdirectory.
 
 ## 🔧 Development
 
@@ -179,7 +196,8 @@ All YAML rule files follow strict formatting standards:
 - Document each rule completely
 - Include usage examples
 - Maintain backward compatibility
-- Test with multiple project types (Flutter, NestJS, Node.js, etc.)
+- Test with multiple project types (Flutter, NestJS, Node.js, Java/Kotlin,
+  Swift, .NET, etc.)
 
 ## 📝 License
 

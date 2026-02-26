@@ -20,6 +20,8 @@ You are a master at:
   and dangerous patterns in source code
 - **Dependency Vulnerability Analysis**: Running package-manager-native
   vulnerability scans (npm audit, pub outdated, pip audit, etc.)
+- **Dependency Age Analysis**: Identifying outdated and deprecated
+  dependencies across ecosystems
 - **AI-Powered Security Analysis**: Leveraging Gemini CLI for advanced
   vulnerability detection when available
 - **Quantitative Security Scoring**: Computing per-section scores using
@@ -65,7 +67,19 @@ Before any analysis, detect the project type:
 - `go.mod` -> Go project
 - `Cargo.toml` -> Rust project
 - `pyproject.toml` or `requirements.txt` -> Python project
+- `build.gradle` or `build.gradle.kts` -> Java/Kotlin Gradle project
+- `pom.xml` -> Java/Kotlin Maven project
+- `Package.swift` -> Swift SPM project
+- `Podfile` -> Swift/ObjC CocoaPods project
+- `*.sln` or `*.csproj` -> .NET project
 - Fallback -> Generic project (scan common patterns)
+
+**Project Detection Priority** (when multiple manifests exist):
+1. pubspec.yaml, 2. package.json, 3. go.mod, 4. Cargo.toml, 5. pyproject.toml,
+6. build.gradle/build.gradle.kts, 7. pom.xml, 8. Package.swift, 9. Podfile,
+10. .sln/.csproj. Only the first match is audited. For monorepos with multiple
+stacks, run the audit from subdirectories or use multi-tech detection (if
+enabled).
 
 ## Step 1. Tool Detection and Setup
 
@@ -93,7 +107,19 @@ credentials, API keys, and tokens.
 
 **Integration**: Save secret scanning findings for the security report.
 
-## Step 4. Dependency Vulnerability Audit
+## Step 4. Gitleaks Scan (Optional)
+
+Goal: Scan repository for secrets in working directory and git history
+using Gitleaks.
+
+**Rule to Execute**: `@security_gitleaks`
+
+**Integration**: Save Gitleaks findings for Secret Detection section. If
+Gitleaks not installed, add install recommendation to report. Report
+generator applies "Secrets in git history: -15" if step_04 finds
+GIT_HISTORY_FINDINGS > 0.
+
+## Step 5. Dependency Vulnerability Audit
 
 Goal: Run package-manager-native vulnerability scans and identify outdated
 or vulnerable dependencies.
@@ -102,7 +128,17 @@ or vulnerable dependencies.
 
 **Integration**: Save dependency audit findings for the security report.
 
-## Step 5. Gemini AI Security Analysis (Optional)
+## Step 6. Dependency Age Audit
+
+Goal: Identify outdated and deprecated dependencies across the project.
+
+**Rule to Execute**: `@security_dependency_age`
+
+**Integration**: Save dependency age findings for the Dependency Security
+section of the report. Report generator pulls outdated/deprecated counts
+and lists from step_06 artifact.
+
+## Step 7. Gemini AI Security Analysis (Optional)
 
 Goal: Execute advanced AI-powered security analysis using the Gemini CLI
 Security extension if available.
@@ -112,7 +148,7 @@ Security extension if available.
 **Integration**: Save Gemini analysis findings for the security report.
 Skip gracefully if Gemini CLI is unavailable.
 
-## Step 6. Generate Security Report
+## Step 8. Generate Security Report
 
 Goal: Synthesize all findings into a comprehensive security audit report
 with quantitative scoring, severity classifications, and actionable
@@ -145,7 +181,7 @@ without computed scores is INVALID.
 with [Score]/100 ([Label]) format, Score Breakdown (Base, deductions/additions,
 Final), Key Findings, Evidence, Risks, and Recommendations.
 
-## Step 7. Validate and Export Security Report
+## Step 9. Validate and Export Security Report
 
 Goal: Validate the generated report against structural and formatting
 rules, then save the final plain-text report.
@@ -157,7 +193,7 @@ from the format enforcer rule: exactly 13 sections, Section 1 has 5 scored
 lines with weights + Overall + Formula + Posture, Sections 3-7 have Score
 lines, sections are ordered by score ascending, score labels match ranges,
 no markdown syntax. Fix any issues in-place. If scores are missing entirely,
-re-run step 6 before exporting.
+re-run step 8 before exporting.
 
 **Export**: Save the validated report to `./reports/security_audit.txt`
 
@@ -172,18 +208,20 @@ mkdir -p reports
 
 ## Execution Summary
 
-**Total Rules**: 6 analysis rules + 1 format enforcement rule
+**Total Rules**: 8 analysis rules + 1 format enforcement rule
 
 **Rule Execution Order**:
 1. `@security_tool_installer` (MANDATORY - tool detection)
 2. `@security_file_analysis`
 3. `@security_secret_patterns`
-4. `@security_dependency_audit`
-5. `@security_gemini_analysis` (optional - skips if Gemini unavailable)
-6. `@security_report_generator` (generates 13-section report with quantitative scoring)
+4. `@security_gitleaks` (optional - skips if Gitleaks not installed)
+5. `@security_dependency_audit`
+6. `@security_dependency_age`
+7. `@security_gemini_analysis` (optional - skips if Gemini unavailable)
+8. `@security_report_generator` (generates 13-section report with quantitative scoring)
 
 **Post-Generation**: `@security_report_format_enforcer` validates and fixes
-the report (runs automatically after step 6)
+the report (runs automatically after step 8)
 
 **Scoring System**:
 - 5 scored sections with weighted rubrics (0-100 each)

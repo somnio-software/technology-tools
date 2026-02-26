@@ -81,9 +81,9 @@ You are a master at:
 - `flutter_best_practices_check/cursor_rules/best_practices_format_enforcer.yaml`
 - `flutter_best_practices_check/cursor_rules/best_practices_generator.yaml`
 
-## Execution Summary
-1.  `@testing_quality.yaml`
-2.  `@architecture_compliance.yaml`
-3.  `@code_standards.yaml`
-4.  `@best_practices_format_enforcer.yaml`
-5.  `@best_practices_generator.yaml`
+**Rule Execution Order**:
+1.  `@testing_quality`
+2.  `@architecture_compliance`
+3.  `@code_standards`
+4.  `@best_practices_format_enforcer`
+5.  `@best_practices_generator`

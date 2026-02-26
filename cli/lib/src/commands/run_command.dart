@@ -100,10 +100,14 @@ class RunCommand extends Command<int> {
 
   /// Returns all runnable audit bundles from the registry.
   ///
-  /// Runnable audits are identified by `id` ending with `_health` or `_audit`.
+  /// Runnable audits are identified by `id` ending with `_health`,
+  /// `_plan`, or `_audit`.
   List<SkillBundle> get _runnableBundles =>
       SkillRegistry.skills
-          .where((b) => b.id.endsWith('_health') || b.id.endsWith('_audit'))
+          .where((b) =>
+              b.id.endsWith('_health') ||
+              b.id.endsWith('_plan') ||
+              b.id.endsWith('_audit'))
           .toList();
 
   /// Derives the short code from a bundle name.
@@ -123,11 +127,22 @@ class RunCommand extends Command<int> {
     return bundle.templatePath!.split('/').last;
   }
 
-  /// Derives the report file name from the technology prefix.
+  /// Derives the report file name from the bundle.
   ///
-  /// `flutter` → `flutter_audit.txt`
-  String _reportFileFromTechPrefix(String techPrefix) =>
-      '${techPrefix}_audit.txt';
+  /// Health/audit: `flutter_audit.txt`, `security_audit.txt`
+  /// Plan (best practices): `flutter_best_practices.txt`
+  String _reportFileFromBundle(SkillBundle bundle) {
+    if (bundle.id.endsWith('_plan')) {
+      return '${bundle.techPrefix}_best_practices.txt';
+    }
+    return '${bundle.techPrefix}_audit.txt';
+  }
+
+  /// Derives the artifacts directory for a bundle (per-bundle to avoid overwrite).
+  ///
+  /// `reports/.artifacts/flutter_health/`, `reports/.artifacts/flutter_plan/`, etc.
+  String _artifactsDirFromBundle(String cwd, SkillBundle bundle) =>
+      p.join(cwd, 'reports', '.artifacts', bundle.id);
 
   /// Finds an audit bundle by its short code.
   SkillBundle? _findBundleByCode(String code) {
@@ -307,10 +322,113 @@ class RunCommand extends Command<int> {
     }
     _logger.info('${lightGreen.wrap('OK')} Model: $model');
 
-    // 5. Resolve rule paths and verify installation
+    // 5. Resolve repo root
+    final resolver = PackageResolver();
+    final String repoRoot;
+    try {
+      repoRoot = await resolver.resolveRepoRoot();
+    } catch (e) {
+      _logger.err('$e');
+      return ExitCode.software.code;
+    }
+
+    // 6. Execute the main bundle
+    final result = await _executeBundle(
+      bundle: bundle,
+      agent: agent,
+      model: model,
+      cwd: cwd,
+      repoRoot: repoRoot,
+      skipValidation: skipValidation,
+      noPreflight: noPreflight,
+      agentResolver: agentResolver,
+      preflightResult: preflightResult,
+    );
+    final aborted = result.aborted;
+
+    // 7. After a successful health audit, prompt for Best Practices and Security Audit
+    if (!aborted && bundle.id.endsWith('_health')) {
+      final bestPracticesBundle = SkillRegistry.findById('${techPrefix}_plan');
+      final securityBundle = SkillRegistry.findById('security_audit');
+      final followUpBundles = <SkillBundle>[];
+      if (bestPracticesBundle != null) followUpBundles.add(bestPracticesBundle);
+      if (securityBundle != null) followUpBundles.add(securityBundle);
+
+      if (followUpBundles.isNotEmpty) {
+        _logger.info('');
+        _logger.info(
+          'Would you like to run Best Practices Check and Security Audit? '
+          '(somnio run ${followUpBundles.map(_codeFromBundle).join(", ")})',
+        );
+        final answer = _logger
+            .prompt(
+              'Run Best Practices and Security Audit? (y/n)',
+              defaultValue: 'n',
+            )
+            .toLowerCase()
+            .trim();
+        if (answer == 'y' || answer == 'yes') {
+          for (final followUp in followUpBundles) {
+            _logger.info('');
+            await _executeBundle(
+              bundle: followUp,
+              agent: agent,
+              model: model,
+              cwd: cwd,
+              repoRoot: repoRoot,
+              skipValidation: true,
+              noPreflight: noPreflight,
+              agentResolver: agentResolver,
+              preflightResult: null,
+            );
+          }
+        }
+      }
+    }
+
+    return aborted ? ExitCode.software.code : ExitCode.success.code;
+  }
+
+  /// Executes a single audit bundle. Used for the main run and follow-up audits.
+  Future<_ExecuteBundleResult> _executeBundle({
+    required SkillBundle bundle,
+    required RunAgent agent,
+    required String? model,
+    required String cwd,
+    required String repoRoot,
+    required bool skipValidation,
+    required bool noPreflight,
+    required AgentResolver agentResolver,
+    PreflightResult? preflightResult,
+  }) async {
+    final techPrefix = bundle.techPrefix;
+
+    // Validate project type
+    if (!skipValidation) {
+      final validator = ProjectValidator();
+      final error = validator.validate(techPrefix, cwd);
+      if (error != null) {
+        _logger.err(error);
+        return _ExecuteBundleResult(aborted: true);
+      }
+      _logger.info(
+        '${lightGreen.wrap('OK')} ${bundle.displayName.split(' ').first} '
+        'project detected.',
+      );
+    }
+
+    // Run pre-flight if not provided
+    var result = preflightResult ?? PreflightResult();
+    if (preflightResult == null && !noPreflight) {
+      final preflight = PreflightRunner(logger: _logger);
+      result = await preflight.run(techPrefix, cwd);
+    }
+    final preflightResultForSteps = result;
+
+    // Resolve rule paths and verify installation
     final planSubDir = bundle.planSubDir;
     final templateFile = _templateFileFromBundle(bundle);
-    final reportFile = _reportFileFromTechPrefix(techPrefix);
+    final reportFile = _reportFileFromBundle(bundle);
 
     final ruleBase = agentResolver.ruleBasePath(
       agent,
@@ -324,16 +442,6 @@ class RunCommand extends Command<int> {
       templateFile,
     );
 
-    // 5. Parse plan to get execution steps
-    final resolver = PackageResolver();
-    final String repoRoot;
-    try {
-      repoRoot = await resolver.resolveRepoRoot();
-    } catch (e) {
-      _logger.err('$e');
-      return ExitCode.software.code;
-    }
-
     final loader = ContentLoader(repoRoot);
     final planContent = loader.loadPlan(bundle);
 
@@ -341,11 +449,10 @@ class RunCommand extends Command<int> {
     final steps = parser.parse(planContent);
     if (steps.isEmpty) {
       _logger.err('No execution steps found in plan.');
-      return ExitCode.software.code;
+      return _ExecuteBundleResult(aborted: true);
     }
 
-    // 6. Verify skills are installed (skip rules handled by preflight)
-    final preflightRuleNames = preflightResult.artifacts.keys.toSet();
+    final preflightRuleNames = preflightResultForSteps.artifacts.keys.toSet();
     final ruleNames = steps
         .map((s) => s.ruleName)
         .where((name) => !preflightRuleNames.contains(name))
@@ -358,13 +465,12 @@ class RunCommand extends Command<int> {
       );
       if (verifyError != null) {
         _logger.err(verifyError);
-        return ExitCode.software.code;
+        return _ExecuteBundleResult(aborted: true);
       }
     }
     _logger.info('${lightGreen.wrap('OK')} Skills verified at: $ruleBase');
 
-    // 7. Build RunConfig
-    final artifactsDir = p.join(cwd, 'reports', '.artifacts');
+    final artifactsDir = _artifactsDirFromBundle(cwd, bundle);
     final reportPath = p.join(cwd, 'reports', reportFile);
 
     final config = RunConfig(
@@ -381,15 +487,12 @@ class RunCommand extends Command<int> {
       model: model,
     );
 
-    // 8. Clean previous run artifacts and report
     _cleanPreviousRun(artifactsDir, reportPath);
-
-    // 9. Create artifacts directory
     Directory(artifactsDir).createSync(recursive: true);
 
-    // 10. Print execution plan
+    final agentName = agentResolver.agentDisplayName(agent);
     final preflightCount = steps
-        .where((s) => preflightResult.artifacts.containsKey(s.ruleName))
+        .where((s) => preflightResultForSteps.artifacts.containsKey(s.ruleName))
         .length;
     final aiCount = steps.length - preflightCount;
     _logger.info('');
@@ -404,7 +507,6 @@ class RunCommand extends Command<int> {
     _logger.info('Report: $reportPath');
     _logger.info('');
 
-    // 11. Execute steps
     final executor = StepExecutor(config: config, logger: _logger)
       ..fallbackModel = _fallbackModelForAgent(agent);
     final results = <StepResult>[];
@@ -417,26 +519,24 @@ class RunCommand extends Command<int> {
         '${step.ruleName}$mandatory',
       );
 
-      StepResult result;
-
-      // Check if preflight already handled this step
+      StepResult stepResult;
       final preflightArtifact =
-          preflightResult.artifacts[step.ruleName];
+          preflightResultForSteps.artifacts[step.ruleName];
 
       if (preflightArtifact != null) {
-        result = await executor.writePreflightArtifact(
+        stepResult = await executor.writePreflightArtifact(
           step,
           preflightArtifact,
         );
       } else if (step.ruleName.endsWith('_report_generator')) {
-        result = await executor.executeReportGenerator(step);
+        stepResult = await executor.executeReportGenerator(step);
       } else {
-        result = await executor.execute(step);
+        stepResult = await executor.execute(step);
       }
 
-      results.add(result);
+      results.add(stepResult);
 
-      if (result.success) {
+      if (stepResult.success) {
         if (preflightArtifact != null) {
           progress.complete(
             'Step ${step.index}/${steps.length}: ${step.ruleName} '
@@ -445,11 +545,10 @@ class RunCommand extends Command<int> {
         } else {
           progress.complete(
             'Step ${step.index}/${steps.length}: ${step.ruleName}  '
-            '${_formatStepStats(result)}',
+            '${_formatStepStats(stepResult)}',
           );
         }
 
-        // Run format enforcer as post-processing after report generation
         if (step.ruleName.endsWith('_report_generator')) {
           final enforcerRuleName = step.ruleName.replaceFirst(
             '_report_generator',
@@ -480,16 +579,16 @@ class RunCommand extends Command<int> {
           }
         }
       } else {
-        final stats = result.tokenUsage != null
-            ? '  ${_formatStepStats(result)}  '
+        final stats = stepResult.tokenUsage != null
+            ? '  ${_formatStepStats(stepResult)}  '
             : '';
         if (step.isMandatory) {
           progress.fail(
             'Step ${step.index}/${steps.length}: ${step.ruleName}'
             '${stats}FAILED (MANDATORY — aborting)',
           );
-          if (result.errorMessage != null) {
-            _logger.err(result.errorMessage!);
+          if (stepResult.errorMessage != null) {
+            _logger.err(stepResult.errorMessage!);
           }
           aborted = true;
           break;
@@ -498,14 +597,13 @@ class RunCommand extends Command<int> {
             'Step ${step.index}/${steps.length}: ${step.ruleName}'
             '${stats}FAILED (continuing)',
           );
-          if (result.errorMessage != null) {
-            _logger.warn(result.errorMessage!);
+          if (stepResult.errorMessage != null) {
+            _logger.warn(stepResult.errorMessage!);
           }
         }
       }
     }
 
-    // 11. Print summary
     _logger.info('');
 
     final succeeded = results.where((r) => r.success).length;
@@ -537,7 +635,6 @@ class RunCommand extends Command<int> {
       );
     }
 
-    // Token usage summary
     _printUsageSummary(results, totalTime, aiTime, preflightTime);
 
     if (!aborted && File(reportPath).existsSync()) {
@@ -545,29 +642,7 @@ class RunCommand extends Command<int> {
       _logger.info('Report saved to: $reportPath');
     }
 
-    // After a successful health audit, prompt for optional security audit
-    if (!aborted && bundle.id.endsWith('_health')) {
-      final securityBundle = SkillRegistry.findById('security_audit');
-      if (securityBundle != null) {
-        _logger.info('');
-        _logger.info(
-          'Would you like to run a Security Audit? '
-          '(somnio run ${_codeFromBundle(securityBundle)})',
-        );
-        final answer = _logger.prompt(
-          'Run security audit? (y/n)',
-          defaultValue: 'n',
-        );
-        if (answer.toLowerCase() == 'y' || answer.toLowerCase() == 'yes') {
-          _logger.info('');
-          _logger.info(
-            'Run: somnio run ${_codeFromBundle(securityBundle)}',
-          );
-        }
-      }
-    }
-
-    return aborted ? ExitCode.software.code : ExitCode.success.code;
+    return _ExecuteBundleResult(aborted: aborted);
   }
 
   String _formatDuration(int seconds) {
@@ -697,4 +772,10 @@ class RunCommand extends Command<int> {
       );
     }
   }
+}
+
+/// Result of executing a single audit bundle.
+class _ExecuteBundleResult {
+  _ExecuteBundleResult({required this.aborted});
+  final bool aborted;
 }
