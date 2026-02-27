@@ -101,6 +101,10 @@ rules:
 
       Score: [Score]/100 ([Label])
 
+      Section 7 (Testing) EXCEPTION: MUST include "Code Coverage:" on a line
+      immediately after Score, before Key Findings. Extract from
+      @flutter_test_coverage artifact (line starting with "Code Coverage:").
+
       Key Findings:
       - [Bullet point 1]
       - [Bullet point 2]

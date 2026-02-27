@@ -79,6 +79,9 @@ rules:
 
       Score: [Score]/100 ([Label])
 
+      Section 7 (Testing) MUST include "Code Coverage:" on a line after Score.
+      Extract from @nestjs_test_coverage artifact.
+
       Key Findings:
       - [Bullet point 1]
       - [Bullet point 2]

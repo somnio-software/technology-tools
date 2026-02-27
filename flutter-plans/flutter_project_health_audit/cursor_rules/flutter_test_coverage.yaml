@@ -345,7 +345,12 @@ rules:
       Step 4: Generate Coverage Summary
       Create a comprehensive coverage analysis including:
 
+      MANDATORY: Your final output MUST include a "Code Coverage:" line that the
+      report generator will extract. Place it prominently (e.g., at the start of
+      COVERAGE OVERVIEW).
+
       SINGLE APP SUMMARY:
+      - Code Coverage: [X]% (overall: lib + packages) — MANDATORY
       - App test count and coverage percentage
       - Packages test counts and coverage percentages (if packages/ exists)
       - Overall aggregated coverage percentage
@@ -356,6 +361,7 @@ rules:
       - Failed tests (if any) in app and packages
 
       MULTI-APP SUMMARY:
+      - Code Coverage: App [name]: [X]%, App [name2]: [Y]% — MANDATORY
       - Per-app test counts and coverage percentages
       - Per-app packages test counts and coverage percentages
       - Shared packages test counts and coverage percentages
@@ -406,6 +412,11 @@ rules:
          - Flutter version used for execution
 
       2. COVERAGE OVERVIEW
+         MANDATORY: Include exactly one line at the start of COVERAGE OVERVIEW:
+         - Single app: Code Coverage: [X]% (overall: lib + packages)
+         - Multi-app monorepo: Code Coverage: App [name]: [X]%, App
+           [name2]: [Y]% (per-app overall including lib + app packages +
+           shared packages)
          - App coverage percentage (per app if multi-app)
          - Packages coverage percentage (per package if applicable)
          - Overall aggregated coverage percentage
