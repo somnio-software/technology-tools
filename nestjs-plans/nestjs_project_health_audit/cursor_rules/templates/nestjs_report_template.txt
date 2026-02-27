@@ -180,6 +180,8 @@ Description: [One-sentence description of the testing analysis].
 
 Score: [Score]/100 ([Label])
 
+Code Coverage: [Total % from @nestjs_test_coverage artifact]
+
 Key Findings:
 - [Finding 1]
 - [Finding 2]

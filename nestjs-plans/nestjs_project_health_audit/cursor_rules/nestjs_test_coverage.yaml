@@ -206,18 +206,38 @@ rules:
       ```
 
       Step 3: Calculate Overall Aggregated Coverage
-      Parse coverage data and calculate weighted averages:
+      Parse coverage data and calculate total coverage. Output MUST include a
+      line: Code Coverage: [X]%
 
       ```bash
       echo "=== Coverage Aggregation ==="
-      # This is a simplified example - actual implementation would parse
-      # JSON files
-      
-      if [ -f "coverage/coverage-summary.json" ]; then
-        echo "Overall project coverage:"
-        cat coverage/coverage-summary.json | \
-          grep -E "lines|statements|functions|branches" || \
-          echo "Parse coverage data manually"
+      total_lines=0
+      covered_lines=0
+
+      # Parse lcov.info (Jest default)
+      if [ -f "coverage/lcov.info" ]; then
+        total_lines=$(grep -c "^DA:" coverage/lcov.info 2>/dev/null || echo 0)
+        covered_lines=$(grep "^DA:" coverage/lcov.info 2>/dev/null | \
+          grep -c ",[1-9]" || echo 0)
+      fi
+
+      # Monorepo: aggregate from apps/ and packages/
+      for cov_path in apps/*/coverage/lcov.info packages/*/coverage/lcov.info; do
+        if [ -f "$cov_path" ]; then
+          l=$(grep -c "^DA:" "$cov_path" 2>/dev/null || echo 0)
+          c=$(grep "^DA:" "$cov_path" 2>/dev/null | grep -c ",[1-9]" || echo 0)
+          total_lines=$((total_lines + l))
+          covered_lines=$((covered_lines + c))
+        fi
+      done
+
+      if [ $total_lines -gt 0 ]; then
+        pct=$((covered_lines * 100 / total_lines))
+        echo "Code Coverage: $pct%"
+      elif [ -f "coverage/coverage-summary.json" ]; then
+        pct=$(cat coverage/coverage-summary.json | \
+          jq -r '.total.lines.pct // empty' 2>/dev/null)
+        [ -n "$pct" ] && echo "Code Coverage: ${pct}%"
       fi
       ```
 
@@ -250,6 +270,10 @@ rules:
       OUTPUT FORMAT
       ----------------------------------------------------------------------
 
+      MANDATORY: Your final output MUST include a line "Code Coverage: [X]%"
+      that the report generator will extract. Place it at the start of COVERAGE
+      OVERVIEW.
+
       Provide the following structured output:
 
       1. EXECUTION SUMMARY
@@ -261,6 +285,8 @@ rules:
          - Node.js version used for execution
 
       2. COVERAGE OVERVIEW
+         MANDATORY: Include exactly one line at the start of COVERAGE OVERVIEW:
+         Code Coverage: [X]% (total project coverage, aggregated if monorepo)
          - App coverage percentage (per app if monorepo)
          - Packages coverage percentage (per package if applicable)
          - Overall aggregated coverage percentage

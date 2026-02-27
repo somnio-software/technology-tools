@@ -367,11 +367,104 @@ class PreflightRunner {
       );
     }
 
+    // Compute and add Code Coverage (overall: lib + packages)
+    final codeCoverageLine = _computeFlutterCodeCoverage(cwd);
+    coveragePhase.info(codeCoverageLine);
+
     result.artifacts['${techPrefix}_test_coverage'] =
         _buildArtifact('Test Coverage', coveragePhase);
 
     logger.info('');
     return result;
+  }
+
+  /// Computes Code Coverage string for Flutter artifact.
+  /// Single app: overall(lib + packages). Monorepo: per-app overall.
+  String _computeFlutterCodeCoverage(String cwd) {
+    final appsDir = Directory(p.join(cwd, 'apps'));
+    final packagesDir = Directory(p.join(cwd, 'packages'));
+
+    final sharedPackageDirs = packagesDir.existsSync()
+        ? packagesDir
+            .listSync()
+            .whereType<Directory>()
+            .where((d) => File(p.join(d.path, 'pubspec.yaml')).existsSync())
+            .map((d) => d.path)
+            .toList()
+        : <String>[];
+
+    if (appsDir.existsSync()) {
+      // Monorepo: per-app overall (app lib + app packages + shared packages)
+      final appDirs = appsDir
+          .listSync()
+          .whereType<Directory>()
+          .where((d) => File(p.join(d.path, 'pubspec.yaml')).existsSync())
+          .toList();
+      if (appDirs.isEmpty) {
+        return 'Code Coverage: Not available (no apps with pubspec.yaml)';
+      }
+      final parts = <String>[];
+      for (final appDir in appDirs) {
+        final appName = p.basename(appDir.path);
+        var totalLines = 0;
+        var coveredLines = 0;
+
+        // App lib
+        final appLcov = File(p.join(appDir.path, 'coverage', 'lcov.info'));
+        if (appLcov.existsSync()) {
+          final s = _parseLcovInfo(appLcov.path);
+          totalLines += s.total;
+          coveredLines += s.covered;
+        }
+
+        // App-specific packages (apps/<app>/packages/*)
+        final appPkgsDir = Directory(p.join(appDir.path, 'packages'));
+        if (appPkgsDir.existsSync()) {
+          for (final ap in appPkgsDir.listSync().whereType<Directory>()) {
+            final lf = File(p.join(ap.path, 'coverage', 'lcov.info'));
+            if (lf.existsSync()) {
+              final s = _parseLcovInfo(lf.path);
+              totalLines += s.total;
+              coveredLines += s.covered;
+            }
+          }
+        }
+
+        // Shared packages
+        for (final pkgPath in sharedPackageDirs) {
+          final lf = File(p.join(pkgPath, 'coverage', 'lcov.info'));
+          if (lf.existsSync()) {
+            final s = _parseLcovInfo(lf.path);
+            totalLines += s.total;
+            coveredLines += s.covered;
+          }
+        }
+
+        final pct = totalLines > 0 ? (coveredLines * 100 ~/ totalLines) : 0;
+        parts.add('App $appName: $pct%');
+      }
+      return 'Code Coverage: ${parts.join(', ')}';
+    }
+
+    // Single app: overall(lib + packages)
+    var totalLines = 0;
+    var coveredLines = 0;
+    final rootLcov = File(p.join(cwd, 'coverage', 'lcov.info'));
+    if (rootLcov.existsSync()) {
+      final s = _parseLcovInfo(rootLcov.path);
+      totalLines += s.total;
+      coveredLines += s.covered;
+    }
+    for (final pkgPath in sharedPackageDirs) {
+      final lf = File(p.join(pkgPath, 'coverage', 'lcov.info'));
+      if (lf.existsSync()) {
+        final s = _parseLcovInfo(lf.path);
+        totalLines += s.total;
+        coveredLines += s.covered;
+      }
+    }
+    final pct = totalLines > 0 ? (coveredLines * 100 ~/ totalLines) : 0;
+    return 'Code Coverage: $pct% (overall: lib + packages)';
   }
 
   // ---------------------------------------------------------------------------
@@ -550,11 +643,68 @@ class PreflightRunner {
       coveragePhase.ok('coverage/ directory exists');
     }
 
+    // Compute and add Code Coverage (total, including monorepo)
+    final codeCoverageLine = _computeNestjsCodeCoverage(cwd);
+    coveragePhase.info(codeCoverageLine);
+
     result.artifacts['${techPrefix}_test_coverage'] =
         _buildArtifact('Test Coverage', coveragePhase);
 
     logger.info('');
     return result;
+  }
+
+  /// Computes Code Coverage string for NestJS artifact.
+  /// Total project coverage (aggregated if monorepo).
+  String _computeNestjsCodeCoverage(String cwd) {
+    var totalLines = 0;
+    var coveredLines = 0;
+
+    // Collect lcov.info from root and monorepo dirs
+    final lcovPaths = <String>[
+      p.join(cwd, 'coverage', 'lcov.info'),
+    ];
+    for (final parent in ['apps', 'packages', 'libs']) {
+      final parentDir = Directory(p.join(cwd, parent));
+      if (!parentDir.existsSync()) continue;
+      for (final entity in parentDir.listSync()) {
+        if (entity is! Directory) continue;
+        final subPath = entity.path;
+        if (!File(p.join(subPath, 'package.json')).existsSync()) continue;
+        lcovPaths.add(p.join(subPath, 'coverage', 'lcov.info'));
+      }
+    }
+
+    for (final path in lcovPaths) {
+      final f = File(path);
+      if (f.existsSync()) {
+        final s = _parseLcovInfo(path);
+        totalLines += s.total;
+        coveredLines += s.covered;
+      }
+    }
+
+    if (totalLines > 0) {
+      final pct = coveredLines * 100 ~/ totalLines;
+      return 'Code Coverage: $pct%';
+    }
+
+    // Fallback: coverage-summary.json (root only)
+    final summaryPath = p.join(cwd, 'coverage', 'coverage-summary.json');
+    final summaryFile = File(summaryPath);
+    if (summaryFile.existsSync()) {
+      try {
+        final json = jsonDecode(summaryFile.readAsStringSync());
+        final total = json['total'] as Map<String, dynamic>?;
+        final lines = total?['lines'] as Map<String, dynamic>?;
+        final pct = lines?['pct'] as num?;
+        if (pct != null) {
+          return 'Code Coverage: ${pct.round()}%';
+        }
+      } catch (_) {}
+    }
+
+    return 'Code Coverage: Not available';
   }
 
   // ---------------------------------------------------------------------------

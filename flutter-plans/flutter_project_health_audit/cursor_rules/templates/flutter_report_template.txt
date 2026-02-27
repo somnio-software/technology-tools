@@ -178,6 +178,9 @@ Description: [One-sentence description of the testing analysis].
 
 Score: [Score]/100 ([Label])
 
+Code Coverage: [Value from @flutter_test_coverage artifact: overall % or
+  per-app for monorepo]
+
 Key Findings:
 - [Finding 1]
 - [Finding 2]

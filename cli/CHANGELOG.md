@@ -5,6 +5,22 @@ All notable changes to the Somnio CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2026-02-27
+
+### Added
+
+- **Health Audit Reports**: Code Coverage field in Testing section (below Score)
+- **Flutter**: Overall coverage (lib + packages) for single app; per-app overall for monorepo (apps/)
+- **NestJS**: Total project coverage aggregated from lcov.info and coverage-summary.json
+- **CLI preflight**: Automatic Code Coverage computation and injection into test_coverage artifacts
+
+### Changed
+
+- **Flutter test coverage**: Mandatory Code Coverage output in COVERAGE OVERVIEW
+- **NestJS test coverage**: Mandatory Code Coverage output with lcov/coverage-summary parsing
+- **Report templates**: Testing section includes Code Coverage placeholder
+- **Report generators**: Extract Code Coverage from test_coverage artifact for Testing section
+
 ## [1.0.8] - 2025-02-26
 
 ### Added
