@@ -1,7 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
-import '../agents/agent_registry.dart';
 import '../content/content_loader.dart';
 import '../content/skill_registry.dart';
 import '../installers/agent_installer.dart';
@@ -52,12 +51,12 @@ class SetupCommand extends Command<int> {
     for (final check in cliChecks) {
       if (check.installed) {
         _logger.info(
-          '  ${lightGreen.wrap('✓')} ${check.cli.displayName}'
+          '  ${lightGreen.wrap('✓')} ${check.agent.displayName}'
           '  (${check.path})',
         );
       } else {
         _logger.info(
-          '  ${lightRed.wrap('✗')} ${check.cli.displayName}'
+          '  ${lightRed.wrap('✗')} ${check.agent.displayName}'
           '  (not found)',
         );
       }
@@ -76,24 +75,24 @@ class SetupCommand extends Command<int> {
       final hasNpm = await cliInstaller.isNpmAvailable();
 
       for (final missing in missingClis) {
-        final cli = missing.cli;
+        final agent = missing.agent;
 
         final shouldInstall = force ||
             _logger.confirm(
-              'Install ${cli.displayName}?',
+              'Install ${agent.displayName}?',
               defaultValue: true,
             );
 
         if (!shouldInstall) continue;
 
-        if (cli.npmPackage != null && hasNpm) {
-          final success = await cliInstaller.installViaNpm(cli);
+        if (agent.npmPackage != null && hasNpm) {
+          final success = await cliInstaller.installViaNpm(agent);
           if (!success) {
-            cliInstaller.showManualInstructions(cli);
+            cliInstaller.showManualInstructions(agent);
           }
         } else {
-          cliInstaller.showManualInstructions(cli);
-          if (cli.npmPackage != null && !hasNpm) {
+          cliInstaller.showManualInstructions(agent);
+          if (agent.npmPackage != null && !hasNpm) {
             _logger.warn(
               '  npm not found — install Node.js first for auto-install.',
             );
@@ -153,15 +152,15 @@ class SetupCommand extends Command<int> {
 
     _logger.info('');
     for (final entry in agents.entries) {
-      final agentName = AgentDetector.displayName(entry.key);
+      final agent = entry.key;
       final info = entry.value;
       if (info.installed) {
         _logger.info(
-          '  ${lightGreen.wrap('✓')} $agentName',
+          '  ${lightGreen.wrap('✓')} ${agent.displayName}',
         );
-      } else {
+      } else if (agent.canExecute) {
         _logger.info(
-          '  ${lightRed.wrap('✗')} $agentName  (not found)',
+          '  ${lightRed.wrap('✗')} ${agent.displayName}  (not found)',
         );
       }
     }
@@ -178,7 +177,10 @@ class SetupCommand extends Command<int> {
       _logger.info('Install at least one agent to continue:');
       _logger.info('  Claude Code: https://claude.ai/download');
       _logger.info('  Cursor:      https://cursor.com');
-      _logger.info('  Gemini CLI:  https://github.com/google-gemini/gemini-cli');
+      _logger.info(
+        '  Gemini CLI:  https://github.com/google-gemini/gemini-cli',
+      );
+      _logger.info('  Codex CLI:   npm install -g @openai/codex');
       return ExitCode.software.code;
     }
 
@@ -199,16 +201,8 @@ class SetupCommand extends Command<int> {
     var totalSkills = 0;
     var totalRules = 0;
 
-    for (final agentType in installedAgents) {
-      final agentId = switch (agentType) {
-        AgentType.claude => 'claude',
-        AgentType.cursor => 'cursor',
-        AgentType.antigravity => 'gemini',
-      };
-      final agentConfig = AgentRegistry.findById(agentId);
-      if (agentConfig == null) continue;
-
-      _logger.info('  ${AgentDetector.displayName(agentType)}:');
+    for (final agentConfig in installedAgents) {
+      _logger.info('  ${agentConfig.displayName}:');
 
       final installer = AgentInstaller(
         logger: _logger,

@@ -1,7 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
-import '../agents/agent_registry.dart';
+import '../agents/agent_config.dart';
 import '../content/content_loader.dart';
 import '../content/skill_registry.dart';
 import '../installers/agent_installer.dart';
@@ -44,17 +44,20 @@ class InitCommand extends Command<int> {
 
     // Display detection results
     for (final entry in agents.entries) {
-      final name = AgentDetector.displayName(entry.key);
+      final agent = entry.key;
       final info = entry.value;
       if (info.installed) {
         _logger.info(
-          '  ${lightGreen.wrap('[x]')} $name '
+          '  ${lightGreen.wrap('[x]')} ${agent.displayName} '
           '(${info.path ?? 'found'})',
         );
       } else {
-        _logger.info(
-          '  ${lightRed.wrap('[ ]')} $name (not found)',
-        );
+        // Only show CLI agents as "not found"
+        if (agent.canExecute) {
+          _logger.info(
+            '  ${lightRed.wrap('[ ]')} ${agent.displayName} (not found)',
+          );
+        }
       }
     }
     _logger.info('');
@@ -71,25 +74,25 @@ class InitCommand extends Command<int> {
       _logger.info('Install one of the following:');
       _logger.info('  Claude Code: https://claude.ai/download');
       _logger.info('  Cursor: https://cursor.com');
-      _logger.info('  Antigravity: https://antigravity.dev');
+      _logger.info('  Gemini CLI: https://github.com/google-gemini/gemini-cli');
+      _logger.info('  Codex CLI: npm install -g @openai/codex');
       return ExitCode.software.code;
     }
 
     // Select agents
-    List<AgentType> selectedAgents;
+    List<AgentConfig> selectedAgents;
     if (installedAgents.length == 1) {
-      final agentName = AgentDetector.displayName(installedAgents.first);
+      final agentName = installedAgents.first.displayName;
       final confirm = _logger.confirm(
         'Install skills to $agentName?',
       );
       if (!confirm) return ExitCode.success.code;
       selectedAgents = installedAgents;
     } else {
-      selectedAgents = <AgentType>[];
+      selectedAgents = <AgentConfig>[];
       for (final agent in installedAgents) {
-        final agentName = AgentDetector.displayName(agent);
         final install = _logger.confirm(
-          'Install skills to $agentName?',
+          'Install skills to ${agent.displayName}?',
           defaultValue: true,
         );
         if (install) selectedAgents.add(agent);
@@ -143,16 +146,8 @@ class InitCommand extends Command<int> {
     var totalSkills = 0;
     var totalRules = 0;
 
-    for (final agentType in selectedAgents) {
-      final agentId = switch (agentType) {
-        AgentType.claude => 'claude',
-        AgentType.cursor => 'cursor',
-        AgentType.antigravity => 'gemini',
-      };
-      final agentConfig = AgentRegistry.findById(agentId);
-      if (agentConfig == null) continue;
-
-      _logger.info('  ${AgentDetector.displayName(agentType)}:');
+    for (final agentConfig in selectedAgents) {
+      _logger.info('  ${agentConfig.displayName}:');
 
       final installer = AgentInstaller(
         logger: _logger,
@@ -179,11 +174,11 @@ class InitCommand extends Command<int> {
     // Usage hints
     _logger.info('Usage:');
     for (final skill in bundles) {
-      if (selectedAgents.contains(AgentType.claude)) {
-        _logger.info('  Claude Code: /${skill.name}');
-      }
-      if (selectedAgents.contains(AgentType.cursor)) {
-        _logger.info('  Cursor:      /${skill.name}');
+      final hasClaudeOrCursor = selectedAgents.any(
+        (a) => a.id == 'claude' || a.id == 'cursor',
+      );
+      if (hasClaudeOrCursor) {
+        _logger.info('  /${skill.name}');
       }
     }
 
