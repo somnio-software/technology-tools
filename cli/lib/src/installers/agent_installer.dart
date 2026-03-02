@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as p;
 
 import '../agents/agent_config.dart';
@@ -26,13 +25,7 @@ class AgentInstaller extends Installer {
   String get _home => PlatformUtils.homeDirectory;
 
   /// Resolves the base install directory for this agent.
-  String get _installDir {
-    if (agentConfig.installScope == InstallScope.project) {
-      // Project-scope agents install relative to cwd
-      return agentConfig.installPath;
-    }
-    return agentConfig.resolvedInstallPath(home: _home);
-  }
+  String get _installDir => agentConfig.resolvedInstallPath(home: _home);
 
   @override
   Future<InstallResult> install({
@@ -46,43 +39,11 @@ class AgentInstaller extends Installer {
     var ruleCount = 0;
     var skippedCount = 0;
 
-    // Check for existing files upfront for global scope
-    if (!force && agentConfig.installScope == InstallScope.global) {
-      final existing = _findExistingFiles(baseDir);
-      if (existing > 0) {
-        final overwrite = logger.confirm(
-          'Found $existing existing Somnio '
-          '${existing == 1 ? 'file' : 'files'}. Overwrite?',
-        );
-        if (!overwrite) {
-          logger.info('Skipped ${agentConfig.displayName} installation.');
-          return InstallResult(
-            skillCount: 0,
-            ruleCount: 0,
-            targetDirectory: baseDir,
-          );
-        }
-      }
-    }
-
     for (final bundle in bundles) {
-      final progress = logger.progress(
-        'Installing ${bundle.name}',
-      );
-
       try {
         final output = transformer.transform(bundle, loader, agentConfig);
 
         if (output.skipped) {
-          progress.cancel();
-          logger.info(
-            '  ${lightYellow.wrap('~')} ${bundle.displayName}: '
-            '${agentConfig.displayName} support not yet available.',
-          );
-          logger.info(
-            '    Contribute one at: '
-            'https://github.com/somnio-software/technology-tools',
-          );
           skippedCount++;
           continue;
         }
@@ -104,9 +65,8 @@ class AgentInstaller extends Installer {
         }
 
         skillCount++;
-        progress.complete('Installed ${bundle.name}');
       } catch (e) {
-        progress.fail('Failed to install ${bundle.name}: $e');
+        logger.err('  Failed to install ${bundle.name}: $e');
       }
     }
 

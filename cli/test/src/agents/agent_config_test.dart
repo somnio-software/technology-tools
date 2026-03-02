@@ -199,7 +199,7 @@ void main() {
       expect(path, '/home/user/.test/somnio-fh');
     });
 
-    test('returns path without {home} for project scope', () {
+    test('returns path as-is when no placeholders are present', () {
       const agent = AgentConfig(
         id: 'copilot',
         displayName: 'Copilot',

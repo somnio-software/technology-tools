@@ -131,9 +131,7 @@ class UninstallCommand extends Command<int> {
 
   bool _removeGenericAgent(AgentConfig agent) {
     final home = PlatformUtils.homeDirectory;
-    final installDir = agent.installScope == InstallScope.global
-        ? agent.resolvedInstallPath(home: home)
-        : agent.installPath;
+    final installDir = agent.resolvedInstallPath(home: home);
     final dir = Directory(installDir);
     if (!dir.existsSync()) return false;
 

@@ -30,7 +30,7 @@ class InstallCommand extends Command<int> {
     argParser.addFlag(
       'force',
       abbr: 'f',
-      help: 'Overwrite existing skills without prompting.',
+      help: 'Force reinstall of all skills.',
     );
   }
 
@@ -54,10 +54,7 @@ class InstallCommand extends Command<int> {
       _logger.info('');
       _logger.info('Available agents:');
       for (final agent in AgentRegistry.installableAgents) {
-        final scope = agent.installScope == InstallScope.project
-            ? 'project'
-            : 'global';
-        _logger.info('  ${agent.id.padRight(12)} ${agent.displayName} ($scope)');
+        _logger.info('  ${agent.id.padRight(12)} ${agent.displayName}');
       }
       return ExitCode.usage.code;
     }
@@ -106,6 +103,8 @@ class InstallCommand extends Command<int> {
       }
     }
 
+    final progress = _logger.progress(agent.displayName);
+
     final installer = AgentInstaller(
       logger: _logger,
       loader: loader,
@@ -117,25 +116,21 @@ class InstallCommand extends Command<int> {
       force: force,
     );
 
-    if (result.skillCount > 0) {
-      _logger.success(
-        '\nInstalled ${result.skillCount} skills to ${agent.displayName}.',
-      );
-      _logger.info('Location: ${result.targetDirectory}');
-      _logger.info('');
-      _logger.info('Usage:');
-      for (final skill in SkillRegistry.skills) {
-        _logger.info('  /${skill.name}');
-      }
-    }
+    progress.complete(
+      '${agent.displayName}  '
+      '${result.skillCount} skills installed',
+    );
 
     if (result.skippedCount > 0) {
       _logger.info(
-        'Skipped ${result.skippedCount} '
+        '  ${result.skippedCount} '
         '${result.skippedCount == 1 ? 'skill' : 'skills'} '
-        '(not yet supported for ${agent.displayName}).',
+        'skipped (not yet supported)',
       );
     }
+
+    _logger.info('');
+    _logger.info('Location: ${result.targetDirectory}');
 
     return ExitCode.success.code;
   }
@@ -146,7 +141,7 @@ class InstallCommand extends Command<int> {
     bool force,
   ) async {
     var totalSkills = 0;
-    var installed = 0;
+    var agentCount = 0;
 
     for (final agent in AgentRegistry.installableAgents) {
       // Only auto-install to agents that are detected
@@ -155,7 +150,7 @@ class InstallCommand extends Command<int> {
         if (path == null) continue;
       }
 
-      _logger.info('  ${agent.displayName}:');
+      final progress = _logger.progress(agent.displayName);
 
       final installer = AgentInstaller(
         logger: _logger,
@@ -169,12 +164,23 @@ class InstallCommand extends Command<int> {
       );
 
       totalSkills += result.skillCount;
-      if (result.skillCount > 0) installed++;
-      _logger.info('');
+      if (result.skillCount > 0) agentCount++;
+
+      final parts = <String>[];
+      parts.add('${result.skillCount} skills');
+      if (result.skippedCount > 0) {
+        parts.add('${result.skippedCount} skipped');
+      }
+      progress.complete(
+        '${agent.displayName}  ${parts.join(', ')}',
+      );
     }
 
-    if (installed > 0) {
-      _logger.success('Installed $totalSkills skills to $installed agents.');
+    _logger.info('');
+    if (agentCount > 0) {
+      _logger.success(
+        'Installed $totalSkills skills across $agentCount agents.',
+      );
     } else {
       _logger.info('No agents detected. Run "somnio setup" for guided setup.');
     }

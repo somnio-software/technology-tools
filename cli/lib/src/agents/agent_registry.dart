@@ -37,6 +37,10 @@ class AgentRegistry {
   /// Agents that support skill installation.
   static List<AgentConfig> get installableAgents => agents.toList();
 
+  /// IDE-only agents (project-scope, no CLI binary).
+  static List<AgentConfig> get ideAgents =>
+      agents.where((a) => !a.canExecute).toList();
+
   /// Find an agent by its ID.
   static AgentConfig? findById(String id) {
     for (final agent in agents) {
@@ -60,7 +64,6 @@ class AgentRegistry {
     defaultModel: 'haiku',
     fallbackModel: 'haiku',
     installFormat: InstallFormat.skillDir,
-    installScope: InstallScope.global,
     installPath: '{home}/.claude/skills',
     ruleExtension: '.md',
     tokenUsageParser: parseClaudeUsage,
@@ -109,7 +112,6 @@ class AgentRegistry {
     defaultModel: 'auto',
     fallbackModel: 'auto',
     installFormat: InstallFormat.singleFile,
-    installScope: InstallScope.global,
     installPath: '{home}/.cursor/commands',
     executionRulesPath: '{home}/.cursor/somnio_rules',
     ruleExtension: '.md',
@@ -141,7 +143,6 @@ class AgentRegistry {
     defaultModel: 'gemini-3-flash',
     fallbackModel: 'gemini-2.5-flash',
     installFormat: InstallFormat.workflow,
-    installScope: InstallScope.global,
     installPath: '{home}/.gemini/antigravity',
     ruleExtension: '.yaml',
     readInstructionTemplate:
@@ -172,7 +173,6 @@ class AgentRegistry {
     defaultModel: 'gpt-5.3-codex',
     fallbackModel: 'gpt-5.1-codex-mini',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.codex/skills',
     filePrefix: 'somnio',
     npmPackage: '@openai/codex',
@@ -199,7 +199,6 @@ class AgentRegistry {
     defaultModel: 'claude-sonnet-4-5',
     fallbackModel: 'claude-haiku-4-5',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.augment/skills',
     filePrefix: 'somnio',
     installUrl: 'https://www.augmentcode.com',
@@ -217,7 +216,6 @@ class AgentRegistry {
     promptFlag: '-x',
     outputFlags: ['--stream-json'],
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.amp/skills',
     filePrefix: 'somnio',
     npmPackage: 'amp',
@@ -233,7 +231,6 @@ class AgentRegistry {
     promptFlag: '--message',
     autoApproveFlags: ['--yes-always'],
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.aider/skills',
     filePrefix: 'somnio',
     installUrl: 'https://aider.chat',
@@ -251,7 +248,6 @@ class AgentRegistry {
     autoApproveFlags: ['-y'],
     outputFlags: ['--json'],
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.cline/skills',
     filePrefix: 'somnio',
     npmPackage: 'cline',
@@ -267,7 +263,6 @@ class AgentRegistry {
     promptFlag: '-p',
     outputFlags: ['-f', 'json'],
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.opencode/skills',
     filePrefix: 'somnio',
     installUrl: 'https://opencode.ai',
@@ -286,7 +281,6 @@ class AgentRegistry {
     autoApproveFlags: ['--dangerously-skip-permissions'],
     outputFlags: ['--output-format', 'json'],
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.codebuddy/skills',
     filePrefix: 'somnio',
     installUrl: 'https://codebuddy.dev',
@@ -312,7 +306,6 @@ class AgentRegistry {
     defaultModel: 'qwen3-coder-plus',
     fallbackModel: 'qwen3-coder-next',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
     installPath: '{home}/.qwen/skills',
     filePrefix: 'somnio',
     npmPackage: 'qwen-code',
@@ -325,8 +318,7 @@ class AgentRegistry {
     id: 'copilot',
     displayName: 'GitHub Copilot',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
-    installPath: '.github/agents',
+    installPath: '{home}/.copilot/agents',
     filePrefix: 'somnio',
     installUrl: 'https://github.com/features/copilot',
   );
@@ -335,8 +327,7 @@ class AgentRegistry {
     id: 'windsurf',
     displayName: 'Windsurf',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
-    installPath: '.windsurf/workflows',
+    installPath: '{home}/.windsurf/workflows',
     filePrefix: 'somnio',
     installUrl: 'https://windsurf.com',
   );
@@ -345,8 +336,7 @@ class AgentRegistry {
     id: 'roo',
     displayName: 'Roo Code',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
-    installPath: '.roo/rules',
+    installPath: '{home}/.roo/rules',
     filePrefix: 'somnio',
     installUrl: 'https://roocode.com',
   );
@@ -355,8 +345,7 @@ class AgentRegistry {
     id: 'kilocode',
     displayName: 'Kilo Code',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
-    installPath: '.kilocode/rules',
+    installPath: '{home}/.kilocode/rules',
     filePrefix: 'somnio',
     installUrl: 'https://kilocode.ai',
   );
@@ -365,8 +354,7 @@ class AgentRegistry {
     id: 'amazonq',
     displayName: 'Amazon Q',
     installFormat: InstallFormat.markdown,
-    installScope: InstallScope.project,
-    installPath: '.amazonq/prompts',
+    installPath: '{home}/.amazonq/prompts',
     filePrefix: 'somnio',
     installUrl: 'https://aws.amazon.com/q/developer/',
   );

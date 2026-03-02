@@ -69,7 +69,6 @@ class UpdateCommand extends Command<int> {
     final bundles = SkillRegistry.skills;
 
     _logger.info('');
-    _logger.info('Reinstalling skills...');
 
     // Step 3: Detect previously installed agents and reinstall
     var updated = 0;
@@ -81,12 +80,14 @@ class UpdateCommand extends Command<int> {
         agentConfig: agent,
       );
       if (installer.isInstalled()) {
+        final progress = _logger.progress(agent.displayName);
         final result = await installer.install(
           bundles: bundles,
           force: true,
         );
-        _logger.info(
-          '  ${agent.displayName}: ${result.skillCount} skills updated',
+        progress.complete(
+          '${agent.displayName}  '
+          '${result.skillCount} skills updated',
         );
         updated++;
       }

@@ -1,9 +1,12 @@
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
+import '../agents/agent_config.dart';
+import '../agents/agent_registry.dart';
 import '../content/content_loader.dart';
 import '../content/skill_registry.dart';
 import '../installers/agent_installer.dart';
+import '../installers/installer.dart';
 import '../utils/agent_detector.dart';
 import '../utils/cli_installer.dart';
 import '../utils/package_resolver.dart';
@@ -13,7 +16,7 @@ import '../utils/package_resolver.dart';
 /// Walks the user through:
 /// 1. CLI detection and installation
 /// 2. Technology selection
-/// 3. Skill installation to all detected agents
+/// 3. Skill installation to all agents (CLI + IDE, all global)
 ///
 /// Designed for first-time users with zero prior setup knowledge.
 class SetupCommand extends Command<int> {
@@ -150,33 +153,36 @@ class SetupCommand extends Command<int> {
     final agents = await detector.detect();
     detectProgress.complete('Agent detection complete');
 
-    _logger.info('');
-    for (final entry in agents.entries) {
-      final agent = entry.key;
-      final info = entry.value;
-      if (info.installed) {
-        _logger.info(
-          '  ${lightGreen.wrap('✓')} ${agent.displayName}',
-        );
-      } else if (agent.canExecute) {
-        _logger.info(
-          '  ${lightRed.wrap('✗')} ${agent.displayName}  (not found)',
-        );
-      }
-    }
-    _logger.info('');
-
-    final installedAgents = agents.entries
+    final detectedAgents = agents.entries
         .where((e) => e.value.installed)
         .map((e) => e.key)
         .toList();
 
-    if (installedAgents.isEmpty) {
-      _logger.err('No AI agents detected.');
+    // Collect all agents to install to
+    final selectedAgents = <AgentConfig>[...detectedAgents];
+
+    // Offer IDE agents
+    final ideAgents = AgentRegistry.ideAgents;
+    if (ideAgents.isNotEmpty && !force) {
+      _logger.info('');
+      _logger.info('IDE agents:');
+      for (final agent in ideAgents) {
+        final install = _logger.confirm(
+          '  Install to ${agent.displayName}?',
+        );
+        if (install) selectedAgents.add(agent);
+      }
+    } else if (force) {
+      selectedAgents.addAll(ideAgents);
+    }
+
+    if (selectedAgents.isEmpty) {
+      _logger.info('');
+      _logger.err('No agents selected.');
       _logger.info('');
       _logger.info('Install at least one agent to continue:');
       _logger.info('  Claude Code: https://claude.ai/download');
-      _logger.info('  Cursor:      https://cursor.com');
+      _logger.info('  Cursor:      https://cursor.com/cli');
       _logger.info(
         '  Gemini CLI:  https://github.com/google-gemini/gemini-cli',
       );
@@ -197,12 +203,12 @@ class SetupCommand extends Command<int> {
     final loader = ContentLoader(repoRoot);
     final bundles = SkillRegistry.byTechnologies(selectedTechs);
 
-    // Install to each detected agent
+    // Install to each agent
+    _logger.info('');
     var totalSkills = 0;
-    var totalRules = 0;
 
-    for (final agentConfig in installedAgents) {
-      _logger.info('  ${agentConfig.displayName}:');
+    for (final agentConfig in selectedAgents) {
+      final progress = _logger.progress(agentConfig.displayName);
 
       final installer = AgentInstaller(
         logger: _logger,
@@ -214,35 +220,38 @@ class SetupCommand extends Command<int> {
         force: force,
       );
       totalSkills += result.skillCount;
-      totalRules += result.ruleCount;
 
-      _logger.info('');
+      progress.complete(
+        '${agentConfig.displayName}  '
+        '${_installSummary(result)}',
+      );
     }
 
     // ── Summary ─────────────────────────────────────────────────────
-    final parts = <String>[];
-    if (totalSkills > 0) parts.add('$totalSkills commands');
-    if (totalRules > 0) parts.add('$totalRules rules');
-
-    if (parts.isNotEmpty) {
-      _logger.success('Setup complete! Installed ${parts.join(', ')}.');
-    } else {
-      _logger.success('Setup complete!');
-    }
+    _logger.info('');
+    _logger.success(
+      'Setup complete! Installed $totalSkills skills '
+      'across ${selectedAgents.length} agents.',
+    );
     _logger.info('');
 
     // Next steps
     _logger.info('Next steps:');
-    final healthBundles = bundles.where((b) => b.id.endsWith('_health'));
-    for (final b in healthBundles) {
-      final code = b.name.replaceFirst('somnio-', '');
-      _logger.info(
-        '  Run audit:    somnio run $code  (${b.displayName})',
-      );
-    }
+    _logger.info('  Run audit:    somnio run fh');
     _logger.info('  Check status: somnio status');
     _logger.info('  Update:       somnio update');
 
     return ExitCode.success.code;
+  }
+
+  String _installSummary(InstallResult result) {
+    final parts = <String>[];
+    parts.add(
+      '${result.skillCount} ${result.skillCount == 1 ? 'skill' : 'skills'}',
+    );
+    if (result.skippedCount > 0) {
+      parts.add('${result.skippedCount} skipped');
+    }
+    return parts.join(', ');
   }
 }
