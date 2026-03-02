@@ -157,6 +157,15 @@ class AgentConfig {
   /// Additional filesystem paths to check during detection.
   final List<String> detectionPaths;
 
+  // ── Computed ──────────────────────────────────────────────────────
+
+  /// Human-readable label for what this agent's installed content is called.
+  String get contentLabel => switch (installFormat) {
+        InstallFormat.workflow => 'workflow',
+        InstallFormat.singleFile => 'command',
+        _ => 'skill',
+      };
+
   // ── Methods ───────────────────────────────────────────────────────
 
   /// Builds the argument list for invoking this agent's CLI.

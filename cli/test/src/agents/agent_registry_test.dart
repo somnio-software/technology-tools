@@ -86,10 +86,16 @@ void main() {
       final gemini = AgentRegistry.findById('gemini')!;
       expect(gemini.promptStyle, PromptStyle.flag);
       expect(gemini.promptFlag, '-p');
-      expect(gemini.installFormat, InstallFormat.workflow);
-      expect(gemini.ruleExtension, '.yaml');
-      expect(gemini.readInstructionTemplate, isNotNull);
+      expect(gemini.installFormat, InstallFormat.markdown);
       expect(gemini.tokenUsageParser, isNotNull);
+    });
+
+    test('antigravity has correct configuration', () {
+      final antigravity = AgentRegistry.findById('antigravity')!;
+      expect(antigravity.canExecute, false);
+      expect(antigravity.installFormat, InstallFormat.workflow);
+      expect(antigravity.ruleExtension, '.yaml');
+      expect(antigravity.readInstructionTemplate, isNotNull);
     });
 
     test('codex has correct configuration', () {

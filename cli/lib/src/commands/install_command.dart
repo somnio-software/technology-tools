@@ -116,9 +116,11 @@ class InstallCommand extends Command<int> {
       force: force,
     );
 
+    final label = agent.contentLabel;
+    final plural = result.skillCount == 1 ? label : '${label}s';
     progress.complete(
       '${agent.displayName}  '
-      '${result.skillCount} skills installed',
+      '${result.skillCount} $plural installed',
     );
 
     if (result.skippedCount > 0) {
@@ -166,8 +168,9 @@ class InstallCommand extends Command<int> {
       totalSkills += result.skillCount;
       if (result.skillCount > 0) agentCount++;
 
-      final parts = <String>[];
-      parts.add('${result.skillCount} skills');
+      final label = agent.contentLabel;
+      final plural = result.skillCount == 1 ? label : '${label}s';
+      final parts = <String>['${result.skillCount} $plural'];
       if (result.skippedCount > 0) {
         parts.add('${result.skippedCount} skipped');
       }

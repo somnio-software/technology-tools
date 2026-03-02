@@ -14,6 +14,7 @@ class AgentRegistry {
     _claude,
     _cursor,
     _gemini,
+    _antigravity,
     _codex,
     _auggie,
     _amp,
@@ -142,14 +143,23 @@ class AgentRegistry {
     ],
     defaultModel: 'gemini-3-flash',
     fallbackModel: 'gemini-2.5-flash',
+    installFormat: InstallFormat.markdown,
+    installPath: '{home}/.gemini/skills',
+    tokenUsageParser: parseGeminiUsage,
+    filePrefix: 'somnio_',
+    npmPackage: '@google/gemini-cli',
+    installUrl: 'https://github.com/google-gemini/gemini-cli',
+  );
+
+  static const _antigravity = AgentConfig(
+    id: 'antigravity',
+    displayName: 'Antigravity',
     installFormat: InstallFormat.workflow,
     installPath: '{home}/.gemini/antigravity',
     ruleExtension: '.yaml',
     readInstructionTemplate:
         'Read {file} and follow ALL instructions in the prompt field',
-    tokenUsageParser: parseGeminiUsage,
     filePrefix: 'somnio_',
-    npmPackage: '@google/gemini-cli',
     installUrl: 'https://github.com/google-gemini/gemini-cli',
     detectionBinaries: ['agy', 'antigravity'],
   );

@@ -164,7 +164,7 @@ class InitCommand extends Command<int> {
 
       progress.complete(
         '${agentConfig.displayName}  '
-        '${_installSummary(result)}',
+        '${_installSummary(result, agentConfig)}',
       );
     }
 
@@ -184,11 +184,10 @@ class InitCommand extends Command<int> {
     return ExitCode.success.code;
   }
 
-  String _installSummary(InstallResult result) {
-    final parts = <String>[];
-    parts.add(
-      '${result.skillCount} ${result.skillCount == 1 ? 'skill' : 'skills'}',
-    );
+  String _installSummary(InstallResult result, AgentConfig agent) {
+    final label = agent.contentLabel;
+    final plural = result.skillCount == 1 ? label : '${label}s';
+    final parts = <String>['${result.skillCount} $plural'];
     if (result.skippedCount > 0) {
       parts.add('${result.skippedCount} skipped');
     }

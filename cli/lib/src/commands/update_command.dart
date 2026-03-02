@@ -85,9 +85,11 @@ class UpdateCommand extends Command<int> {
           bundles: bundles,
           force: true,
         );
+        final label = agent.contentLabel;
+        final plural = result.skillCount == 1 ? label : '${label}s';
         progress.complete(
           '${agent.displayName}  '
-          '${result.skillCount} skills updated',
+          '${result.skillCount} $plural updated',
         );
         updated++;
       }
