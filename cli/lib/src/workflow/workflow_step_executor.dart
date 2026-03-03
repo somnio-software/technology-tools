@@ -118,7 +118,17 @@ class WorkflowStepExecutor {
   }
 
   Future<ProcessResult> _runProcess(String prompt, {String? model}) {
-    final args = agentConfig.buildArgs(prompt, model: model);
+    // Build args manually: skip outputFlags (no --output-format json)
+    // so the user sees the AI's output in real time.
+    final args = <String>[];
+    if (agentConfig.promptFlag != null) {
+      args.addAll([agentConfig.promptFlag!, prompt]);
+    }
+    args.addAll(agentConfig.autoApproveFlags);
+    if (model != null) {
+      args.addAll([agentConfig.modelFlag, model]);
+    }
+
     return Process.run(
       agentConfig.binary!,
       args,

@@ -6,8 +6,8 @@ import '../agents/agent_config.dart';
 
 /// Plans a workflow by invoking an AI process with a meta-prompt.
 ///
-/// The AI interacts with the user to understand the workflow goal,
-/// then generates `context.md` and step files in the workflow directory.
+/// The AI generates `context.md` and step files in the workflow directory
+/// based on the user-provided description.
 class WorkflowPlanner {
   WorkflowPlanner({
     required this.agentConfig,
@@ -19,12 +19,14 @@ class WorkflowPlanner {
 
   /// Invokes the AI to create the workflow.
   ///
+  /// The [description] tells the AI what the workflow should accomplish.
   /// Returns `true` if the planner executed successfully.
   Future<bool> plan({
     required String workflowName,
     required String workflowDir,
+    required String description,
   }) async {
-    final metaPrompt = _buildMetaPrompt(workflowName, workflowDir);
+    final metaPrompt = _buildMetaPrompt(workflowName, workflowDir, description);
 
     // Use the best available model for planning
     final model = agentConfig.models.isNotEmpty
@@ -32,42 +34,55 @@ class WorkflowPlanner {
         : null;
 
     try {
-      final args = agentConfig.buildArgs(metaPrompt, model: model);
-      final result = await Process.run(
+      // Build args manually: skip outputFlags (no --output-format json)
+      // so the user sees Claude's output in real time.
+      final args = <String>[];
+      if (agentConfig.promptFlag != null) {
+        args.addAll([agentConfig.promptFlag!, metaPrompt]);
+      }
+      args.addAll(agentConfig.autoApproveFlags);
+      if (model != null) {
+        args.addAll([agentConfig.modelFlag, model]);
+      }
+
+      // Use Process.start with inherited stdio so the user sees progress.
+      final process = await Process.start(
         agentConfig.binary!,
         args,
         workingDirectory: Directory.current.path,
+        mode: ProcessStartMode.inheritStdio,
       );
 
-      if (result.exitCode != 0) {
-        final stderr = (result.stderr as String? ?? '').trim();
-        if (stderr.isNotEmpty) {
-          logger.err(stderr);
-        }
-        return false;
-      }
-
-      return true;
+      final exitCode = await process.exitCode;
+      return exitCode == 0;
     } catch (e) {
       logger.err('Failed to launch ${agentConfig.displayName}: $e');
       return false;
     }
   }
 
-  String _buildMetaPrompt(String workflowName, String workflowDir) {
+  String _buildMetaPrompt(
+    String workflowName,
+    String workflowDir,
+    String description,
+  ) {
     return '''
-You are a workflow planner. Your job is to create a structured workflow for the user.
+You are a workflow planner. Your job is to create a structured workflow.
+
+## User Request
+
+The user wants a workflow called "$workflowName" that does the following:
+$description
 
 ## Your Task
 
-1. Ask the user what task this workflow should accomplish
-2. Break it down into sequential steps (3-8 steps typically)
-3. For each step, determine:
+1. Break the request down into sequential steps (3-8 steps typically)
+2. For each step, determine:
    - A descriptive name
    - The appropriate tag: "research" (analysis/reading), "planning" (strategy/decisions), or "execution" (making changes)
    - Whether it's mandatory (must succeed to continue)
    - Whether it needs the previous step's output (needs_previous)
-4. Write all files to: $workflowDir
+3. Write all files to: $workflowDir
 
 ## Output Files
 

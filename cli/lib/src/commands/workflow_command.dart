@@ -103,6 +103,13 @@ class _WorkflowPlanCommand extends Command<int> {
       return ExitCode.software.code;
     }
 
+    // Ask for workflow description
+    _logger.info('');
+    final description = _logger.prompt(
+      'What should this workflow do?',
+    );
+
+    _logger.info('');
     _logger.info('Creating workflow "$workflowName" using ${agent.displayName}...');
     _logger.info('');
 
@@ -115,6 +122,7 @@ class _WorkflowPlanCommand extends Command<int> {
     final success = await planner.plan(
       workflowName: workflowName,
       workflowDir: workflowDir,
+      description: description,
     );
 
     if (!success) {
