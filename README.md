@@ -67,6 +67,10 @@ For detailed CLI usage, commands, and advanced options, see the [CLI README](cli
 - `somnio update` — Update CLI and reinstall skills
 - `somnio uninstall` — Remove all installed skills (with confirmation)
 - `somnio add <tech>` — Add new technology skill bundles
+- `somnio workflow plan <name>` — Create a custom workflow via AI-guided planning
+- `somnio workflow run <name>` — Execute a workflow step by step
+- `somnio workflow config <name>` — Configure per-step model assignments
+- `somnio workflow list` — List all available workflows
 - `somnio -q <command>` — Suppress the banner on any command
 
 ### 🏃 Running Audits from the Terminal
@@ -153,6 +157,29 @@ Standalone, framework-agnostic security audit that detects the project type at r
 
 **IDE skill**: `/somnio-sa`
 
+### Custom Workflows
+
+Create your own repeatable, multi-step task pipelines where each step can use a different AI model. The orchestrator stays context-light, spawning a fresh process or subagent per step.
+
+```bash
+# Create a workflow (AI helps you design the steps)
+somnio workflow plan dependency-cleanup
+
+# Configure which model each step uses
+somnio workflow config dependency-cleanup
+
+# Run it — each step executes with its assigned model
+somnio workflow run dependency-cleanup
+```
+
+Steps are tagged as `research` (haiku), `planning` (opus), or `execution` (sonnet) — defaults you can override per-role or per-step. Workflows support progress tracking, resume on failure, and can live at project level (`.somnio/workflows/`) or globally (`~/.somnio/workflows/`).
+
+Claude Code users can also use the `/workflow:plan` and `/workflow:run` skills directly from a Claude Code session.
+
+**Location**: `workflow-skills/`
+
+**Documentation**: See [workflow-skills/README.md](workflow-skills/README.md) for file formats, full examples, and detailed usage.
+
 ## 📁 Repository Structure
 
 ```
@@ -172,6 +199,10 @@ technology-tools/
 │   │   │   └── templates/               # Report template
 │   │   ├── .agent/workflows/            # Antigravity workflow
 │   │   └── env/                         # Environment variable template
+│   └── README.md
+├── workflow-skills/                     # Custom workflow skills
+│   ├── workflow_plan/                   # /workflow:plan skill
+│   ├── workflow_run/                    # /workflow:run skill
 │   └── README.md
 ├── cli/                                 # Somnio CLI tool
 └── README.md                            # This file
@@ -266,6 +297,7 @@ All YAML rule files follow strict formatting standards:
 - [x] NestJS Project Health Audit (Backend)
 - [x] Framework-Agnostic Security Audit
 - [x] Multi-agent registry (17 agents supported)
+- [x] Custom workflow system (per-step model selection)
 - [ ] NestJS Project Health Audit (Cloud Functions)
 - [ ] Tools for React/Next.js project analysis
 - [ ] Deployment automation
