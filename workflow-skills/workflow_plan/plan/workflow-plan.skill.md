@@ -5,7 +5,7 @@ Create a custom, repeatable workflow with multiple steps that can each use diffe
 ## What You'll Create
 
 A workflow is a directory at `.somnio/workflows/<name>/` containing:
-- `context.md` — manifest with step list, tags, and metadata
+- `context.md` — manifest with step list, tags, dependencies, and metadata
 - Step files (`01-<name>.md`, `02-<name>.md`, ...) — individual step prompts
 - Config files — model assignments per IDE
 
@@ -20,7 +20,7 @@ Ask the user:
 
 ### Step 2: Design Steps
 
-Break the task into 3-8 sequential steps. For each step determine:
+Break the task into 3-8 steps. For each step determine:
 
 - **Name**: descriptive, action-oriented
 - **Tag**: one of:
@@ -28,7 +28,22 @@ Break the task into 3-8 sequential steps. For each step determine:
   - `planning` — strategy, decisions, prioritization (typically uses the best model)
   - `execution` — making changes, running commands (typically uses a balanced model)
 - **Mandatory**: must succeed for the workflow to continue? (default: false)
-- **needs_previous**: does this step genuinely need the prior step's output? (default: false)
+- **Dependencies** (`needs`): which earlier steps must complete first?
+
+### Step 2b: Plan Dependencies for Parallel Execution
+
+Steps run in parallel waves. Minimize dependencies to maximize parallelism:
+
+- Steps with **no `needs`** → wave 1 (run concurrently)
+- Steps that depend on wave 1 steps → wave 2
+- A final report step → `needs: all`
+
+Values for `needs`:
+- **Omitted** → independent, no dependencies
+- **`needs: [1, 3]`** → depends on steps 1 and 3 (1-based)
+- **`needs: all`** → depends on ALL previous steps
+- **`needs: previous`** → depends on just the preceding step
+- **`needs: 1`** → depends on step 1 only
 
 ### Step 3: Create Files
 
@@ -49,7 +64,12 @@ steps:
   - file: 02-<step-name>.md
     tag: <research|planning|execution>
     mandatory: <true|false>
-    needs_previous: <true|false>
+    needs: [1]
+  - file: 03-<step-name>.md
+    tag: <research|planning|execution>
+  - file: 04-<step-name>.md
+    tag: <research|planning|execution>
+    needs: all
 ---
 
 # <workflow-name>
@@ -71,7 +91,6 @@ name: <Step Name>
 tag: <research|planning|execution>
 index: <1-based>
 mandatory: <true|false>
-needs_previous: <true|false>
 ---
 
 # <Step Name>
@@ -96,9 +115,18 @@ Step prompts support these placeholders (resolved at runtime):
 | Placeholder | Resolves to |
 |---|---|
 | `{output_path}` | Where this step saves its output |
-| `{previous_output}` | Previous step's output path (only when `needs_previous: true`) |
+| `{previous_output}` | Previous step's output path |
+| `{step_N_output}` | Step N's output path (1-based, e.g., `{step_1_output}`) |
 | `{outputs_dir}` | The outputs directory |
 | `{workflow_dir}` | The workflow root directory |
+
+Use `{step_N_output}` when a step needs output from specific earlier steps:
+
+```markdown
+Read codebase map from: {step_1_output}
+Read secrets scan from: {step_2_output}
+Read config review from: {step_3_output}
+```
 
 ### Step 5: Validate
 
@@ -106,18 +134,22 @@ After creating all files, verify:
 - [ ] `context.md` has valid YAML frontmatter
 - [ ] All step files listed in context.md exist
 - [ ] Step indices are sequential (1, 2, 3, ...)
-- [ ] `needs_previous: true` is only set when genuinely needed
+- [ ] `needs` only references valid step numbers
+- [ ] Dependencies form a valid DAG (no cycles)
+- [ ] Independent steps have no `needs` (to maximize parallelism)
 - [ ] Each step has clear instructions and uses `{output_path}`
 
 ## Rules
 
-1. Only set `needs_previous: true` when a step genuinely requires the prior step's output
-2. Research steps typically don't need previous output
-3. Execution steps implementing a plan should reference `{previous_output}`
-4. Use kebab-case for step filenames
-5. Number files with zero-padded indices (01-, 02-, etc.)
-6. Each step should be self-contained enough to run in a fresh AI context
-7. Step prompts should be specific about what to analyze or do
+1. Only add `needs` when a step genuinely requires another step's output
+2. Steps without `needs` run in the first parallel wave — maximize this
+3. Research steps are typically independent (no `needs`)
+4. A final report/summary step should use `needs: all`
+5. Use `{step_N_output}` to reference specific dependency outputs
+6. Use kebab-case for step filenames
+7. Number files with zero-padded indices (01-, 02-, etc.)
+8. Each step should be self-contained enough to run in a fresh AI context
+9. Step prompts should be specific about what to analyze or do
 
 ## Next Steps
 

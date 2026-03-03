@@ -306,9 +306,14 @@ class _WorkflowRunCommand extends Command<int> {
     // Summary
     _logger.info('');
     if (result.success) {
+      final wallClock = result.wallClockSeconds;
+      final compute = result.totalDurationSeconds;
+      final timeLabel = wallClock != null && wallClock < compute
+          ? '${wallClock}s (${compute}s compute)'
+          : '${compute}s';
       _logger.success(
         'Workflow completed! '
-        '${result.completedCount} steps in ${result.totalDurationSeconds}s',
+        '${result.completedCount} steps in $timeLabel',
       );
     } else {
       _logger.err(

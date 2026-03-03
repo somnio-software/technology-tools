@@ -1,6 +1,6 @@
 # Workflow Runner
 
-Execute a custom workflow step by step, spawning a subagent for each step with the appropriate model.
+Execute a custom workflow step by step, spawning a subagent for each step with the appropriate model. Independent steps run in parallel waves for faster execution.
 
 ## Usage
 
@@ -24,7 +24,7 @@ If not found, inform the user and suggest `somnio workflow plan <name>` to creat
 
 Read `context.md` and parse the YAML frontmatter to get:
 - Workflow name and description
-- Ordered list of steps with their tags, mandatory flags, and needs_previous flags
+- Ordered list of steps with their tags, mandatory flags, and dependencies (`needs`)
 
 ### Step 3: Load Config
 
@@ -43,41 +43,75 @@ Read `progress.json` if it exists:
 - If a previous run was interrupted, ask the user: "Resume from step N?" or "Restart?"
 - If all steps completed, ask if they want to re-run
 
-### Step 5: Execute Steps
+### Step 5: Plan Execution Waves
 
-For each pending step:
+Group steps into parallel waves based on their `needs` dependencies:
 
-1. **Read the step file** (e.g., `01-analyze-dependencies.md`)
-2. **Resolve the model**: `by_step[index]` → `by_role[tag]` → default
-3. **Resolve placeholders** in the step body:
-   - `{output_path}` → `outputs/<step-name>-output.md`
-   - `{previous_output}` → previous step's output path (only if `needs_previous: true`)
-   - `{outputs_dir}` → `outputs/`
-   - `{workflow_dir}` → workflow directory path
-4. **Create the outputs directory** if it doesn't exist
-5. **Spawn a subagent** using the Agent tool with:
-   - The resolved step prompt as the task
-   - The resolved model
-6. **Verify output** was created at the expected path
-7. **Update progress.json** with status, model used, and duration
+- **Wave 1**: all steps with no dependencies (run concurrently)
+- **Wave 2**: steps whose dependencies are all in wave 1 (run concurrently)
+- And so on...
 
-### Step 6: Handle Failures
+Example for a 6-step workflow:
+```
+Step 1: no deps       → Wave 1
+Step 2: needs [1]     → Wave 2
+Step 3: no deps       → Wave 1
+Step 4: no deps       → Wave 1
+Step 5: no deps       → Wave 1
+Step 6: needs all     → Wave 2
+```
+Result: 2 waves instead of 6 sequential steps.
 
-- If a **mandatory** step fails → halt execution, report the error
-- If a **non-mandatory** step fails → log warning, continue to next step
+### Step 6: Execute Waves
+
+For each wave:
+1. **Launch all steps concurrently** using the Agent tool
+2. For each step in the wave:
+   - Read the step file
+   - Resolve the model: `by_step[index]` → `by_role[tag]` → default
+   - Resolve placeholders in the step body
+   - Spawn a subagent with the resolved prompt and model
+3. **Wait for all steps to complete**
+4. **Update progress.json** (once per wave)
+5. **Check mandatory failures** → abort before next wave if any mandatory step failed
+
+### Step 7: Resolve Placeholders
+
+Step prompts support these placeholders:
+- `{output_path}` → `outputs/<step-name>-output.md`
+- `{previous_output}` → previous step's output path
+- `{step_N_output}` → step N's output path (1-based)
+- `{outputs_dir}` → `outputs/`
+- `{workflow_dir}` → workflow directory path
+
+The `{step_N_output}` placeholder allows a step to reference any specific dependency's output:
+```
+Read findings from: {step_1_output}
+Read scan results from: {step_3_output}
+```
+
+### Step 8: Handle Failures
+
+- If a **mandatory** step fails → halt execution after the current wave completes
+- If a **non-mandatory** step fails → log warning, continue
 - On any failure, save progress so the user can resume later
 
-### Step 7: Report Results
+### Step 9: Report Results
 
-After all steps complete (or on failure), report:
+After all waves complete (or on failure), report:
 - Steps completed / total
-- Total duration
+- Wall-clock time vs compute time (shows parallelism savings)
 - Output file locations
 - Any warnings or errors
 
+Example output:
+```
+Workflow completed! 6 steps in 250s (646s compute)
+```
+
 ## Progress Tracking
 
-Update `progress.json` after each step:
+Update `progress.json` after each wave:
 
 ```json
 {
@@ -111,6 +145,7 @@ For a step with tag `execution` and index `3`:
 ## Important
 
 - Each step runs in a **fresh context** (separate subagent)
+- Independent steps within a wave run **in parallel**
 - Steps should be self-contained with clear instructions
-- Only inject `{previous_output}` when `needs_previous: true`
-- Always save progress after each step for resumability
+- Use `{step_N_output}` to reference specific dependency outputs
+- Always save progress after each wave for resumability

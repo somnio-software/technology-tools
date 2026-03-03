@@ -8,7 +8,7 @@ class WorkflowStepEntry {
     required this.file,
     required this.tag,
     this.mandatory = false,
-    this.needsPrevious = false,
+    this.needs = const [],
   });
 
   /// Step filename (e.g., '01-analyze-dependencies.md').
@@ -20,25 +20,83 @@ class WorkflowStepEntry {
   /// Whether this step must succeed for the workflow to continue.
   final bool mandatory;
 
-  /// Whether this step needs the previous step's output injected.
-  final bool needsPrevious;
+  /// 0-based indices of steps this step depends on.
+  ///
+  /// Empty list means the step is independent (no dependencies).
+  final List<int> needs;
 
-  factory WorkflowStepEntry.fromYaml(dynamic yaml) {
+  /// Whether this step has any dependencies.
+  bool get hasDependencies => needs.isNotEmpty;
+
+  /// Backward-compat alias: true if this step depends on the previous step.
+  bool get needsPrevious => needs.isNotEmpty;
+
+  /// Parses a step entry from YAML frontmatter.
+  ///
+  /// [index] is the 0-based position of this step in the steps list,
+  /// needed for resolving `needs: "all"` and `needs_previous: true`.
+  factory WorkflowStepEntry.fromYaml(dynamic yaml, {required int index}) {
     final map = yaml as YamlMap;
     return WorkflowStepEntry(
       file: map['file'] as String,
       tag: map['tag'] as String? ?? 'execution',
       mandatory: map['mandatory'] as bool? ?? false,
-      needsPrevious: map['needs_previous'] as bool? ?? false,
+      needs: _parseNeeds(map, index),
     );
   }
 
-  Map<String, dynamic> toYaml() => {
-        'file': file,
-        'tag': tag,
-        'mandatory': mandatory,
-        'needs_previous': needsPrevious,
-      };
+  Map<String, dynamic> toYaml() {
+    final yaml = <String, dynamic>{
+      'file': file,
+      'tag': tag,
+      'mandatory': mandatory,
+    };
+    if (needs.isNotEmpty) {
+      // Store as 1-based for YAML output
+      yaml['needs'] = needs.map((i) => i + 1).toList();
+    }
+    return yaml;
+  }
+
+  /// Parses the `needs` field from YAML, with backward compat for
+  /// `needs_previous`.
+  ///
+  /// Returns a list of 0-based step indices.
+  static List<int> _parseNeeds(YamlMap map, int index) {
+    final needsValue = map['needs'];
+
+    // New `needs` field takes priority
+    if (needsValue != null) {
+      if (needsValue is YamlList) {
+        // needs: [1, 3] — 1-based in YAML, convert to 0-based
+        return needsValue.map((v) => (v as int) - 1).toList();
+      }
+      if (needsValue is List) {
+        return (needsValue).map((v) => (v as int) - 1).toList();
+      }
+      if (needsValue is String) {
+        if (needsValue == 'all') {
+          // Depends on every step before this one
+          return List.generate(index, (i) => i);
+        }
+        if (needsValue == 'previous') {
+          return index > 0 ? [index - 1] : [];
+        }
+      }
+      if (needsValue is int) {
+        // Single int: needs: 1
+        return [needsValue - 1];
+      }
+    }
+
+    // Backward compat: needs_previous: true → depends on previous step
+    final needsPreviousValue = map['needs_previous'] as bool? ?? false;
+    if (needsPreviousValue && index > 0) {
+      return [index - 1];
+    }
+
+    return const [];
+  }
 }
 
 /// Parsed context.md manifest for a workflow.
@@ -93,7 +151,10 @@ class WorkflowContext {
     }
 
     final stepsYaml = yaml['steps'] as YamlList? ?? YamlList();
-    final steps = stepsYaml.map(WorkflowStepEntry.fromYaml).toList();
+    final steps = <WorkflowStepEntry>[];
+    for (var i = 0; i < stepsYaml.length; i++) {
+      steps.add(WorkflowStepEntry.fromYaml(stepsYaml[i], index: i));
+    }
 
     return WorkflowContext(
       name: name,

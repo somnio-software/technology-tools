@@ -99,6 +99,69 @@ Do something simple.
         expect(resolved, contains('/project/.somnio/workflows/test'));
       });
 
+      test('resolves {step_N_output} placeholders', () {
+        const step = WorkflowStep(
+          name: 'Report',
+          tag: 'planning',
+          index: 4,
+          body: 'Read map from: {step_1_output}\n'
+              'Read scan from: {step_2_output}\n'
+              'Read config from: {step_3_output}\n'
+              'Save to: {output_path}',
+        );
+
+        final resolved = step.resolveBody(
+          workflowDir: '/wf',
+          outputsDir: '/wf/outputs',
+          outputPath: '/wf/outputs/04-report-output.md',
+          stepOutputPaths: {
+            1: '/wf/outputs/01-map-output.md',
+            2: '/wf/outputs/02-scan-output.md',
+            3: '/wf/outputs/03-config-output.md',
+          },
+        );
+
+        expect(resolved, contains('/wf/outputs/01-map-output.md'));
+        expect(resolved, contains('/wf/outputs/02-scan-output.md'));
+        expect(resolved, contains('/wf/outputs/03-config-output.md'));
+        expect(resolved, contains('/wf/outputs/04-report-output.md'));
+      });
+
+      test('leaves {step_N_output} unreplaced when path not available', () {
+        const step = WorkflowStep(
+          name: 'Test',
+          tag: 'execution',
+          index: 2,
+          body: 'Read from: {step_5_output}',
+        );
+
+        final resolved = step.resolveBody(
+          workflowDir: '/wf',
+          outputsDir: '/wf/outputs',
+          outputPath: '/wf/outputs/02-test-output.md',
+          stepOutputPaths: {1: '/wf/outputs/01-output.md'},
+        );
+
+        expect(resolved, contains('{step_5_output}'));
+      });
+
+      test('leaves {step_N_output} unreplaced when stepOutputPaths is null', () {
+        const step = WorkflowStep(
+          name: 'Test',
+          tag: 'execution',
+          index: 2,
+          body: 'Read from: {step_1_output}',
+        );
+
+        final resolved = step.resolveBody(
+          workflowDir: '/wf',
+          outputsDir: '/wf/outputs',
+          outputPath: '/wf/outputs/02-test-output.md',
+        );
+
+        expect(resolved, contains('{step_1_output}'));
+      });
+
       test('leaves {previous_output} unreplaced when no previous path', () {
         const step = WorkflowStep(
           name: 'Test',

@@ -76,13 +76,27 @@ $description
 
 ## Your Task
 
-1. Break the request down into sequential steps (3-8 steps typically)
+1. Break the request down into steps (3-8 steps typically)
 2. For each step, determine:
    - A descriptive name
    - The appropriate tag: "research" (analysis/reading), "planning" (strategy/decisions), or "execution" (making changes)
    - Whether it's mandatory (must succeed to continue)
-   - Whether it needs the previous step's output (needs_previous)
+   - Its dependencies via the `needs` field (see below)
 3. Write all files to: $workflowDir
+
+## Dependencies (`needs` field)
+
+Steps can declare dependencies on other steps. Independent steps run in parallel.
+
+- **absent/omitted** → independent (no dependencies, can run in wave 1)
+- **`needs: [1, 3]`** → depends on steps 1 and 3 (1-based)
+- **`needs: all`** → depends on ALL previous steps
+- **`needs: previous`** → depends on just the preceding step
+- **Single int** `needs: 1` → depends on step 1 only
+
+Steps with no dependencies form wave 1 and run concurrently. Steps whose
+dependencies are all in wave 1 form wave 2, etc. Maximize parallelism by
+only adding `needs` when a step genuinely requires another step's output.
 
 ## Output Files
 
@@ -102,7 +116,12 @@ steps:
   - file: 02-<step-name>.md
     tag: <research|planning|execution>
     mandatory: <true|false>
-    needs_previous: <true|false>
+    needs: [1]
+  - file: 03-<step-name>.md
+    tag: <research|planning|execution>
+  - file: 04-<step-name>.md
+    tag: <research|planning|execution>
+    needs: all
 ---
 
 # $workflowName
@@ -123,7 +142,6 @@ name: <Step Name>
 tag: <research|planning|execution>
 index: <1-based>
 mandatory: <true|false>
-needs_previous: <true|false>
 ---
 
 # <Step Name>
@@ -145,19 +163,25 @@ Include:
 
 Step prompts can use these placeholders (resolved at runtime):
 - `{output_path}` - Where this step should save its output
-- `{previous_output}` - Path to the previous step's output (only use when needs_previous is true)
+- `{previous_output}` - Path to the previous step's output
+- `{step_N_output}` - Path to step N's output (1-based, e.g., `{step_1_output}`, `{step_3_output}`)
 - `{outputs_dir}` - The outputs directory
 - `{workflow_dir}` - The workflow root directory
 
+Use `{step_N_output}` when a step depends on specific earlier steps (e.g., a report step
+that consolidates findings from steps 1, 2, and 3).
+
 ## Rules
 
-1. Only set `needs_previous: true` when a step genuinely needs the prior step's output to function
-2. Research steps typically don't need previous output
-3. Execution steps that implement a plan should reference the planning step's output
-4. Use kebab-case for step filenames
-5. Number step files with zero-padded indices (01-, 02-, etc.)
-6. Each step should be self-contained enough to run in a fresh AI context
-7. Step prompts should be clear and specific about what to analyze/do
+1. Only add `needs` when a step genuinely requires another step's output
+2. Steps without `needs` run in the first parallel wave — maximize this
+3. Research steps are typically independent (no `needs`)
+4. A final report/summary step should use `needs: all`
+5. Use `{step_N_output}` to reference specific dependency outputs
+6. Use kebab-case for step filenames
+7. Number step files with zero-padded indices (01-, 02-, etc.)
+8. Each step should be self-contained enough to run in a fresh AI context
+9. Step prompts should be clear and specific about what to analyze/do
 
 ## Important
 

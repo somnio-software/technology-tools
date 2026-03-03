@@ -73,6 +73,9 @@ class WorkflowStep {
 
   // ── Placeholder Resolution ─────────────────────────────────────────
 
+  /// Regex matching `{step_N_output}` placeholders (1-based N).
+  static final _stepOutputPattern = RegExp(r'\{step_(\d+)_output\}');
+
   /// Resolves placeholders in the step body.
   ///
   /// Supported placeholders:
@@ -80,11 +83,13 @@ class WorkflowStep {
   /// - `{previous_output}` → path to the previous step's output
   /// - `{outputs_dir}` → the outputs directory
   /// - `{workflow_dir}` → the workflow directory root
+  /// - `{step_N_output}` → path to step N's output (1-based)
   String resolveBody({
     required String workflowDir,
     required String outputsDir,
     required String outputPath,
     String? previousOutputPath,
+    Map<int, String>? stepOutputPaths,
   }) {
     var resolved = body
         .replaceAll('{output_path}', outputPath)
@@ -93,6 +98,15 @@ class WorkflowStep {
 
     if (previousOutputPath != null) {
       resolved = resolved.replaceAll('{previous_output}', previousOutputPath);
+    }
+
+    // Resolve {step_N_output} placeholders
+    if (stepOutputPaths != null) {
+      resolved = resolved.replaceAllMapped(_stepOutputPattern, (match) {
+        final stepNum = int.parse(match.group(1)!); // 1-based
+        final path = stepOutputPaths[stepNum];
+        return path ?? match.group(0)!; // Leave unreplaced if not found
+      });
     }
 
     return resolved;
