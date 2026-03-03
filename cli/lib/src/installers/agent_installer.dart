@@ -104,13 +104,14 @@ class AgentInstaller extends Installer {
     }
   }
 
-  /// Installs workflow skills (standalone SKILL.md, no YAML rules).
+  /// Installs workflow skills (standalone markdown, no YAML rules).
   ///
-  /// Only supported for Claude Code (skillDir format). For other agents,
-  /// workflow execution is handled via the CLI (`somnio workflow run`).
+  /// Produces format-appropriate output for each agent's [InstallFormat]:
+  /// - skillDir: `{name}/SKILL.md` with frontmatter
+  /// - singleFile: `{name}.md` command file
+  /// - workflow: `global_workflows/somnio_{name}.md`
+  /// - markdown: `{name_underscored}.md` with header
   int installWorkflowSkills(List<WorkflowSkill> skills) {
-    if (agentConfig.installFormat != InstallFormat.skillDir) return 0;
-
     final baseDir = _installDir;
     var count = 0;
 
@@ -121,18 +122,48 @@ class AgentInstaller extends Installer {
         if (!planFile.existsSync()) continue;
 
         final content = planFile.readAsStringSync();
+        final format = agentConfig.installFormat;
 
-        // Generate SKILL.md with frontmatter
-        final skillMd = '---\n'
-            'name: ${skill.name}\n'
-            'description: >-\n'
-            '  ${skill.description}\n'
-            'allowed-tools: Read, Edit, Write, Grep, Glob, Bash, Agent\n'
-            'user-invocable: true\n'
-            '---\n\n'
-            '$content';
+        switch (format) {
+          case InstallFormat.skillDir:
+            // Claude Code: directory with SKILL.md + frontmatter
+            final skillMd = '---\n'
+                'name: ${skill.name}\n'
+                'description: >-\n'
+                '  ${skill.description}\n'
+                'allowed-tools: Read, Edit, Write, Grep, Glob, Bash, Agent\n'
+                'user-invocable: true\n'
+                '---\n\n'
+                '$content';
+            _writeFile(p.join(baseDir, skill.name, 'SKILL.md'), skillMd);
 
-        _writeFile(p.join(baseDir, skill.name, 'SKILL.md'), skillMd);
+          case InstallFormat.singleFile:
+            // Cursor: single .md command file
+            _writeFile(p.join(baseDir, '${skill.name}.md'), content);
+
+          case InstallFormat.workflow:
+            // Antigravity: workflow file in global_workflows/
+            final underscored = skill.name.replaceAll('-', '_');
+            _writeFile(
+              p.join(baseDir, 'global_workflows', 'somnio_$underscored.md'),
+              content,
+            );
+
+          case InstallFormat.markdown:
+            // Generic markdown: header + description + content
+            final underscored = skill.name.replaceAll('-', '_');
+            final buffer = StringBuffer()
+              ..writeln('# ${skill.displayName}')
+              ..writeln()
+              ..writeln('> ${skill.description}')
+              ..writeln()
+              ..write(content);
+            _writeFile(
+              p.join(baseDir, '$underscored.md'),
+              buffer.toString(),
+            );
+        }
+
         count++;
       } catch (e) {
         logger.err('  Failed to install ${skill.name}: $e');

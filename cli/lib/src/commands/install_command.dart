@@ -112,7 +112,7 @@ class InstallCommand extends Command<int> {
       force: force,
     );
 
-    // Install workflow skills (Claude Code only)
+    // Install workflow skills
     final wfCount = installer.installWorkflowSkills(
       SkillRegistry.workflowSkills,
     );
@@ -167,7 +167,7 @@ class InstallCommand extends Command<int> {
         force: force,
       );
 
-      // Install workflow skills (Claude Code only)
+      // Install workflow skills
       final wfCount = installer.installWorkflowSkills(
         SkillRegistry.workflowSkills,
       );

@@ -1,8 +1,8 @@
-/// A workflow skill bundle — a standalone SKILL.md for IDE installation.
+/// A workflow skill bundle — a standalone markdown file for agent installation.
 ///
 /// Unlike [SkillBundle] (audit bundles with YAML rules), workflow skills
-/// are self-contained markdown files installed directly as skills.
-/// They are only supported by Claude Code (skillDir format).
+/// are self-contained markdown files installed directly as skills/commands.
+/// Installed to all agents in their format-appropriate shape.
 class WorkflowSkill {
   const WorkflowSkill({
     required this.id,

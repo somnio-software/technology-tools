@@ -107,9 +107,9 @@ class SkillRegistry {
     ),
   ];
 
-  /// Workflow skill bundles (standalone SKILL.md, no YAML rules).
+  /// Workflow skill bundles (standalone markdown, no YAML rules).
   ///
-  /// Installed only to Claude Code as `/workflow:plan` and `/workflow:run`.
+  /// Installed to all agents as `/workflow:plan` and `/workflow:run`.
   static const List<WorkflowSkill> workflowSkills = [
     WorkflowSkill(
       id: 'workflow_plan',
