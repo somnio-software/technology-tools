@@ -1,4 +1,5 @@
 import 'skill_bundle.dart';
+import 'workflow_skill.dart';
 
 /// Static registry of all available skill bundles.
 ///
@@ -103,6 +104,32 @@ class SkillRegistry {
           'security-plans/security_audit/.agent/workflows/security_audit.md',
       templatePath:
           'security-plans/security_audit/cursor_rules/templates/security_report_template.txt',
+    ),
+  ];
+
+  /// Workflow skill bundles (standalone SKILL.md, no YAML rules).
+  ///
+  /// Installed only to Claude Code as `/workflow:plan` and `/workflow:run`.
+  static const List<WorkflowSkill> workflowSkills = [
+    WorkflowSkill(
+      id: 'workflow_plan',
+      name: 'workflow-plan',
+      displayName: 'Workflow Planner',
+      description:
+          'Create a custom, repeatable workflow with multiple steps '
+          'that can each use different AI models.',
+      planRelativePath:
+          'workflow-skills/workflow_plan/plan/workflow-plan.skill.md',
+    ),
+    WorkflowSkill(
+      id: 'workflow_run',
+      name: 'workflow-run',
+      displayName: 'Workflow Runner',
+      description:
+          'Execute a custom workflow step by step, spawning a '
+          'subagent for each step with the appropriate model.',
+      planRelativePath:
+          'workflow-skills/workflow_run/plan/workflow-run.skill.md',
     ),
   ];
 

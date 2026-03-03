@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 
 import '../agents/agent_config.dart';
 import '../content/skill_bundle.dart';
+import '../content/workflow_skill.dart';
 import '../transformers/claude_transformer.dart';
 import '../transformers/transformer.dart';
 import '../utils/platform_utils.dart';
@@ -101,6 +102,44 @@ class AgentInstaller extends Installer {
         _writeFile(p.join(rulesDir, relativePath), content);
       }
     }
+  }
+
+  /// Installs workflow skills (standalone SKILL.md, no YAML rules).
+  ///
+  /// Only supported for Claude Code (skillDir format). For other agents,
+  /// workflow execution is handled via the CLI (`somnio workflow run`).
+  int installWorkflowSkills(List<WorkflowSkill> skills) {
+    if (agentConfig.installFormat != InstallFormat.skillDir) return 0;
+
+    final baseDir = _installDir;
+    var count = 0;
+
+    for (final skill in skills) {
+      try {
+        final planPath = p.join(loader.repoRoot, skill.planRelativePath);
+        final planFile = File(planPath);
+        if (!planFile.existsSync()) continue;
+
+        final content = planFile.readAsStringSync();
+
+        // Generate SKILL.md with frontmatter
+        final skillMd = '---\n'
+            'name: ${skill.name}\n'
+            'description: >-\n'
+            '  ${skill.description}\n'
+            'allowed-tools: Read, Edit, Write, Grep, Glob, Bash, Agent\n'
+            'user-invocable: true\n'
+            '---\n\n'
+            '$content';
+
+        _writeFile(p.join(baseDir, skill.name, 'SKILL.md'), skillMd);
+        count++;
+      } catch (e) {
+        logger.err('  Failed to install ${skill.name}: $e');
+      }
+    }
+
+    return count;
   }
 
   @override

@@ -1,0 +1,137 @@
+import 'package:somnio/src/workflow/workflow_step.dart';
+import 'package:test/test.dart';
+
+void main() {
+  group('WorkflowStep', () {
+    group('parse', () {
+      test('parses step with full frontmatter and body', () {
+        const content = '''
+---
+name: Execute Updates
+tag: execution
+index: 3
+mandatory: true
+needs_previous: true
+---
+
+# Execute Updates
+
+## Objective
+Apply the update strategy from the previous step.
+
+## Instructions
+1. Read the update plan from: {previous_output}
+2. Execute updates
+
+## Output
+Save your execution log to: {output_path}
+''';
+
+        final step = WorkflowStep.parse(content);
+
+        expect(step.name, 'Execute Updates');
+        expect(step.tag, 'execution');
+        expect(step.index, 3);
+        expect(step.mandatory, isTrue);
+        expect(step.needsPrevious, isTrue);
+        expect(step.body, contains('# Execute Updates'));
+        expect(step.body, contains('{previous_output}'));
+        expect(step.body, contains('{output_path}'));
+      });
+
+      test('parses minimal step', () {
+        const content = '''
+---
+name: Simple Step
+index: 1
+---
+
+Do something simple.
+''';
+
+        final step = WorkflowStep.parse(content);
+
+        expect(step.name, 'Simple Step');
+        expect(step.tag, 'execution');
+        expect(step.index, 1);
+        expect(step.mandatory, isFalse);
+        expect(step.needsPrevious, isFalse);
+      });
+
+      test('throws on missing frontmatter', () {
+        expect(
+          () => WorkflowStep.parse('No frontmatter here'),
+          throwsA(isA<FormatException>()),
+        );
+      });
+
+      test('throws on unclosed frontmatter', () {
+        expect(
+          () => WorkflowStep.parse('---\nname: broken\n'),
+          throwsA(isA<FormatException>()),
+        );
+      });
+    });
+
+    group('resolveBody', () {
+      test('replaces all placeholders', () {
+        const step = WorkflowStep(
+          name: 'Test',
+          tag: 'execution',
+          index: 2,
+          needsPrevious: true,
+          body: 'Read from {previous_output}\n'
+              'Save to {output_path}\n'
+              'Outputs in {outputs_dir}\n'
+              'Workflow at {workflow_dir}',
+        );
+
+        final resolved = step.resolveBody(
+          workflowDir: '/project/.somnio/workflows/test',
+          outputsDir: '/project/.somnio/workflows/test/outputs',
+          outputPath: '/project/.somnio/workflows/test/outputs/02-test-output.md',
+          previousOutputPath: '/project/.somnio/workflows/test/outputs/01-prev-output.md',
+        );
+
+        expect(resolved, contains('/project/.somnio/workflows/test/outputs/01-prev-output.md'));
+        expect(resolved, contains('/project/.somnio/workflows/test/outputs/02-test-output.md'));
+        expect(resolved, contains('/project/.somnio/workflows/test/outputs'));
+        expect(resolved, contains('/project/.somnio/workflows/test'));
+      });
+
+      test('leaves {previous_output} unreplaced when no previous path', () {
+        const step = WorkflowStep(
+          name: 'Test',
+          tag: 'execution',
+          index: 1,
+          body: 'Save to {output_path}, prev: {previous_output}',
+        );
+
+        final resolved = step.resolveBody(
+          workflowDir: '/wf',
+          outputsDir: '/wf/outputs',
+          outputPath: '/wf/outputs/01-test-output.md',
+        );
+
+        expect(resolved, contains('{previous_output}'));
+        expect(resolved, contains('/wf/outputs/01-test-output.md'));
+      });
+    });
+
+    group('outputFileName', () {
+      test('converts step filename to output filename', () {
+        expect(
+          WorkflowStep.outputFileName('01-analyze-dependencies.md'),
+          '01-analyze-dependencies-output.md',
+        );
+      });
+
+      test('handles single-word step name', () {
+        expect(
+          WorkflowStep.outputFileName('01-analyze.md'),
+          '01-analyze-output.md',
+        );
+      });
+    });
+  });
+}

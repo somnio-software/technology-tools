@@ -112,11 +112,17 @@ class InstallCommand extends Command<int> {
       force: force,
     );
 
+    // Install workflow skills (Claude Code only)
+    final wfCount = installer.installWorkflowSkills(
+      SkillRegistry.workflowSkills,
+    );
+    final totalInstalled = result.skillCount + wfCount;
+
     final label = agent.contentLabel;
-    final plural = result.skillCount == 1 ? label : '${label}s';
+    final plural = totalInstalled == 1 ? label : '${label}s';
     progress.complete(
       '${agent.displayName}  '
-      '${result.skillCount} $plural installed',
+      '$totalInstalled $plural installed',
     );
 
     if (result.skippedCount > 0) {
@@ -161,12 +167,18 @@ class InstallCommand extends Command<int> {
         force: force,
       );
 
-      totalSkills += result.skillCount;
-      if (result.skillCount > 0) agentCount++;
+      // Install workflow skills (Claude Code only)
+      final wfCount = installer.installWorkflowSkills(
+        SkillRegistry.workflowSkills,
+      );
+      final agentTotal = result.skillCount + wfCount;
+
+      totalSkills += agentTotal;
+      if (agentTotal > 0) agentCount++;
 
       final label = agent.contentLabel;
-      final plural = result.skillCount == 1 ? label : '${label}s';
-      final parts = <String>['${result.skillCount} $plural'];
+      final plural = agentTotal == 1 ? label : '${label}s';
+      final parts = <String>['$agentTotal $plural'];
       if (result.skippedCount > 0) {
         parts.add('${result.skippedCount} skipped');
       }

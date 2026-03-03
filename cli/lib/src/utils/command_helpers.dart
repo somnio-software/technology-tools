@@ -125,7 +125,10 @@ class CommandHelpers {
         agentConfig: agentConfig,
       );
       final result = await installer.install(bundles: content.bundles);
-      totalSkills += result.skillCount;
+      final wfCount = installer.installWorkflowSkills(
+        SkillRegistry.workflowSkills,
+      );
+      totalSkills += result.skillCount + wfCount;
 
       progress.complete(
         '${agentConfig.displayName}  '
