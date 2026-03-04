@@ -159,7 +159,7 @@ Standalone, framework-agnostic security audit that detects the project type at r
 
 ### Custom Workflows
 
-Create your own repeatable, multi-step task pipelines where each step can use a different AI model. The orchestrator stays context-light, spawning a fresh process or subagent per step.
+Create your own repeatable, multi-step task pipelines where each step can use a different AI model. Works with any supported agent. The orchestrator stays context-light, spawning a fresh process or subagent per step.
 
 ```bash
 # Create a workflow (AI helps you design the steps)
@@ -170,11 +170,14 @@ somnio workflow config dependency-cleanup
 
 # Run it — each step executes with its assigned model
 somnio workflow run dependency-cleanup
+
+# Run with a specific agent
+somnio workflow run dependency-cleanup --agent gemini
 ```
 
-Steps are tagged as `research` (haiku), `planning` (opus), or `execution` (sonnet) — defaults you can override per-role or per-step. Workflows support progress tracking, resume on failure, and can live at project level (`.somnio/workflows/`) or globally (`~/.somnio/workflows/`).
+Steps are tagged as `research`, `planning`, or `execution` — each maps to a model tier you can override per-role or per-step. Workflows support progress tracking, resume on failure, and can live at project level (`.somnio/workflows/`) or globally (`~/.somnio/workflows/`).
 
-Claude Code users can also use the `/workflow:plan` and `/workflow:run` skills directly from a Claude Code session.
+IDEs with subagent support (Claude Code, Cursor, Antigravity) can also run workflows natively via the `/workflow:plan` and `/workflow:run` skills.
 
 **Location**: `workflow-skills/`
 

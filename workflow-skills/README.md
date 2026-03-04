@@ -1,6 +1,6 @@
 # Somnio Workflow Skills
 
-Custom, repeatable task pipelines where each step can use a different AI model. The orchestrator stays context-light, spawning a fresh AI process (CLI) or subagent (Claude Code skill) per step.
+Custom, repeatable task pipelines where each step can use a different AI model. The orchestrator stays context-light, spawning a fresh AI process per step. Works with any of the 17 supported agents.
 
 ## How It Works
 
@@ -9,7 +9,7 @@ A **workflow** is a directory containing a manifest (`context.md`), numbered ste
 ```
 .somnio/workflows/dependency-cleanup/
   context.md                     # Manifest: steps, tags, metadata
-  config.claudecode.json          # Model assignments for Claude Code
+  config.<agent>.json              # Model assignments (per agent)
   01-analyze-dependencies.md      # Step 1 prompt
   02-plan-updates.md              # Step 2 prompt
   03-execute-updates.md           # Step 3 prompt
@@ -37,13 +37,13 @@ You can override these defaults per-role or per-step via the config file.
 
 ### 1. CLI (`somnio workflow`)
 
-The Somnio CLI orchestrates workflows by spawning a fresh AI CLI process per step. Works with any supported agent: Claude Code, Cursor, Gemini, Codex, and others.
+The Somnio CLI orchestrates workflows by spawning a fresh AI CLI process per step. Works with any supported CLI agent: Claude Code, Cursor, Gemini, Antigravity, Codex, Augment Code, Amp, Aider, Cline, OpenCode, CodeBuddy, and Qwen.
 
-### 2. Claude Code Skills (`/workflow:plan`, `/workflow:run`)
+### 2. IDE Skills (`/workflow:plan`, `/workflow:run`)
 
-When installed as Claude Code skills, the agent uses its native subagent system to execute steps. Each step runs in a separate subagent with the configured model. This is the recommended path for Claude Code users — no need to leave your terminal session.
+IDEs that support subagent spawning (Claude Code, Cursor, Antigravity, and others) can run workflows natively via installed skills. The agent orchestrator launches a subagent per step with the configured model — no need to leave your IDE session. Install skills with `somnio install --agent <id>`.
 
-For IDEs like Cursor and Antigravity that don't support subagent spawning, use the CLI path (`somnio workflow run`) instead.
+For agents without subagent support, use the CLI path (`somnio workflow run`) instead.
 
 ---
 
@@ -92,7 +92,7 @@ somnio workflow config dependency-cleanup
 
 # Output:
 #   Workflow: dependency-cleanup
-#   Agent:    Claude Code
+#   Agent:    claude
 #
 #   Steps:
 #     1. 01-analyze-dependencies.md (research)
@@ -126,7 +126,7 @@ somnio workflow run dependency-cleanup
 
 # Output:
 #   Workflow: dependency-cleanup
-#   Agent:    Claude Code
+#   Agent:    claude
 #   Steps:    4
 #   Scope:    project
 #
@@ -172,9 +172,9 @@ Shows all workflows from both project and global scopes, with step count and las
 
 ---
 
-## Claude Code Skills Usage
+## IDE Skills Usage
 
-After installing skills with `somnio install --agent claude`, two workflow skills are available as slash commands inside any Claude Code session.
+After installing skills with `somnio install --agent <id>`, two workflow skills are available as slash commands inside any IDE session that supports them (Claude Code, Cursor, Antigravity, and others).
 
 ### `/workflow:plan` — Create a Workflow
 
@@ -182,7 +182,7 @@ After installing skills with `somnio install --agent claude`, two workflow skill
 /workflow:plan
 ```
 
-Claude Code will:
+The agent will:
 1. Ask you for a workflow name and description
 2. Break your task into steps with appropriate tags
 3. Create `context.md` and all step files in `.somnio/workflows/<name>/`
@@ -194,25 +194,24 @@ Claude Code will:
 /workflow:run dependency-cleanup
 ```
 
-Claude Code will:
+The agent will:
 1. Locate the workflow in `.somnio/workflows/` or `~/.somnio/workflows/`
-2. Read `context.md` for the step manifest
-3. Read `config.claudecode.json` for model assignments (or use defaults)
-4. Check `progress.json` for resume capability
-5. For each step: spawn a **subagent** with the step's model and prompt
-6. Track progress in `progress.json` after each step
-7. Halt on mandatory step failure
+2. Read the agent's config file for model assignments (or use defaults)
+3. Check `progress.json` for resume capability
+4. For each step: spawn a **subagent** with the step's model and prompt
+5. Track progress in `progress.json` after each step
+6. Halt on mandatory step failure
 
 Each step runs in a **separate subagent context**, keeping the orchestrator lightweight.
 
-### Why Claude Code skills vs CLI?
+### CLI vs IDE Skills
 
-| | `somnio workflow run` (CLI) | `/workflow:run` (Skill) |
+| | `somnio workflow run` (CLI) | `/workflow:run` (IDE Skill) |
 |---|---|---|
-| **How it works** | Somnio spawns `claude -p` per step | Claude Code spawns subagents natively |
+| **How it works** | Somnio spawns a fresh AI CLI process per step | The IDE agent spawns subagents natively |
 | **Requires** | `somnio` installed globally | Skills installed via `somnio install` |
 | **Context** | Each step is a separate OS process | Each step is a separate subagent |
-| **Best for** | Any agent (Cursor, Gemini, etc.) | Claude Code users |
+| **Best for** | Any CLI agent, headless/CI use | IDE users with subagent support |
 
 Both paths read the same workflow files and produce the same outputs.
 
@@ -344,7 +343,7 @@ Per-agent model assignment configuration (e.g., `config.claudecode.json`):
 | Gemini / Antigravity | `config.gemini.json` |
 | Codex | `config.codex.json` |
 
-Note: Cursor doesn't support per-step model switching from the CLI. The config stores preferences, but inside the Cursor IDE the current chat model is always used. Use `somnio workflow run` for per-step model control with Cursor.
+Note: Some agents may not support per-step model switching from the CLI. The config stores preferences, but inside the IDE the current chat model may be used instead. Use `somnio workflow run` for per-step model control when needed.
 
 ### progress.json
 
@@ -430,13 +429,13 @@ somnio workflow run dependency-cleanup
 # Progress tracked in progress.json
 ```
 
-**Or run it via Claude Code skill:**
+**Or run it via IDE skill (if installed):**
 
 ```
 /workflow:run dependency-cleanup
 ```
 
-Claude Code reads the same workflow files and executes each step as a subagent.
+The agent reads the same workflow files and executes each step as a subagent.
 
 **Step 5 — Re-run anytime:**
 
@@ -473,4 +472,4 @@ workflow-skills/
       workflow-run.skill.md                          # /workflow:run skill content
 ```
 
-These skill files are installed to `~/.claude/skills/workflow-plan/` and `~/.claude/skills/workflow-run/` when you run `somnio install --agent claude`.
+These skill files are installed to the agent's skill directory when you run `somnio install --agent <id>` (e.g., `~/.claude/skills/` for Claude Code, `~/.cursor/commands/` for Cursor, etc.).
