@@ -19,11 +19,17 @@ class CommandHelpers {
 
   /// Formats an install result as a summary string.
   ///
-  /// Example output: `"5 skills"`, `"3 commands, 2 skipped"`.
-  static String installSummary(InstallResult result, AgentConfig agent) {
+  /// [extraCount] adds additional skills (e.g., workflow skills) to the total.
+  /// Example output: `"7 skills"`, `"5 commands, 2 skipped"`.
+  static String installSummary(
+    InstallResult result,
+    AgentConfig agent, {
+    int extraCount = 0,
+  }) {
+    final total = result.skillCount + extraCount;
     final label = agent.contentLabel;
-    final plural = result.skillCount == 1 ? label : '${label}s';
-    final parts = <String>['${result.skillCount} $plural'];
+    final plural = total == 1 ? label : '${label}s';
+    final parts = <String>['$total $plural'];
     if (result.skippedCount > 0) {
       parts.add('${result.skippedCount} skipped');
     }
@@ -125,11 +131,14 @@ class CommandHelpers {
         agentConfig: agentConfig,
       );
       final result = await installer.install(bundles: content.bundles);
-      totalSkills += result.skillCount;
+      final wfCount = installer.installWorkflowSkills(
+        SkillRegistry.workflowSkills,
+      );
+      totalSkills += result.skillCount + wfCount;
 
       progress.complete(
         '${agentConfig.displayName}  '
-        '${installSummary(result, agentConfig)}',
+        '${installSummary(result, agentConfig, extraCount: wfCount)}',
       );
     }
 

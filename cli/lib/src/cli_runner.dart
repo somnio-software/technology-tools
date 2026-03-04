@@ -11,6 +11,7 @@ import 'commands/setup_command.dart';
 import 'commands/status_command.dart';
 import 'commands/uninstall_command.dart';
 import 'commands/update_command.dart';
+import 'commands/workflow_command.dart';
 import 'utils/banner.dart';
 import 'utils/quotes.dart';
 import 'version.dart';
@@ -45,6 +46,7 @@ class SomnioCliRunner extends CommandRunner<int> {
     addCommand(SetupCommand(logger: _logger));
     addCommand(StatusCommand(logger: _logger));
     addCommand(UninstallCommand(logger: _logger));
+    addCommand(WorkflowCommand(logger: _logger));
   }
 
   final Logger _logger;

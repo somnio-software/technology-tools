@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 
 import '../agents/agent_config.dart';
 import '../content/skill_bundle.dart';
+import '../content/workflow_skill.dart';
 import '../transformers/claude_transformer.dart';
 import '../transformers/transformer.dart';
 import '../utils/platform_utils.dart';
@@ -103,6 +104,79 @@ class AgentInstaller extends Installer {
     }
   }
 
+  /// Installs workflow skills (standalone markdown, no YAML rules).
+  ///
+  /// Produces format-appropriate output for each agent's [InstallFormat]:
+  /// - skillDir: `{name}/SKILL.md` with frontmatter
+  /// - singleFile: `{name}.md` command file
+  /// - workflow: `global_workflows/somnio_{name}.md`
+  /// - markdown: `{name_underscored}.md` with header
+  int installWorkflowSkills(List<WorkflowSkill> skills) {
+    final baseDir = _installDir;
+    var count = 0;
+
+    for (final skill in skills) {
+      try {
+        final planPath = p.join(loader.repoRoot, skill.planRelativePath);
+        final planFile = File(planPath);
+        if (!planFile.existsSync()) continue;
+
+        final content = planFile.readAsStringSync();
+        final format = agentConfig.installFormat;
+
+        switch (format) {
+          case InstallFormat.skillDir:
+            // Claude Code: directory with SKILL.md + frontmatter
+            final skillMd = '---\n'
+                'name: ${skill.name}\n'
+                'description: >-\n'
+                '  ${skill.description}\n'
+                'allowed-tools: Read, Edit, Write, Grep, Glob, Bash, Agent\n'
+                'user-invocable: true\n'
+                '---\n\n'
+                '$content';
+            _writeFile(p.join(baseDir, skill.name, 'SKILL.md'), skillMd);
+
+          case InstallFormat.singleFile:
+            // Cursor: single .md command file
+            _writeFile(p.join(baseDir, '${skill.name}.md'), content);
+
+          case InstallFormat.workflow:
+            // Antigravity: workflow file in global_workflows/
+            final underscored = skill.name.replaceAll('-', '_');
+            final wrapped = '---\n'
+                'description: ${skill.description}\n'
+                '---\n\n'
+                '$content';
+            _writeFile(
+              p.join(baseDir, 'global_workflows', 'somnio_$underscored.md'),
+              wrapped,
+            );
+
+          case InstallFormat.markdown:
+            // Generic markdown: header + description + content
+            final underscored = skill.name.replaceAll('-', '_');
+            final buffer = StringBuffer()
+              ..writeln('# ${skill.displayName}')
+              ..writeln()
+              ..writeln('> ${skill.description}')
+              ..writeln()
+              ..write(content);
+            _writeFile(
+              p.join(baseDir, '$underscored.md'),
+              buffer.toString(),
+            );
+        }
+
+        count++;
+      } catch (e) {
+        logger.err('  Failed to install ${skill.name}: $e');
+      }
+    }
+
+    return count;
+  }
+
   @override
   bool isInstalled() {
     final dir = Directory(_installDir);
@@ -115,7 +189,11 @@ class AgentInstaller extends Installer {
 
   /// Counts existing somnio files in the given directory.
   int _findExistingFiles(String baseDir) {
-    final dir = Directory(baseDir);
+    // For workflow format, somnio files live in global_workflows/ subdirectory
+    final searchDir = agentConfig.installFormat == InstallFormat.workflow
+        ? p.join(baseDir, 'global_workflows')
+        : baseDir;
+    final dir = Directory(searchDir);
     if (!dir.existsSync()) return 0;
 
     final prefix = agentConfig.filePrefix;

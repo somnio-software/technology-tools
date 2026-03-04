@@ -4,6 +4,7 @@ import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 
 import '../agents/agent_registry.dart';
+import '../content/skill_registry.dart';
 import '../installers/agent_installer.dart';
 import '../utils/command_helpers.dart';
 
@@ -79,9 +80,12 @@ class UpdateCommand extends Command<int> {
           bundles: content.bundles,
           force: true,
         );
+        final wfCount = installer.installWorkflowSkills(
+          SkillRegistry.workflowSkills,
+        );
         progress.complete(
           '${agent.displayName}  '
-          '${CommandHelpers.installSummary(result, agent)} updated',
+          '${CommandHelpers.installSummary(result, agent, extraCount: wfCount)} updated',
         );
         updated++;
       }

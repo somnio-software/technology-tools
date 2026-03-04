@@ -1,3 +1,3 @@
 /// Single source of truth for the CLI version.
-const packageVersion = '1.1.0';
+const packageVersion = '1.2.0';
 
