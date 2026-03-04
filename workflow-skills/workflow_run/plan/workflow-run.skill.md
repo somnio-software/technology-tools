@@ -65,15 +65,28 @@ Result: 2 waves instead of 6 sequential steps.
 ### Step 6: Execute Waves
 
 For each wave:
-1. **Launch all steps concurrently** using the Agent tool
-2. For each step in the wave:
+1. **Prepare each step's prompt**:
    - Read the step file
    - Resolve the model: `by_step[index]` → `by_role[tag]` → default
-   - Resolve placeholders in the step body
-   - Spawn a subagent with the resolved prompt and model
+   - Resolve placeholders in the step body (see Step 7)
+   - **Append the output-writing mandate** to the end of the resolved prompt:
+
+     ```
+     MANDATORY OUTPUT INSTRUCTIONS:
+     Before completing this task, you MUST save your complete output to: <resolved output_path>
+     First create the directory: mkdir -p <resolved outputs_dir>
+     Then write your full report/output to the file above.
+     Do NOT return your output as a chat response only — you MUST write it to the file.
+     Your task is ONLY considered complete when the output file exists on disk.
+     ```
+
+     Replace `<resolved output_path>` and `<resolved outputs_dir>` with the actual resolved values for this step.
+
+2. **Launch all steps concurrently** using the Agent tool, each with its augmented prompt and resolved model
 3. **Wait for all steps to complete**
-4. **Update progress.json** (once per wave)
-5. **Check mandatory failures** → abort before next wave if any mandatory step failed
+4. **Verify output files**: For each step in the wave, confirm the expected output file exists at the resolved `{output_path}`. If a file is missing, mark that step as `failed`.
+5. **Update progress.json** (once per wave)
+6. **Check mandatory failures** → abort before next wave if any mandatory step failed
 
 ### Step 7: Resolve Placeholders
 
@@ -149,3 +162,5 @@ For a step with tag `execution` and index `3`:
 - Steps should be self-contained with clear instructions
 - Use `{step_N_output}` to reference specific dependency outputs
 - Always save progress after each wave for resumability
+- The orchestrator must **NEVER** write output files on behalf of subagents — each subagent is responsible for writing its own output file to `{output_path}`
+- If a subagent completes without writing its output file, mark the step as `failed`
