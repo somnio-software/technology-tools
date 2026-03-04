@@ -144,9 +144,13 @@ class AgentInstaller extends Installer {
           case InstallFormat.workflow:
             // Antigravity: workflow file in global_workflows/
             final underscored = skill.name.replaceAll('-', '_');
+            final wrapped = '---\n'
+                'description: ${skill.description}\n'
+                '---\n\n'
+                '$content';
             _writeFile(
               p.join(baseDir, 'global_workflows', 'somnio_$underscored.md'),
-              content,
+              wrapped,
             );
 
           case InstallFormat.markdown:
