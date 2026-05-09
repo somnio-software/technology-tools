@@ -12,9 +12,40 @@ class PlatformUtils {
     return Platform.environment['HOME'] ?? '';
   }
 
+  /// Returns Claude Code's config directory, honoring `CLAUDE_CONFIG_DIR`
+  /// when set and non-empty. Falls back to `~/.claude`.
+  static String get claudeConfigDir {
+    final envValue = Platform.environment['CLAUDE_CONFIG_DIR']?.trim();
+    if (envValue != null && envValue.isNotEmpty) return envValue;
+    return p.join(homeDirectory, '.claude');
+  }
+
+  /// Returns every directory under the user's home whose name starts with
+  /// `.claude` (e.g. `.claude`, `.claude-work`, `.claude-personal`).
+  ///
+  /// Falls back to `[~/.claude]` if no matches exist so a fresh install still
+  /// has a target directory.
+  static List<String> discoverClaudeConfigDirs() {
+    final home = Directory(homeDirectory);
+    if (!home.existsSync()) {
+      return [p.join(homeDirectory, '.claude')];
+    }
+
+    final matches = <String>[];
+    for (final entity in home.listSync(followLinks: false)) {
+      if (entity is! Directory) continue;
+      final name = p.basename(entity.path);
+      if (name.startsWith('.claude')) matches.add(entity.path);
+    }
+
+    if (matches.isEmpty) return [p.join(homeDirectory, '.claude')];
+    matches.sort();
+    return matches;
+  }
+
   /// Returns the path to Claude Code's global skills directory.
   static String get claudeGlobalSkillsDir =>
-      p.join(homeDirectory, '.claude', 'skills');
+      p.join(claudeConfigDir, 'skills');
 
   /// Returns the path to Cursor's global commands directory.
   static String get cursorGlobalCommandsDir =>

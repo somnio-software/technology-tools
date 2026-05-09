@@ -105,24 +105,35 @@ class UninstallCommand extends Command<int> {
   ];
 
   bool _removeClaude() {
-    final globalDir = Directory(PlatformUtils.claudeGlobalSkillsDir);
-    if (!globalDir.existsSync()) return false;
+    // Collect every Claude config dir somnio could have written to:
+    // every `~/.claude*` directory, plus `$CLAUDE_CONFIG_DIR` if set to a
+    // path outside `~/.claude*`.
+    final candidates = <String>{
+      ...PlatformUtils.discoverClaudeConfigDirs(),
+      PlatformUtils.claudeConfigDir,
+    };
 
     var removed = false;
-    for (final name in _allSkillNames) {
-      // Remove directories (built-in installer)
-      final dir = Directory(p.join(globalDir.path, name));
-      if (dir.existsSync()) {
-        dir.deleteSync(recursive: true);
-        _logger.info('  Removed Claude skill: $name');
-        removed = true;
-      }
-      // Remove symlinks (skills.sh installer)
-      final link = Link(p.join(globalDir.path, name));
-      if (link.existsSync()) {
-        link.deleteSync();
-        _logger.info('  Removed Claude symlink: $name');
-        removed = true;
+    for (final base in candidates) {
+      final globalDir = Directory(p.join(base, 'skills'));
+      if (!globalDir.existsSync()) continue;
+
+      final label = p.basename(base);
+      for (final name in _allSkillNames) {
+        // Remove directories (built-in installer)
+        final dir = Directory(p.join(globalDir.path, name));
+        if (dir.existsSync()) {
+          dir.deleteSync(recursive: true);
+          _logger.info('  Removed Claude skill ($label): $name');
+          removed = true;
+        }
+        // Remove symlinks (skills.sh installer)
+        final link = Link(p.join(globalDir.path, name));
+        if (link.existsSync()) {
+          link.deleteSync();
+          _logger.info('  Removed Claude symlink ($label): $name');
+          removed = true;
+        }
       }
     }
 
