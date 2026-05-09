@@ -20,25 +20,25 @@ class PlatformUtils {
     return p.join(homeDirectory, '.claude');
   }
 
-  /// Returns every directory under the user's home whose name starts with
-  /// `.claude` (e.g. `.claude`, `.claude-work`, `.claude-personal`).
+  /// Returns every directory under the user's home whose basename starts
+  /// with [prefix] (e.g. `.claude` matches `.claude`, `.claude-work`,
+  /// `.claude-personal`; `.cursor` matches `.cursor`, `.cursor-work`).
   ///
-  /// Falls back to `[~/.claude]` if no matches exist so a fresh install still
-  /// has a target directory.
-  static List<String> discoverClaudeConfigDirs() {
+  /// Falls back to `[~/<prefix>]` if no matches exist so a fresh install
+  /// still has a target directory.
+  static List<String> discoverConfigDirs({required String prefix}) {
+    final fallback = [p.join(homeDirectory, prefix)];
     final home = Directory(homeDirectory);
-    if (!home.existsSync()) {
-      return [p.join(homeDirectory, '.claude')];
-    }
+    if (!home.existsSync()) return fallback;
 
     final matches = <String>[];
     for (final entity in home.listSync(followLinks: false)) {
       if (entity is! Directory) continue;
       final name = p.basename(entity.path);
-      if (name.startsWith('.claude')) matches.add(entity.path);
+      if (name.startsWith(prefix)) matches.add(entity.path);
     }
 
-    if (matches.isEmpty) return [p.join(homeDirectory, '.claude')];
+    if (matches.isEmpty) return fallback;
     matches.sort();
     return matches;
   }
