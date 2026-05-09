@@ -20,19 +20,25 @@ class PlatformUtils {
     return p.join(homeDirectory, '.claude');
   }
 
-  /// Returns every directory under the user's home whose basename starts
-  /// with [prefix] (e.g. `.claude` matches `.claude`, `.claude-work`,
-  /// `.claude-personal`; `.cursor` matches `.cursor`, `.cursor-work`).
+  /// Returns every directory under [home] (default: [homeDirectory]) whose
+  /// basename starts with [prefix] (e.g. `.claude` matches `.claude`,
+  /// `.claude-work`, `.claude-personal`; `.cursor` matches `.cursor`,
+  /// `.cursor-work`).
   ///
-  /// Falls back to `[~/<prefix>]` if no matches exist so a fresh install
-  /// still has a target directory.
-  static List<String> discoverConfigDirs({required String prefix}) {
-    final fallback = [p.join(homeDirectory, prefix)];
-    final home = Directory(homeDirectory);
-    if (!home.existsSync()) return fallback;
+  /// Falls back to `[<home>/<prefix>]` if no matches exist so a fresh install
+  /// still has a target directory. The [home] parameter exists for tests; in
+  /// production callers omit it.
+  static List<String> discoverConfigDirs({
+    required String prefix,
+    String? home,
+  }) {
+    final base = home ?? homeDirectory;
+    final fallback = [p.join(base, prefix)];
+    final dir = Directory(base);
+    if (!dir.existsSync()) return fallback;
 
     final matches = <String>[];
-    for (final entity in home.listSync(followLinks: false)) {
+    for (final entity in dir.listSync(followLinks: false)) {
       if (entity is! Directory) continue;
       final name = p.basename(entity.path);
       if (name.startsWith(prefix)) matches.add(entity.path);
